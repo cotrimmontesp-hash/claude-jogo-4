@@ -1,4 +1,4 @@
-const CACHE = 'tita-coral-v4';
+const CACHE = 'tita-coral-v5';
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/', '/manifest.webmanifest', '/icon-192.png'])));
   self.skipWaiting();
