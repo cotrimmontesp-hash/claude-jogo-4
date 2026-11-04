@@ -32,6 +32,11 @@ jobs:
           # ícone do app
           for d in android/app/src/main/res/mipmap-*; do cp site/icon-192.png $d/ic_launcher.png; cp site/icon-192.png $d/ic_launcher_round.png; cp site/icon-192.png $d/ic_launcher_foreground.png 2>/dev/null || true; done
           rm -rf android/app/src/main/res/mipmap-anydpi-v26
+      - name: Usar sempre a mesma assinatura (permite atualizar por cima)
+        run: |
+          mkdir -p ~/.android && cp android-key/debug.keystore ~/.android/debug.keystore
+          sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/" android/app/build.gradle
+          grep -n versionCode android/app/build.gradle
       - name: Compilar APK
         run: |
           cd android && chmod +x gradlew && ./gradlew assembleDebug
