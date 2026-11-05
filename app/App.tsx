@@ -1,6 +1,5 @@
 /* Tita e o Coral Brilhante — aplicativo em React Native + Expo + TypeScript.
    O mesmo código gera o app de Android (APK) e o site/PWA (React Native Web). */
-import './src/net/rtc';
 import React, { useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -8,8 +7,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { LilitaOne_400Regular } from '@expo-google-fonts/lilita-one';
 import { Nunito_700Bold, Nunito_800ExtraBold, Nunito_900Black } from '@expo-google-fonts/nunito';
-import { createGame, type Game } from './src/engine/game';
-import { makePlatform } from './src/platform/make';
+import type { Game } from './src/engine/game';
+import { makeGame } from './src/makeGame';
 import { preload } from './src/platform/preload';
 import { useCanvasFonts } from './src/ui/useCanvasFonts';
 import { GameRoot } from './src/ui/GameRoot';
@@ -27,7 +26,7 @@ export default function App() {
   useEffect(() => { preload().finally(() => setReady(true)); }, []);
   useEffect(() => {
     if (!ready || !fontsOk || !(canvasFonts || late) || game) return;
-    setGame(createGame(makePlatform()));
+    setGame(makeGame());
   }, [ready, fontsOk, canvasFonts, game]);
   return (
     <SafeAreaProvider>

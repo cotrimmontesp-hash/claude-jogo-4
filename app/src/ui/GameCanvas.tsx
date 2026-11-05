@@ -1,58 +1,34 @@
-/* A tela do jogo no celular: o motor desenha cada quadro num SkPicture do Skia. */
-import React, { useEffect } from 'react';
-import { useSharedValue } from 'react-native-reanimated';
-import { StyleSheet, View } from 'react-native';
-import { Canvas, Picture } from '@shopify/react-native-skia';
-import { SkCtx, emptyPicture, record, PERF } from '../platform/skctx';
-
-/* mostra o tempo de cada quadro no canto (só para testes) */
-export const SHOW_PERF = true;
-const perf: any = { n: 0, js: 0, t0: 0, fps: 0, ms: 0, tk: 0, tick: 0, rec: 0, txt: '' };
+/* A tela do jogo no celular: o motor em TypeScript (src/webgame) desenha num canvas
+   do navegador do Android, que é rápido. As telas do React Native ficam por cima. */
+import React, { useEffect, useMemo, useRef } from 'react';
+import { StyleSheet } from 'react-native';
+import { WebView } from 'react-native-webview';
+import { GAME_HTML } from '../webgame/html';
 import type { Game } from '../engine/game';
 
-export function GameCanvas({ game, W, H }: { game: Game; W: number; H: number; rot?: boolean }) {
-  /* o quadro vai direto para o Skia (sem redesenhar o React a cada quadro) */
-  const pic = useSharedValue<any>(emptyPicture());
-  useEffect(() => {
-    let alive = true, raf = 0;
-    const ctx = new SkCtx(null);
-    const frame = () => {
-      if (!alive) return;
-      const t0 = performance.now();
-      game.tick(t0);
-      const t1 = performance.now();
-      const p = record(W, H, ctx, [1, 0, 0, 1, 0, 0], g => {
-        game.draw(g);
-        if (SHOW_PERF) {
-          g.setTransform(1, 0, 0, 1, 0, 0); g.font = '13px Nunito'; g.textAlign = 'left'; g.textBaseline = 'top'; g.fillStyle = '#000'; g.fillRect(0, H - 22, 560, 22); g.fillStyle = '#0f0'; g.fillText(perf.txt, 6, H - 19);
-        }
-      });
-      const t2 = performance.now();
-      pic.value = p;
-      const t3 = performance.now();
-      if (SHOW_PERF) {
-        perf.n++; perf.tk += t1 - t0; perf.rec += t2 - t1; perf.js += t3 - t2;
-        if (t0 - perf.t0 > 1000) {
-          const n = perf.n, f = (v: number) => Math.round(v / n * 10) / 10;
-          perf.txt = Math.round(n * 1000 / (t0 - perf.t0)) + 'fps tick ' + f(perf.tk) + ' desenho ' + f(perf.rec) + ' (cam ' + f(PERF.path) + ' pint ' + f(PERF.draw) + ' txt ' + f(PERF.text) + ' img ' + f(PERF.img) + ' n ' + Math.round(PERF.n / n) + ') envio ' + f(perf.js);
-          perf.n = 0; perf.tk = 0; perf.rec = 0; perf.js = 0; perf.t0 = t0; for (const k in PERF) PERF[k] = 0;
-        }
-      }
-      raf = requestAnimationFrame(frame);
-    };
-    raf = requestAnimationFrame(frame);
-    return () => { alive = false; cancelAnimationFrame(raf); };
-  }, [game, W, H]);
-  const each = (e: any, f: (t: any) => void) => { const L = e.nativeEvent.changedTouches || [e.nativeEvent]; for (let i = 0; i < L.length; i++) f(L[i]); };
+export function GameCanvas({ game }: { game: Game; W: number; H: number; rot?: boolean }) {
+  const ref = useRef<any>(null);
+  const g: any = game;
+  useEffect(() => { g.__attach((o: any) => { try { ref.current && ref.current.postMessage(JSON.stringify(o)); } catch (e) { } }); }, [game]);
+  const inject = useMemo(() => 'window.__TITA_INIT=' + JSON.stringify(g.__init()) + ';true;', [game]);
   return (
-    <View style={StyleSheet.absoluteFill}
-      onTouchStart={e => each(e, t => game.input.ptrDown({ id: t.identifier, x: t.pageX, y: t.pageY, type: 'touch' }))}
-      onTouchMove={e => each(e, t => game.input.ptrMove({ id: t.identifier, x: t.pageX, y: t.pageY, type: 'touch' }))}
-      onTouchEnd={e => each(e, t => game.input.ptrUp({ id: t.identifier, x: t.pageX, y: t.pageY, type: 'touch' }))}
-      onTouchCancel={e => each(e, t => game.input.ptrUp({ id: t.identifier, x: t.pageX, y: t.pageY, type: 'touch' }, true))}>
-      <Canvas style={{ width: W, height: H }} pointerEvents="none">
-        <Picture picture={pic} />
-      </Canvas>
-    </View>
+    <WebView
+      ref={ref}
+      style={[StyleSheet.absoluteFill, { backgroundColor: '#2d1d70' }]}
+      originWhitelist={['*']}
+      source={{ html: GAME_HTML, baseUrl: 'https://localhost/' }}
+      injectedJavaScriptBeforeContentLoaded={inject}
+      onMessage={e => g.__onMessage(e.nativeEvent.data)}
+      javaScriptEnabled
+      domStorageEnabled
+      mediaPlaybackRequiresUserAction={false}
+      allowsInlineMediaPlayback
+      scrollEnabled={false}
+      overScrollMode="never"
+      bounces={false}
+      setSupportMultipleWindows={false}
+      androidLayerType="hardware"
+      textZoom={100}
+    />
   );
 }

@@ -23,6 +23,10 @@ if (typeof document !== 'undefined') {
   document.addEventListener('keydown', wake, true);
 }
 const aok = () => AU.ctx && AU.ctx.state === 'running';
+/** liga o som (precisa de um toque antes no navegador) */
+export function wakeAudio() { auInit(); try { if (AU.ctx && AU.ctx.state === 'suspended') AU.ctx.resume(); } catch (e) { } }
+/** para o som quando o app vai para o fundo */
+export function sleepAudio() { try { if (AU.ctx && AU.ctx.state === 'running') AU.ctx.suspend(); } catch (e) { } }
 function tone(o: ToneOpt) {
   if (!aok()) return; const c = AU.ctx, t0 = c.currentTime + (o.dl || 0);
   const osc = c.createOscillator(), g = c.createGain(); osc.type = o.type || 'square';
