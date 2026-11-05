@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Tita e o Coral",
+    "name": "Ilha do Coral",
     "slug": "tita-coral",
     "version": "1.0.0",
     "orientation": "landscape",
@@ -10,7 +10,7 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#2d1d70"
+      "backgroundColor": "#c0392b"
     },
     "androidStatusBar": {
       "hidden": true,
@@ -24,7 +24,7 @@
       "package": "com.claude.titacoral",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#2d1d70"
+        "backgroundColor": "#c0392b"
       },
       "permissions": [
         "INTERNET",
@@ -37,8 +37,8 @@
       "requireFullScreen": true
     },
     "web": {
-      "name": "Tita e o Coral Brilhante",
-      "shortName": "Tita",
+      "name": "Ilha do Coral",
+      "shortName": "Ilha do Coral",
       "bundler": "metro",
       "output": "single",
       "favicon": "./assets/favicon.png",

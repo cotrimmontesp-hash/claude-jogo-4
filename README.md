@@ -1,4 +1,4 @@
-# Tita e o Coral Brilhante
+# Ilha do Coral
 
 Aventura com modo história, Modo Ondas e online até 5 jogadores.
 

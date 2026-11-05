@@ -1,4 +1,4 @@
-/* Tita e o Coral Brilhante — aplicativo em React Native + Expo + TypeScript.
+/* Ilha do Coral — aplicativo em React Native + Expo + TypeScript.
    O mesmo código gera o app de Android (APK) e o site/PWA (React Native Web). */
 import React, { useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';

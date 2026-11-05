@@ -36,8 +36,8 @@ function Home() {
       </View>
       {!lay.short && (
         <View style={h.logo}>
-          <OText stroke={6} drop={6} style={{ fontFamily: FONT.display, fontSize: l1, lineHeight: l1, color: C.gold, textAlign: 'center' }}>Tita</OText>
-          <OText stroke={6} drop={5} style={{ fontFamily: FONT.display, fontSize: l2, lineHeight: l2 * 1.1, color: '#fff', textAlign: 'center' }}>e o Coral Brilhante</OText>
+          <OText stroke={6} drop={6} style={{ fontFamily: FONT.display, fontSize: l1, lineHeight: l1, color: C.gold, textAlign: 'center' }}>Ilha</OText>
+          <OText stroke={6} drop={5} style={{ fontFamily: FONT.display, fontSize: l2, lineHeight: l2 * 1.1, color: '#fff', textAlign: 'center' }}>do Coral</OText>
         </View>
       )}
     </View>

@@ -1,4 +1,4 @@
-/* Motor do jogo "Tita e o Coral Brilhante" em TypeScript.
+/* Motor do jogo "Ilha do Coral" em TypeScript.
    O mesmo motor roda no celular (React Native + Skia) e na web (React Native Web + canvas).
    Ele não conhece telas nem DOM: desenha num contexto 2D que a plataforma entrega,
    recebe toques/teclas pela plataforma e guarda o estado das telas em `ui`,
@@ -962,7 +962,7 @@ function shareText(t:string,okMsg:string,failMsg:string){
   pf.share(t).then(r=>{if(r==='copied')toast(okMsg);else if(r==='fail')toast(failMsg);},()=>toast(failMsg));
 }
 function inviteRoom(){if(!NET.code)return;const C=NET.code.toUpperCase();
-  shareText('Bora jogar Tita e o Coral Brilhante comigo! Código da sala: '+C+'\n'+SITE+'?sala='+C,'Convite copiado! Código: '+C,'Código da sala: '+C);}
+  shareText('Bora jogar Ilha do Coral comigo! Código da sala: '+C+'\n'+SITE+'?sala='+C,'Convite copiado! Código: '+C,'Código da sala: '+C);}
 
 /* ---------- menu ---------- */
 const HOME:any={face:.35,drag:null,hop:0,vel:0};
@@ -1303,7 +1303,7 @@ function addFriend(){
     else toast('Não achei esse jogador agora. Ele precisa estar com o jogo aberto.');},6000);
 }
 function shareFid(){
-  shareText('Me adiciona no Tita e o Coral Brilhante! Meu código: '+save.fid+'\n'+SITE+'?amigo='+save.fid,'Código copiado!','Seu código: '+save.fid);
+  shareText('Me adiciona na Ilha do Coral! Meu código: '+save.fid+'\n'+SITE+'?amigo='+save.fid,'Código copiado!','Seu código: '+save.fid);
 }
 function friendsBack(){show('friends',false);if(FR.backTo==='menu')showMenu();else if(state==='map')updateMapCard();else updWaitUI();}
 function showInvite(name:string,room:string){
