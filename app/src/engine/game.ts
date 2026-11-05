@@ -4,7 +4,7 @@
    recebe toques/teclas pela plataforma e guarda o estado das telas em `ui`,
    que as telas em React Native leem. */
 import { CH, PALS, TH, LV, LOBBY, WAVEL, NAMES, SW_BODY, SW_HAIR } from './data';
-import { INK, lt, vg, rg, ink, circ, ell, rrp, rr, shadow, txt, eye, gearShape, star, weapon, drawHero, drawBento, drawBot, setFontFn, paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon, WPAL, ALT } from './draw';
+import { INK, lt, vg, rg, ink, circ, ell, rrp, rr, shadow, txt, eye, gearShape, star, weapon, drawHero, drawBento, drawBot, setFontFn, paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon, WPAL, ALT, ALT2, LV20 } from './draw';
 import { Peer } from '../net/peer';
 import type { Platform, Ctx2D, OffCanvas, Insets, PtrEv } from './types';
 
@@ -19,13 +19,13 @@ let ctx:any=null;
 const F=(size:number,kind?:'display'|'body')=>pf.font(size,kind||'display');
 setFontFn(F);
 /* personagem com a arma equipada (wi) e, se escolhida, a roupa especial */
-function dressed(c:any,id:string,alt:boolean,keepHair:boolean){
+function dressed(c:any,id:string,outfit:any,keepHair:boolean){
   const L=charLvl(id),e=save.wpn&&save.wpn[id];
   const o:any={wi:clamp(e==null?0:e,0,L.u-1)};
-  if(alt&&ALT[id]){const A=ALT[id];o.sk='alt';o.body=A.body;o.belt=A.belt;if(A.hair&&!keepHair)o.hair=A.hair;o.full=CH.find(h=>h.id===id).name+' '+A.name;}
+  const A=outfit==='lv20'&&L.l>=LV20?ALT2[id]:outfit==='alt'?ALT[id]:null;
+  if(A){o.sk=outfit==='lv20'&&L.l>=LV20?'lv20':'alt';o.body=A.body;o.belt=A.belt;if(A.hair&&!keepHair)o.hair=A.hair;o.full=CH.find(h=>h.id===id).name+' '+A.name;}
   return Object.assign({},c,o);
 }
-
 /* ---------- estado das telas (lido pelas telas em React Native) ---------- */
 type Shown={[k:string]:boolean};
 const ui:any={
@@ -57,7 +57,7 @@ function persist(){try{pf.storage.save(JSON.stringify(save));}catch(e){}}
 
 function withSkin(base?:any,b?:any,h?:any){return (b||h)?Object.assign({},base,{body:b||base.body,hair:h||base.hair}):base;}
 const HEX=/^#[0-9a-f]{6}$/i;
-function myCh(){const base=CH[clamp(save.ch|0,0,CH.length-1)];const sk=save.skin&&save.skin[base.id];const c=sk?withSkin(base,HEX.test(sk.b)?sk.b:null,HEX.test(sk.h)?sk.h:null):base;return dressed(c,base.id,save.outfit&&save.outfit[base.id]==='alt',sk&&HEX.test(sk.h));}
+function myCh(){const base=CH[clamp(save.ch|0,0,CH.length-1)];const sk=save.skin&&save.skin[base.id];const c=sk?withSkin(base,HEX.test(sk.b)?sk.b:null,HEX.test(sk.h)?sk.h:null):base;return dressed(c,base.id,save.outfit&&save.outfit[base.id],sk&&HEX.test(sk.h));}
 const WV={on:false,wave:0,state:'break',t:0,queue:[],spawnT:0,flash:0};
 function curL(){return cur===-2?WAVEL:cur===-1?LOBBY:LV[cur];}
 /* ---------- som: o motor só escolhe o som; a plataforma toca ---------- */
@@ -316,6 +316,7 @@ function charLvl(id?:any){let x=(save.cxp&&save.cxp[id])|0,l=1,need=42;while(x>=
 function myW(){const c=myCh(),u=charLvl(c.id).u;const e=save.wpn&&save.wpn[c.id];return weaponOf(c.id,clamp(e==null?0:e,0,u-1));}
 function myRange(){return Math.min(820,RANGE[myCh().atk]*myW().rg);}
 function addCharXP(n?:any){const c=myCh();save.cxp=save.cxp||{};const B=charLvl(c.id);save.cxp[c.id]=(save.cxp[c.id]|0)+n;const A=charLvl(c.id);
+  if(B.l<LV20&&A.l>=LV20){save.newSkin=save.newSkin||{};save.newSkin[c.id]=1;setTimeout(()=>{toast(c.name+' chegou ao nível '+LV20+'! Roupa liberada: '+c.name+' '+ALT2[c.id].name+'. Equipe em Personalizar.');SFX.unlock();},3200);}
   if(A.u>B.u){save.newW=save.newW||{};save.newW[c.id]=1;toast(c.full+' chegou ao nível '+A.l+'! Arma liberada: '+WNAMES[c.id][A.u-1]+'. Equipe em Armas.');SFX.unlock();}
   else if(A.l>B.l&&A.l%5===0)toast(c.full+' chegou ao nível '+A.l+'!');
   persist();}
@@ -985,6 +986,7 @@ function menuInfo(){
   return {lvl:L.l,name:save.name||'Jogador',xp:L.max?100:Math.round(L.x/L.need*100),
     xpT:'Nível '+L.l+' de '+hc.name+' · '+(L.max?'máximo':L.x+' / '+L.need+' XP')+' · '+L.u+'/15 armas',
     arms:(save.newW&&save.newW[hc.id])?'Armas (nova!)':'Armas',
+    skin:(save.newSkin&&save.newSkin[CH[save.ch|0].id])?'Personalizar (nova!)':'Personalizar',
     wins:save.done.length,kills:save.kills|0,gears:save.gears|0,wave:save.bestWave|0,
     hero:hc.full,role:hc.role,friends:friendsOn(),friendsLabel:friendsLabel(),
     sfx:save.sfx!==false,mus:save.mus!==false,
@@ -998,9 +1000,14 @@ function openSkin(){hideAll();state='skin';show('skin');emit();}
 function skinInfo(){
   const base=CH[save.ch|0],cur2=myCh();
   return {who:base.full+': escolha as cores',body:SW_BODY,hair:SW_HAIR,b:String(cur2.body).toLowerCase(),h:String(cur2.hair).toLowerCase(),
-    outfit:cur2.sk==='alt'?'alt':'normal',altName:ALT[base.id].name,id:base.id};
+    outfit:cur2.sk||'normal',altName:ALT[base.id].name,lv20Name:ALT2[base.id].name,lv20Lock:charLvl(base.id).l<LV20,lv:charLvl(base.id).l,lv20:LV20,
+    lv20New:!!(save.newSkin&&save.newSkin[base.id]),id:base.id};
 }
-function pickOutfit(k:string){const base=CH[save.ch|0];save.outfit=save.outfit||{};save.outfit[base.id]=k==='alt'?'alt':'normal';persist();toast(k==='alt'?base.name+' '+ALT[base.id].name+' equipada!':'Roupa normal equipada.');emit();}
+function pickOutfit(k:string){const base=CH[save.ch|0];
+  if(k==='lv20'&&charLvl(base.id).l<LV20){toast(base.name+' '+ALT2[base.id].name+' libera no nível '+LV20+' de '+base.name+'. Agora: nível '+charLvl(base.id).l+'.');return;}
+  save.outfit=save.outfit||{};save.outfit[base.id]=k==='alt'||k==='lv20'?k:'normal';
+  if(k==='lv20'&&save.newSkin)delete save.newSkin[base.id];
+  persist();toast(k==='alt'?base.name+' '+ALT[base.id].name+' equipada!':k==='lv20'?base.name+' '+ALT2[base.id].name+' equipada!':'Roupa normal equipada.');emit();}
 function pickSkin(key:'b'|'h',c:string){const base=CH[save.ch|0];save.skin=save.skin||{};const sk=save.skin[base.id]=save.skin[base.id]||{};sk[key]=c;persist();emit();}
 function skinReset(){if(save.skin)delete save.skin[CH[save.ch|0].id];persist();emit();}
 function drawSkinPreview(g:Ctx2D){paintSkin(g,clock,myCh());}
@@ -1397,7 +1404,7 @@ async function joinRoom(code?:any,asHost?:any){
 function sendPresence(force?:any){
   if(!NET.game)return;
   const o:any={app:'tita',role:NET.isHost?'host':'pl',nm:save.name||'Jogador',sc:state==='play'?'play':state==='map'?'map':'wait',run:NET.isHost?runId:NET.clientRun,
-    x:P?P.x|0:0,y:P?P.y|0:0,a:P?Math.round(P.aim*100):0,hp:P?P.hp|0:0,mh:P?P.max:3600,dd:P&&P.dead?1:0,mv:P&&P.mv?1:0,ch:save.ch|0,cb:myCh().body,chh:myCh().hair,sk:myCh().sk?1:0,wi:myCh().wi|0,sh:myShots.slice(-8)};
+    x:P?P.x|0:0,y:P?P.y|0:0,a:P?Math.round(P.aim*100):0,hp:P?P.hp|0:0,mh:P?P.max:3600,dd:P&&P.dead?1:0,mv:P&&P.mv?1:0,ch:save.ch|0,cb:myCh().body,chh:myCh().hair,sk:myCh().sk==='lv20'?2:myCh().sk?1:0,wi:myCh().wi|0,sh:myShots.slice(-8)};
   if(NET.isHost){
     o.ph=phase;o.lv=cur===-1?WAIT.sel:WORLD.start;o.md=WV.on?'w':'s';o.wm=WAIT.mode;o.wv=WV.wave;o.ws=WV.state==='break'?1:0;o.wt=Math.round(WV.t*10)/10;o.wq=WV.queue.length;o.pg=WORLD.prog;o.ct=Math.round(WAIT.ct*10)/10;o.ms=Math.round(MAP.s);o.mn=MAP.node;o.ul=save.unl;o.dn=save.done.slice(0,5);o.n=diffN;
     if(phase==='play'||phase==='win'){
@@ -1429,7 +1436,7 @@ function netTick(dt?:any){
     r.tx=+pr.x||0;r.ty=+pr.y||0;r.aim=(+pr.a||0)/100;const nhp=+pr.hp||0;if(r.hp!=null&&nhp<r.hp)r.fl=.15;r.hp=nhp;r.mh=+pr.mh||3600;
     if(r.dead===false&&pr.dd&&state==='play')burst(r.x,r.y-20,24,['#4cb7ff','#fff'],260,5);
     r.dead=!!pr.dd;r.mv=!!pr.mv;r.nm=String(pr.nm||'Jogador').slice(0,12);r.sc=String(pr.sc||'');r.run=+pr.run;
-    r.ci=Math.max(0,all.findIndex(a=>a.peer===p.peer));r.ch=clamp(+pr.ch|0,0,CH.length-1);r.chObj=Object.assign({},withSkin(CH[r.ch],HEX.test(pr.cb)?pr.cb:null,HEX.test(pr.chh)?pr.chh:null),{wi:clamp(+pr.wi|0,0,14)},pr.sk?{sk:'alt'}:{});
+    r.ci=Math.max(0,all.findIndex(a=>a.peer===p.peer));r.ch=clamp(+pr.ch|0,0,CH.length-1);r.chObj=Object.assign({},withSkin(CH[r.ch],HEX.test(pr.cb)?pr.cb:null,HEX.test(pr.chh)?pr.chh:null),{wi:clamp(+pr.wi|0,0,14)},pr.sk===2?{sk:'lv20'}:pr.sk?{sk:'alt'}:{});
     if(Math.hypot(r.tx-r.x,r.ty-r.y)>200){r.x=r.tx;r.y=r.ty;}
     const sh=Array.isArray(pr.sh)?pr.sh:[];
     let mx=NET.lastShot[p.peer];

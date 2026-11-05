@@ -64,7 +64,7 @@ function Home() {
         <Btn label="Personagens" fontSize={15} padV={7} padH={3} style={{ flex: 1 }} onPress={game.act.openHeroes} />
         <Btn label={m.arms} fontSize={15} padV={7} padH={3} style={{ flex: 1 }} onPress={game.act.openArsenal} />
       </View>
-      <Btn label="Personalizar" kind="alt" fontSize={19} padV={7} padH={12} onPress={game.act.openSkin} />
+      <Btn label={m.skin || 'Personalizar'} kind="alt" fontSize={19} padV={7} padH={12} onPress={game.act.openSkin} />
       <View style={h.pair}>
         <Btn label={'Som: ' + (m.sfx ? 'ligado' : 'desligado')} size="sm" fontSize={13} padV={5} padH={6} style={{ flex: 1 }} onPress={game.act.toggleSfx} />
         <Btn label={'Música: ' + (m.mus ? 'ligada' : 'desligada')} size="sm" fontSize={13} padV={5} padH={6} style={{ flex: 1 }} onPress={game.act.toggleMus} />
@@ -125,7 +125,10 @@ function Skin() {
         <Row>
           <Btn label={(s.outfit === 'normal' ? '✓ ' : '') + 'Normal'} kind={s.outfit === 'normal' ? 'gold' : 'alt'} size="sm" onPress={() => game.act.pickOutfit('normal')} />
           <Btn label={(s.outfit === 'alt' ? '✓ ' : '') + s.altName} kind={s.outfit === 'alt' ? 'gold' : 'alt'} size="sm" onPress={() => game.act.pickOutfit('alt')} />
+          <Btn label={s.lv20Lock ? '🔒 ' + s.lv20Name + ' · nível ' + s.lv20 : (s.outfit === 'lv20' ? '✓ ' : '') + s.lv20Name + (s.lv20New ? ' (nova!)' : '')}
+            kind={s.outfit === 'lv20' ? 'gold' : 'red'} size="sm" disabled={s.lv20Lock} onPress={() => game.act.pickOutfit('lv20')} />
         </Row>
+        {s.lv20Lock && <Text style={[ls.empty, { fontSize: 12 }]}>A roupa {s.lv20Name} libera quando o personagem chega no nível {s.lv20} (agora: nível {s.lv}).</Text>}
         <Lab style={{ width: '100%' }}>Cor da roupa</Lab>{sw(s.body, 'b', s.b)}
         <Lab style={{ width: '100%' }}>Cabelo</Lab>{sw(s.hair, 'h', s.h)}
         <Row><Btn label="Cores originais" kind="alt" size="sm" onPress={game.act.skinReset} /><Btn label="Pronto" size="sm" onPress={game.act.skinBack} /></Row>

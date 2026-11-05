@@ -80,6 +80,14 @@ export function weapon(g?:any,ch?:any,x?:any,y?:any,a?:any,t?:any){
   if(leg){for(let i=0;i<3;i++){const ang=(t||0)*3+i*2.1;star(g,22+Math.cos(ang)*20,Math.sin(ang)*14,4,'#fff');}}
   g.restore();
 }
+/* ---------- roupas do nível 20 (liberadas quando o personagem chega no nível 20) ---------- */
+export const LV20=20;
+export const ALT2:{[k:string]:{name:string,body:string,belt:string,hair?:string}}={
+  tita:{name:'Pirata',body:'#b3262f',belt:'#ffcc2e'},
+  lia:{name:'Cavaleira',body:'#8a93a8',belt:'#ffcc2e'},
+  zeca:{name:'Rei',body:'#6b3fa0',belt:'#ffcc2e'},
+  rui:{name:'Ciborgue',body:'#4b4f6e',belt:'#7ee6ff'},
+};
 /* ---------- roupas especiais (uma para cada personagem) ---------- */
 export const ALT:{[k:string]:{name:string,body:string,belt:string,hair?:string}}={
   tita:{name:'Astronauta',body:'#e9ecf5',belt:'#4cb7ff'},
@@ -90,6 +98,7 @@ export const ALT:{[k:string]:{name:string,body:string,belt:string,hair?:string}}
 /* acessórios da roupa especial, desenhados por cima da cabeça */
 export function altGear(g:any,ch:any,x:number,by:number,fx:number,t:number){
   const id=ch.id;ink(g);
+  if(ch.sk==='lv20'){lv20Gear(g,ch,x,by,fx,t);return;}
   if(id==='tita'){
     g.globalAlpha=.25;circ(g,x,by-36,23,'#bfe9ff',true);g.globalAlpha=1;
     g.lineWidth=3;g.strokeStyle=INK;g.beginPath();g.arc(x,by-36,23,0,7);g.stroke();
@@ -111,6 +120,39 @@ export function altGear(g:any,ch:any,x:number,by:number,fx:number,t:number){
     ell(g,x+fx*3,by-39,24,5,'#e6a300');
     g.beginPath();g.moveTo(x,by-57);g.lineTo(x,by-42);g.lineWidth=3;g.stroke();ink(g);
     circ(g,x,by-48,4.5,'#ef5350');
+  }
+}
+/* acessórios das roupas do nível 20 */
+function lv20Gear(g:any,ch:any,x:number,by:number,fx:number,t:number){
+  const id=ch.id;ink(g);
+  if(id==='tita'){
+    /* chapéu de pirata com caveira */
+    g.beginPath();g.moveTo(x-26,by-44);g.quadraticCurveTo(x-14,by-50,x-10,by-64);g.quadraticCurveTo(x,by-58,x+10,by-64);g.quadraticCurveTo(x+14,by-50,x+26,by-44);g.quadraticCurveTo(x,by-52,x-26,by-44);g.closePath();
+    g.fillStyle=vg(g,by-64,by-44,'#2d2a40');g.fill();g.stroke();
+    g.beginPath();g.moveTo(x-22,by-46);g.quadraticCurveTo(x,by-53,x+22,by-46);g.lineWidth=2.5;g.strokeStyle='#ffcc2e';g.stroke();ink(g);
+    circ(g,x,by-56,4.5,'#fff');circ(g,x-1.6,by-56.5,1,INK,true);circ(g,x+1.6,by-56.5,1,INK,true);
+    g.beginPath();g.moveTo(x-5,by-50);g.lineTo(x+5,by-53);g.moveTo(x+5,by-50);g.lineTo(x-5,by-53);g.lineWidth=1.8;g.strokeStyle='#fff';g.stroke();ink(g);
+    circ(g,x+fx*15,by-27,2.8,'#ffcc2e');
+  } else if(id==='lia'){
+    /* elmo de cavaleira com pluma */
+    g.lineCap='round';g.beginPath();g.moveTo(x,by-54);g.quadraticCurveTo(x-fx*12,by-72+Math.sin(t*4)*2,x-fx*26,by-62);g.lineWidth=9;g.strokeStyle=INK;g.stroke();g.lineWidth=5.5;g.strokeStyle='#e8474f';g.stroke();ink(g);
+    g.beginPath();g.arc(x,by-38,18,Math.PI,0);g.closePath();g.fillStyle=vg(g,by-56,by-38,'#d5dbe6');g.fill();g.stroke();
+    rr(g,x-18,by-44,36,6,3,'#9aa3b8');
+    g.beginPath();g.moveTo(x,by-56);g.lineTo(x,by-44);g.lineWidth=2.5;g.stroke();ink(g);
+    rr(g,x-16,by-15,32,6,2,'#c5ccd8');
+  } else if(id==='zeca'){
+    /* coroa e capa de rei */
+    g.beginPath();g.moveTo(x-14,by-20);g.lineTo(x-fx*22-fx*2,by+2);g.lineTo(x-fx*6,by-4);g.closePath();g.fillStyle='#4b2a80';g.fill();g.stroke();
+    g.beginPath();g.moveTo(x-14,by-50);g.lineTo(x-14,by-62);g.lineTo(x-7,by-55);g.lineTo(x,by-66);g.lineTo(x+7,by-55);g.lineTo(x+14,by-62);g.lineTo(x+14,by-50);g.closePath();g.fillStyle=vg(g,by-66,by-50,'#ffcc2e');g.fill();g.stroke();
+    circ(g,x,by-56,2.6,'#e8474f',true);circ(g,x-8,by-53,2,'#4cb7ff',true);circ(g,x+8,by-53,2,'#4cd964',true);
+    rr(g,x-14,by-16,28,4,2,'#fff');
+  } else if(id==='rui'){
+    /* capacete de ciborgue com visor */
+    g.beginPath();g.arc(x,by-38,18,Math.PI,0);g.closePath();g.fillStyle=vg(g,by-56,by-38,'#6b6f85');g.fill();g.stroke();
+    g.globalAlpha=.55+.25*Math.sin(t*5);rr(g,x-15,by-36,30,7,3,'#ff3b55');g.globalAlpha=1;
+    g.lineWidth=2.5;g.strokeStyle=INK;g.beginPath();g.moveTo(x+fx*10,by-55);g.lineTo(x+fx*14,by-66);g.stroke();ink(g);
+    circ(g,x+fx*14,by-67,3,'#7ee6ff');
+    circ(g,x-fx*16,by-40,4,'#9aa3b8');
   }
 }
 
@@ -136,14 +178,14 @@ export function drawHero(g?:any,x?:any,y?:any,a?:any,t?:any,mv?:any,fl?:any,ch?:
     rr(g,x-12,by-50,24,7,3,'#3a2b5c');circ(g,x-6,by-47,4,'#7ee6ff');circ(g,x+6,by-47,4,'#7ee6ff');
   } else if(id==='lia'){
     g.beginPath();g.arc(x,by-36,17,Math.PI,0);g.lineTo(x+17,by-38);g.lineTo(x-17,by-38);g.closePath();g.fillStyle=vg(g,by-53,by-36,ch.hair);g.fill();g.stroke();
-    if(ch.sk!=='alt'){ell(g,x+fx*3,by-51,15,6,'#e8474f');circ(g,x+fx*3,by-57,3,'#e8474f');}
+    if(!ch.sk){ell(g,x+fx*3,by-51,15,6,'#e8474f');circ(g,x+fx*3,by-57,3,'#e8474f');}
   } else if(id==='zeca'){
-    if(ch.sk!=='alt'){g.beginPath();g.arc(x,by-37,16.5,Math.PI,0);g.closePath();g.fillStyle=vg(g,by-54,by-37,'#3fbf55');g.fill();g.stroke();
+    if(!ch.sk){g.beginPath();g.arc(x,by-37,16.5,Math.PI,0);g.closePath();g.fillStyle=vg(g,by-54,by-37,'#3fbf55');g.fill();g.stroke();
     ell(g,x+fx*16,by-38,12,4.5,'#2e9a43');
     g.fillStyle='#fff';g.beginPath();g.arc(x-fx*2,by-46,4,0,7);g.fill();}
     g.fillStyle=ch.hair;g.fillRect(x-14,by-38,4,6);g.fillRect(x+10,by-38,4,6);
   } else if(id==='rui'){
-    if(ch.sk!=='alt'){g.beginPath();g.moveTo(x-16,by-38);
+    if(!ch.sk){g.beginPath();g.moveTo(x-16,by-38);
     for(let i=0;i<6;i++){const px=x-16+i*6.4;g.lineTo(px+3.2,by-60+(i%2)*4);g.lineTo(px+6.4,by-44);}
     g.lineTo(x+16,by-38);g.closePath();g.fillStyle=vg(g,by-60,by-38,ch.hair);g.fill();g.stroke();
     rr(g,x-16,by-44,32,6,3,'#ffcc2e');}
@@ -153,7 +195,7 @@ export function drawHero(g?:any,x?:any,y?:any,a?:any,t?:any,mv?:any,fl?:any,ch?:
   if(id==='rui'){g.beginPath();g.moveTo(x-10+ex,by-38);g.lineTo(x-2+ex,by-36);g.moveTo(x+10+ex,by-38);g.lineTo(x+2+ex,by-36);g.lineWidth=2.5;g.stroke();ink(g);}
   g.fillStyle='rgba(255,120,120,.35)';g.beginPath();g.ellipse(x-10+ex*.5,by-26,3.5,2,0,0,7);g.ellipse(x+10+ex*.5,by-26,3.5,2,0,0,7);g.fill();
   g.beginPath();g.arc(x+ex,by-25+ey,3,0.15*Math.PI,0.85*Math.PI);g.lineWidth=2;g.stroke();ink(g);
-  if(ch.sk==='alt')altGear(g,ch,x,by,fx,t);
+  if(ch.sk)altGear(g,ch,x,by,fx,t);
   if(!behind)weapon(g,ch,x,wy,a,t);
   if(fl>0){g.globalAlpha=Math.min(1,fl*6)*.75;circ(g,x,by-25,21,'#fff',true);g.globalAlpha=1;}
 }
