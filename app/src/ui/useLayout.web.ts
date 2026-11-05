@@ -31,3 +31,5 @@ export function useLayout() {
   }, []);
   return L;
 }
+
+export function onRootLayout(_w: number, _h: number) { }

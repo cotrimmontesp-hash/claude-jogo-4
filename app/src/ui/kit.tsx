@@ -1,14 +1,17 @@
 /* Peças visuais das telas (botão, cartão, texto com contorno), no mesmo
    estilo cartoon do jogo antigo em HTML. */
 import React, { createContext, useContext, useRef, useState, useSyncExternalStore } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
 import type { Game } from '../engine/game';
 
 export const C = {
   ink: '#1d1436', night: '#2d1d70', night2: '#4b2fb3', gold: '#ffcc2e', coral: '#ff5d73', teal: '#22c7c7', paper: '#fff8ea',
   sub: '#6a5aa0', sub2: '#7a6aa8', hint: '#ddd5ff', gray: '#9a90c4',
 };
-export const FONT = { display: 'Lilita One', body: 'Nunito', black: 'Nunito-Black', bold: 'Nunito-Bold' };
+/* no celular as fontes vão embutidas no app (nome = nome do arquivo); na web vêm do expo-font */
+export const FONT = Platform.OS === 'web'
+  ? { display: 'Lilita One', body: 'Nunito', black: 'Nunito-Black', bold: 'Nunito-Bold' }
+  : { display: 'LilitaOne_400Regular', body: 'Nunito_800ExtraBold', black: 'Nunito_900Black', bold: 'Nunito_700Bold' };
 
 /* ---------- jogo e layout disponíveis para todas as telas ---------- */
 export interface Lay { W: number; H: number; ins: { t: number; r: number; b: number; l: number }; narrow: boolean; xnarrow: boolean; short: boolean }

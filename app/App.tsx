@@ -2,7 +2,7 @@
    O mesmo código gera o app de Android (APK) e o site/PWA (React Native Web). */
 import './src/net/rtc';
 import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
@@ -21,7 +21,7 @@ export default function App() {
   const [ready, setReady] = useState(false);
   const [late, setLate] = useState(false);
   useEffect(() => { const t = setTimeout(() => setLate(true), 15000); return () => clearTimeout(t); }, []);
-  const fontsOk = fontsLoaded || !!fontErr || late;
+  const fontsOk = Platform.OS !== 'web' || fontsLoaded || !!fontErr || late;
   useEffect(() => { console.warn('[tita] fontes', fontsLoaded, fontErr ? String(fontErr) : '-', 'canvas', canvasFonts, 'atraso', late); }, [fontsLoaded, fontErr, canvasFonts, late]);
   const [game, setGame] = useState<Game | null>(null);
   useEffect(() => { preload().finally(() => setReady(true)); }, []);
@@ -34,7 +34,7 @@ export default function App() {
       <StatusBar hidden />
       <KeepAwake />
       <Orientation />
-      {game ? <GameRoot key={fontsLoaded ? 'f' : 'n'} game={game} /> : <View style={{ flex: 1, backgroundColor: '#2d1d70' }} />}
+      {game ? <GameRoot key={Platform.OS === 'web' && fontsLoaded ? 'f' : 'n'} game={game} /> : <View style={{ flex: 1, backgroundColor: '#2d1d70' }} />}
     </SafeAreaProvider>
   );
 }

@@ -5,7 +5,7 @@ import type { Game } from '../engine/game';
 import { GameCtx, LayCtx } from './kit';
 import { GameCanvas } from './GameCanvas';
 import { Screens } from './screens';
-import { useLayout } from './useLayout';
+import { onRootLayout, useLayout } from './useLayout';
 
 export function GameRoot({ game }: { game: Game }) {
   const L = useLayout();
@@ -19,7 +19,7 @@ export function GameRoot({ game }: { game: Game }) {
   return (
     <GameCtx.Provider value={game}>
       <LayCtx.Provider value={lay}>
-        <View style={{ flex: 1, backgroundColor: '#2d1d70', overflow: 'hidden' }}>
+        <View style={{ flex: 1, backgroundColor: '#2d1d70', overflow: 'hidden' }} onLayout={e => onRootLayout(e.nativeEvent.layout.width, e.nativeEvent.layout.height)}>
           <View style={[rotStyle, { overflow: 'hidden' }]}>
             <GameCanvas game={game} W={L.W} H={L.H} rot={L.rot} />
             <Screens />
