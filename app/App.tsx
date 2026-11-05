@@ -20,7 +20,7 @@ export default function App() {
   const canvasFonts = useCanvasFonts();
   const [ready, setReady] = useState(false);
   const [late, setLate] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setLate(true), 6000); return () => clearTimeout(t); }, []);
+  useEffect(() => { const t = setTimeout(() => setLate(true), 15000); return () => clearTimeout(t); }, []);
   const fontsOk = fontsLoaded || !!fontErr || late;
   const [game, setGame] = useState<Game | null>(null);
   useEffect(() => { preload().finally(() => setReady(true)); }, []);
@@ -33,7 +33,7 @@ export default function App() {
       <StatusBar hidden />
       <KeepAwake />
       <Orientation />
-      {game ? <GameRoot game={game} /> : <View style={{ flex: 1, backgroundColor: '#2d1d70' }} />}
+      {game ? <GameRoot key={fontsLoaded ? 'f' : 'n'} game={game} /> : <View style={{ flex: 1, backgroundColor: '#2d1d70' }} />}
     </SafeAreaProvider>
   );
 }

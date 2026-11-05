@@ -68,7 +68,7 @@ export function Btn({ label, onPress, kind = 'gold', size = 'md', disabled, styl
         onPressIn={() => setDown(true)} onPressOut={() => setDown(false)}
         onPress={() => { game.act.btnSound(start ? 'start' : 'click'); onPress && onPress(); }}
         style={[st.btn, { backgroundColor: bg, paddingHorizontal: ph, paddingVertical: pv, transform: [{ translateY: down && !disabled ? sh - 1 : 0 }] }]}>
-        {children || <OText stroke={size === 'sm' ? 3.5 : 4} lines={1} style={[st.btnTxt, { fontSize: fs, lineHeight: fs * 1.2 }]}>{label}</OText>}
+        {children || <OText stroke={size === 'sm' ? 3.5 : 4} style={[st.btnTxt, { fontSize: fs, lineHeight: fs * 1.2 }]}>{label}</OText>}
       </Pressable>
     </View>
   );
