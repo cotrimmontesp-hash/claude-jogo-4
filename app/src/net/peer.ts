@@ -119,7 +119,7 @@ export class Peer extends Emitter {
     const WS = G.WebSocket;
     if (!WS) { this.emit('error', new PeerError('browser-incompatible')); return; }
     let ws: any;
-    try { ws = new WS('wss://' + HOST + ':443/peerjs?key=' + KEY + '&id=' + encodeURIComponent(this.id) + '&token=' + this.token + '&version=1.5.4'); }
+    try { ws = new WS((G.__PEERJS_URL || 'wss://' + HOST + ':443/peerjs') + '?key=' + KEY + '&id=' + encodeURIComponent(this.id) + '&token=' + this.token + '&version=1.5.4'); }
     catch (e) { this.emit('error', new PeerError('network')); return; }
     this.ws = ws; this.disconnected = false;
     ws.onmessage = (ev: any) => { let m: any; try { m = JSON.parse(ev.data); } catch (e) { return; } this.onMsg(m); };

@@ -16,13 +16,16 @@ import { GameRoot } from './src/ui/GameRoot';
 import { KeepAwake, Orientation } from './src/ui/device';
 
 export default function App() {
-  const [fontsOk] = useFonts({ 'Lilita One': LilitaOne_400Regular, Nunito: Nunito_800ExtraBold, 'Nunito-Black': Nunito_900Black, 'Nunito-Bold': Nunito_700Bold });
+  const [fontsLoaded, fontErr] = useFonts({ 'Lilita One': LilitaOne_400Regular, Nunito: Nunito_800ExtraBold, 'Nunito-Black': Nunito_900Black, 'Nunito-Bold': Nunito_700Bold });
   const canvasFonts = useCanvasFonts();
   const [ready, setReady] = useState(false);
+  const [late, setLate] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setLate(true), 6000); return () => clearTimeout(t); }, []);
+  const fontsOk = fontsLoaded || !!fontErr || late;
   const [game, setGame] = useState<Game | null>(null);
   useEffect(() => { preload().finally(() => setReady(true)); }, []);
   useEffect(() => {
-    if (!ready || !fontsOk || !canvasFonts || game) return;
+    if (!ready || !fontsOk || !(canvasFonts || late) || game) return;
     setGame(createGame(makePlatform()));
   }, [ready, fontsOk, canvasFonts, game]);
   return (

@@ -1410,7 +1410,7 @@ function startFriends(){
   pr.on('open',()=>{FR.ready=true;FR.tries=0;pollFriends();renderFriends();});
   pr.on('connection',(c:any)=>{c.on('data',(d:any)=>onFriendMsg(c,d));setTimeout(()=>{try{c.close();}catch(e){}},8000);});
   pr.on('disconnected',()=>{try{if(!pr.destroyed)pr.reconnect();}catch(e){}});
-  pr.on('error',(e:any)=>{if(e.type==='unavailable-id'||e.type==='network'||e.type==='server-error'||e.type==='socket-error'){FR.ready=false;try{pr.destroy();}catch(x){}FR.me=null;if(++FR.tries<6)setTimeout(startFriends,4000*FR.tries);}});
+  pr.on('error',(e:any)=>{if(e.type==='unavailable-id'||e.type==='network'||e.type==='server-error'||e.type==='socket-error'){FR.ready=false;try{pr.destroy();}catch(x){}FR.me=null;++FR.tries;FR.retryAt=clock+Math.min(60,4*FR.tries);}});
 }
 function myStatus(){return {t:'pong',id:save.fid,name:save.name||'Jogador',room:NET.game&&NET.code&&NET.count<5?NET.code:null};}
 function onFriendMsg(c:any,d:any){
@@ -1443,7 +1443,7 @@ function pollFriends(){
 }
 function friendsTick(dt:number){
   if(!friendsOn())return;
-  if(!FR.me)startFriends();
+  if(!FR.me&&clock>=(FR.retryAt||0))startFriends();
   FR.pollT-=dt;if(FR.pollT<=0){FR.pollT=!ui.show.friends?20:6;pollFriends();}
 }
 function updFriendsBadge(){emit();}
