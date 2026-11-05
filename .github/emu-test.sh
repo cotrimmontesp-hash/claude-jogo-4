@@ -19,7 +19,7 @@ tap(){
 back(){ adb shell input keyevent 4; sleep 2; }
 shot inicio
 tap "Jogar" 1764 201; sleep 4; shot dialogo
-tap "Pular" 2210 70; sleep 3; shot jogo
+tap "Pular" 2210 70; sleep 3; shot jogo; sleep 8; shot jogo2
 adb shell input swipe 420 760 700 640 2500; shot andando
 adb shell input tap 2070 840; sleep 1; shot tiro
 back; shot pausa

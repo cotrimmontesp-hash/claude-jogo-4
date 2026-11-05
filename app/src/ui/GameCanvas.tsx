@@ -3,11 +3,11 @@ import React, { useEffect } from 'react';
 import { useSharedValue } from 'react-native-reanimated';
 import { StyleSheet, View } from 'react-native';
 import { Canvas, Picture } from '@shopify/react-native-skia';
-import { SkCtx, emptyPicture, record } from '../platform/skctx';
+import { SkCtx, emptyPicture, record, PERF } from '../platform/skctx';
 
 /* mostra o tempo de cada quadro no canto (só para testes) */
 export const SHOW_PERF = true;
-const perf = { n: 0, js: 0, t0: 0, fps: 0, ms: 0 };
+const perf: any = { n: 0, js: 0, t0: 0, fps: 0, ms: 0, tk: 0, tick: 0, rec: 0, txt: '' };
 import type { Game } from '../engine/game';
 
 export function GameCanvas({ game, W, H }: { game: Game; W: number; H: number; rot?: boolean }) {
@@ -20,14 +20,24 @@ export function GameCanvas({ game, W, H }: { game: Game; W: number; H: number; r
       if (!alive) return;
       const t0 = performance.now();
       game.tick(t0);
-      pic.value = record(W, H, ctx, [1, 0, 0, 1, 0, 0], g => {
+      const t1 = performance.now();
+      const p = record(W, H, ctx, [1, 0, 0, 1, 0, 0], g => {
         game.draw(g);
         if (SHOW_PERF) {
-          perf.n++; perf.js += performance.now() - t0;
-          if (t0 - perf.t0 > 1000) { perf.fps = Math.round(perf.n * 1000 / (t0 - perf.t0)); perf.ms = Math.round(perf.js / perf.n * 10) / 10; perf.n = 0; perf.js = 0; perf.t0 = t0; }
-          g.setTransform(1, 0, 0, 1, 0, 0); g.font = '14px Nunito'; g.textAlign = 'left'; g.textBaseline = 'top'; g.fillStyle = '#000'; g.fillRect(0, H - 22, 150, 22); g.fillStyle = '#0f0'; g.fillText(perf.fps + ' fps  ' + perf.ms + ' ms', 6, H - 19);
+          g.setTransform(1, 0, 0, 1, 0, 0); g.font = '13px Nunito'; g.textAlign = 'left'; g.textBaseline = 'top'; g.fillStyle = '#000'; g.fillRect(0, H - 22, 560, 22); g.fillStyle = '#0f0'; g.fillText(perf.txt, 6, H - 19);
         }
       });
+      const t2 = performance.now();
+      pic.value = p;
+      const t3 = performance.now();
+      if (SHOW_PERF) {
+        perf.n++; perf.tk += t1 - t0; perf.rec += t2 - t1; perf.js += t3 - t2;
+        if (t0 - perf.t0 > 1000) {
+          const n = perf.n, f = (v: number) => Math.round(v / n * 10) / 10;
+          perf.txt = Math.round(n * 1000 / (t0 - perf.t0)) + 'fps tick ' + f(perf.tk) + ' desenho ' + f(perf.rec) + ' (cam ' + f(PERF.path) + ' pint ' + f(PERF.draw) + ' txt ' + f(PERF.text) + ' img ' + f(PERF.img) + ' n ' + Math.round(PERF.n / n) + ') envio ' + f(perf.js);
+          perf.n = 0; perf.tk = 0; perf.rec = 0; perf.js = 0; perf.t0 = t0; for (const k in PERF) PERF[k] = 0;
+        }
+      }
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
