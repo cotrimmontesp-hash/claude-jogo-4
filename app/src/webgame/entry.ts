@@ -4,7 +4,7 @@
 import { createGame } from '../engine/game';
 import { makePlatform, wakeAudio, sleepAudio } from '../platform/make.web';
 
-const SHOW_PERF = true;
+const SHOW_PERF = false;
 const W: any = window;
 const post = (o: any) => { try { W.ReactNativeWebView.postMessage(JSON.stringify(o)); } catch (e) { } };
 const init = W.__TITA_INIT || {};

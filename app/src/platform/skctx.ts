@@ -104,9 +104,7 @@ function cachedPaint(key: string, make: () => any) {
 let CLEAR: any = null;
 
 const KAPPA = (d: number) => 4 / 3 * Math.tan(d / 4);
-/* medição de tempo (só para testes) */
-export const PERF: { [k: string]: number } = { path: 0, draw: 0, text: 0, img: 0, n: 0, js: 0 };
-const now = () => performance.now();
+
 
 export class SkCtx implements Ctx2D {
   c: any; base: Mx; private s: St; private stack: St[] = [];
@@ -191,7 +189,7 @@ export class SkCtx implements Ctx2D {
     this.lineTo(x, y + rad); this.arcLocal(x + rad, y + rad, rad, rad, 0, Math.PI, Math.PI * 1.5, false);
     this.d += 'Z';
   }
-  private path(d: string) { if (!d) return null; const t = now(); const p = Skia.Path.MakeFromSVGString(d); PERF.path += now() - t; PERF.n++; return p; }
+  private path(d: string) { return d ? Skia.Path.MakeFromSVGString(d) : null; }
 
   /* ---------- pintura ---------- */
   private scaleF() { const m = this.s.m; return Math.sqrt(Math.abs(m[0] * m[3] - m[1] * m[2])) || 1; }
@@ -234,7 +232,7 @@ export class SkCtx implements Ctx2D {
     });
   }
   private dirty() { if (this.onDraw) this.onDraw(); }
-  fill() { const p = this.path(this.d); if (p) { const pt = this.paint(false); const t = now(); this.c.drawPath(p, pt); PERF.draw += now() - t; this.dirty(); } }
+  fill() { const p = this.path(this.d); if (p) { this.c.drawPath(p, this.paint(false)); this.dirty(); } }
   stroke() { const p = this.path(this.d); if (p) { this.c.drawPath(p, this.paint(true)); this.dirty(); } }
   clip() {
     const p = this.path(this.d) || Skia.Path.Make();
@@ -303,11 +301,11 @@ export class SkCtx implements Ctx2D {
     }
     this.dirty();
   }
-  fillText(s: string, x: number, y: number) { const t = now(); this.text(s, x, y, false); PERF.text += now() - t; }
-  strokeText(s: string, x: number, y: number) { const t = now(); this.text(s, x, y, true); PERF.text += now() - t; }
+  fillText(s: string, x: number, y: number) { this.text(s, x, y, false); }
+  strokeText(s: string, x: number, y: number) { this.text(s, x, y, true); }
   measureText(s: string) { const [disp, size] = parseFont(this.s.font); return { width: textW(disp, Math.round(size * 2) / 2, String(s)) }; }
   drawImage(img: any, x: number, y: number) {
-    const t0 = now(); try { this.drawImage0(img, x, y); } finally { PERF.img += now() - t0; }
+    this.drawImage0(img, x, y);
   }
   private drawImage0(img: any, x: number, y: number) {
     if (!img || !img.drawTo) return;
