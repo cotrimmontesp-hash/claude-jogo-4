@@ -80,7 +80,7 @@ async function start() {
     if (SHOW_PERF) {
       n++; acc += performance.now() - a;
       if (now - t0 > 1000) { fps = Math.round(n * 1000 / (now - t0)); ms = Math.round(acc / n * 10) / 10; n = 0; acc = 0; t0 = now; }
-      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#000'; ctx.fillRect(0, cv.height - 40, 360, 40); ctx.fillStyle = '#0f0'; ctx.font = '26px monospace'; ctx.fillText(fps + ' fps ' + ms + ' ms (webview)', 8, cv.height - 10);
+      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#000'; ctx.fillRect(0, cv.height - 40, 360, 40); ctx.fillStyle = '#0f0'; ctx.font = '26px monospace'; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic'; ctx.globalAlpha = 1; ctx.fillText(fps + ' fps ' + ms + ' ms (webview)', 8, cv.height - 10);
     }
     requestAnimationFrame(frame);
   };
