@@ -154,3 +154,54 @@ export const WAVEL: any={name:'Arena das Ondas',theme:'factory',waves:true,
 export const NAMES: any={tita:'Tita',bento:'Seu Bento',ferrugem:'Capitão Ferrugem'};
 export const SW_BODY=['#22c7c7','#3f7be0','#ff5d8f','#8b6cff','#4cd964','#ffb020','#ef5350','#4b4f6e','#f4f1ff'];
 export const SW_HAIR=['#ff7a2f','#4a2d6e','#6b3d2a','#2d2a40','#ffd34d','#ff5a36','#f2f4ff','#3fbf55','#ff5d8f'];
+
+/* ---------- 5º personagem: Seu Bento jogável ---------- */
+CH.push({id:'bento',name:'Bento',full:'Seu Bento',role:'Pescador · curto alcance',atk:'net',hp:4600,spd:185,reload:.95,body:'#9be07a',hair:'#2c76d1',belt:'#ffffff',
+  desc:'Joga redes de pesca que prendem e deixam os robôs lentos. Aguenta muita pancada.',sup:'Rede Gigante: uma rede enorme que prende e machuca todos os robôs em volta.',st:[5,2,3]});
+
+/* ---------- capítulo 6: Vulcão do Ferrugem ---------- */
+TH.volcano={g1:'#6a4444',g2:'#5e3a3a',wt:'#8a5240',kind:'stone',water:'#ff6a2f',bush:'#8a6a2a',bushL:'#b8923a',deco:'bolt',out:'#2a1414'};
+LV[4].outro=[['ferrugem','Meu navio... meus parafusos... Isso não acaba aqui! Vou para o meu vulcão!'],
+             ['tita','Ele ainda está com um pedaço do coral! Atrás dele!'],
+             ['bento','Cuidado, Tita. Lá a lava queima de verdade.']];
+LV.push({name:'Vulcão do Ferrugem',theme:'volcano',boss:true,
+  map:[
+  '##########################',
+  '#.....LLL.......f.....##.#',
+  '#..BB.LLL....##.......##.#',
+  '#..BB........##..LL..f...#',
+  '#.P......f.......LL......#',
+  '#....##.....LLL.......s..#',
+  '#....##.....LLL...BB.....#',
+  '#.......f.........BB..Y..#',
+  '#..LL.......##...........#',
+  '#..LL..s....##...LLL.....#',
+  '#.............f..LLL..t..#',
+  '#.......BB...............#',
+  '##########################'],
+  intro:[['bento','Que calor! Não pise na lava laranja, ela queima.'],
+         ['tita','Robôs de fogo... esses correm muito.'],
+         ['ferrugem','Bem-vinda ao meu vulcão! Conheça o MEGA FERRUGEM!'],
+         ['tita','Robô gigante ou não, o coral volta pro farol!']],
+  outro:[['ferrugem','Meus parafusos... derreteram... Você venceu, mocinha.'],
+         ['tita','Acabou, Ferrugem. O coral volta pro farol hoje.'],
+         ['bento','Tita, olha! A ilha inteira está brilhando de novo!']]});
+
+/* ---------- arena do Duelo (todos contra todos) ---------- */
+export const DUELL:any={name:'Arena do Duelo',theme:'beach',duel:true,
+  map:[
+  '##############################',
+  '#............................#',
+  '#..BB.....##.......##.....BB.#',
+  '#..BB.....##.......##.....BB.#',
+  '#............................#',
+  '#......###..........###......#',
+  '#..##.......BBBBBB.......##..#',
+  '#..##.......BB..BB.......##..#',
+  '#.P.........BBBBBB...........#',
+  '#......###..........###......#',
+  '#............................#',
+  '#..BB.....##.......##.....BB.#',
+  '#..BB.....##.......##.....BB.#',
+  '#............................#',
+  '##############################']};

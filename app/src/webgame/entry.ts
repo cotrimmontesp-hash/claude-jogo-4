@@ -56,6 +56,8 @@ async function start() {
     if (S.heroes) info.heroes = g.info.heroes();
     if (S.lobby) info.lobby = g.info.lobby();
     if (S.mapUI) info.map = g.info.map();
+    if (S.shop) info.shop = g.info.shop();
+    if (S.missions) info.missions = g.info.missions();
     const u = g.ui;
     const msg = JSON.stringify({ t: 'snap', ui: { show: S, toast: u.toast, dlg: u.dlg, res: u.res, pause: u.pause, invite: u.invite }, info });
     if (msg !== last) { last = msg; try { W.ReactNativeWebView.postMessage(msg); } catch (e) { } }

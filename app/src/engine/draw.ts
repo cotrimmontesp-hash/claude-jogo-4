@@ -64,6 +64,16 @@ export function weapon(g?:any,ch?:any,x?:any,y?:any,a?:any,t?:any){
     for(let i=0;i<n;i++){const yy=-hh/2+hh*(i+.5)/n;circ(g,len-8,yy,Math.max(2,hh/(n*2.6)),'#2a2e45',true);}
     if(w>=5){g.beginPath();g.moveTo(0,-hh/2);g.lineTo(-6,-hh/2-7);g.lineTo(8,-hh/2);g.closePath();g.fillStyle=A;g.fill();g.stroke();g.beginPath();g.moveTo(0,hh/2);g.lineTo(-6,hh/2+7);g.lineTo(8,hh/2);g.closePath();g.fill();g.stroke();}
     if(w===8){g.fillStyle='#ff5a36';g.beginPath();g.moveTo(len-4,-5);g.lineTo(len+8,0);g.lineTo(len-4,5);g.fill();}
+  } else if(ch.atk==='net'){
+    /* lança-redes do Seu Bento: vara mais longa, rede maior e mais boias a cada arma */
+    const len=30+L*1.1,nr=8+Math.min(6,w*.45);
+    rr(g,0,-3.5,len,7,3,vg(g,-3.5,3.5,w===0?'#8a5a32':lt(C,-.15)));
+    if(w>=3)rr(g,6,-6,8,12,3,A==='#ffffff'?'#ff7a2f':A);
+    g.globalAlpha=.95;g.lineWidth=2;g.strokeStyle=w>=9?'#fff':'#f4f1ff';g.beginPath();
+    for(let i=-1;i<=1;i++){g.moveTo(len+nr*.2,i*nr*.55);g.lineTo(len+nr*2,i*nr*.55);g.moveTo(len+nr*(1.1+i*.55),-nr);g.lineTo(len+nr*(1.1+i*.55),nr);}g.stroke();g.globalAlpha=1;ink(g,2.5);
+    g.beginPath();g.ellipse(len+nr*1.1,0,nr*.95,nr,0,0,7);g.stroke();ink(g);
+    const fl=w>=10?3:w>=5?2:1;for(let i=0;i<fl;i++)circ(g,len+nr*1.1+(i-(fl-1)/2)*nr*.7,-nr-2,2.6,i%2?'#fff':'#ff5d73');
+    if(w===12)rr(g,0,-3.5,len,3,1.5,'#fff3b0');
   } else {
     /* rebitadeira: mais comprida, cano duplo/triplo, bobina elétrica e cobre/ouro */
     const len=30+L;
@@ -87,6 +97,15 @@ export const ALT2:{[k:string]:{name:string,body:string,belt:string,hair?:string}
   lia:{name:'Cavaleira',body:'#8a93a8',belt:'#ffcc2e'},
   zeca:{name:'Rei',body:'#6b3fa0',belt:'#ffcc2e'},
   rui:{name:'Ciborgue',body:'#4b4f6e',belt:'#7ee6ff'},
+  bento:{name:'Capitão',body:'#9be07a',belt:'#ffcc2e'},
+};
+/* ---------- roupas da Loja (compradas com engrenagens) ---------- */
+export const SHOPO:{[k:string]:{name:string,body:string,belt:string,hair?:string}}={
+  tita:{name:'Surfista',body:'#ff9f43',belt:'#22c7c7'},
+  lia:{name:'Bruxa',body:'#5b2a86',belt:'#2fd1c5'},
+  zeca:{name:'Cowboy',body:'#8a5a32',belt:'#ffcc2e'},
+  rui:{name:'Cozinheiro',body:'#f4f1ff',belt:'#ef5350'},
+  bento:{name:'Havaiano',body:'#9be07a',belt:'#ff5d8f'},
 };
 /* ---------- roupas especiais (uma para cada personagem) ---------- */
 export const ALT:{[k:string]:{name:string,body:string,belt:string,hair?:string}}={
@@ -94,11 +113,16 @@ export const ALT:{[k:string]:{name:string,body:string,belt:string,hair?:string}}
   lia:{name:'Ninja',body:'#2d2a40',belt:'#e8474f',hair:'#1d1436'},
   zeca:{name:'Pirata',body:'#c0392b',belt:'#ffcc2e'},
   rui:{name:'Bombeiro',body:'#ef5350',belt:'#ffcc2e'},
+  bento:{name:'Pescador',body:'#9be07a',belt:'#ffcc2e'},
 };
+/** personagem já vestido com uma roupa (para as prévias) */
+export function dressCh(id:string,sk?:string){const c:any=CH.find((h:any)=>h.id===id)||CH[0];const A=sk==='alt'?ALT[id]:sk==='lv20'?ALT2[id]:sk==='shop'?SHOPO[id]:null;if(!A)return c;return Object.assign({},c,{body:A.body,belt:A.belt,hair:A.hair||c.hair,sk});}
 /* acessórios da roupa especial, desenhados por cima da cabeça */
 export function altGear(g:any,ch:any,x:number,by:number,fx:number,t:number){
   const id=ch.id;ink(g);
   if(ch.sk==='lv20'){lv20Gear(g,ch,x,by,fx,t);return;}
+  if(ch.sk==='shop'){shopGear(g,ch,x,by,fx,t);return;}
+  if(id==='bento'){g.beginPath();g.arc(x,by-40,17,Math.PI,0);g.closePath();g.fillStyle=vg(g,by-57,by-40,'#ffcc2e');g.fill();g.stroke();ell(g,x,by-40,25,5,'#e6a300');return;}
   if(id==='tita'){
     g.globalAlpha=.25;circ(g,x,by-36,23,'#bfe9ff',true);g.globalAlpha=1;
     g.lineWidth=3;g.strokeStyle=INK;g.beginPath();g.arc(x,by-36,23,0,7);g.stroke();
@@ -125,6 +149,7 @@ export function altGear(g:any,ch:any,x:number,by:number,fx:number,t:number){
 /* acessórios das roupas do nível 20 */
 function lv20Gear(g:any,ch:any,x:number,by:number,fx:number,t:number){
   const id=ch.id;ink(g);
+  if(id==='bento'){rr(g,x-18,by-50,36,11,4,'#1d3d7a');rr(g,x-20,by-42,40,5,2,'#14295a');g.fillStyle='#ffcc2e';g.fillRect(x-18,by-46,36,2.5);circ(g,x,by-48,3.5,'#ffcc2e');return;}
   if(id==='tita'){
     /* chapéu de pirata com caveira */
     g.beginPath();g.moveTo(x-26,by-44);g.quadraticCurveTo(x-14,by-50,x-10,by-64);g.quadraticCurveTo(x,by-58,x+10,by-64);g.quadraticCurveTo(x+14,by-50,x+26,by-44);g.quadraticCurveTo(x,by-52,x-26,by-44);g.closePath();
@@ -155,9 +180,59 @@ function lv20Gear(g:any,ch:any,x:number,by:number,fx:number,t:number){
     circ(g,x-fx*16,by-40,4,'#9aa3b8');
   }
 }
+/* acessórios das roupas da Loja */
+function lei(g:any,x:number,y:number){for(let i=0;i<7;i++){const a=Math.PI*(.15+i*.7/6);circ(g,x+Math.cos(a)*13,y+Math.sin(a)*5,3.2,['#ff5d8f','#ffe14d','#fff','#ff9f43'][i%4]);}}
+function shopGear(g:any,ch:any,x:number,by:number,fx:number,t:number){
+  const id=ch.id;ink(g);
+  if(id==='tita'){lei(g,x,by-18);circ(g,x-fx*13,by-46,5,'#ff5d8f');circ(g,x-fx*13,by-46,2,'#ffe14d',true);}
+  else if(id==='lia'){
+    ell(g,x,by-47,25,6,'#3a1d5e');
+    g.beginPath();g.moveTo(x-14,by-48);g.lineTo(x+fx*8,by-82);g.lineTo(x+14,by-48);g.closePath();g.fillStyle=vg(g,by-82,by-48,'#5b2a86');g.fill();g.stroke();
+    rr(g,x-13,by-54,26,5,2,'#2fd1c5');star(g,x+fx*3,by-64,4,'#ffe14d');
+  } else if(id==='zeca'){
+    ell(g,x,by-46,27,7,'#8a5a32');
+    g.beginPath();g.moveTo(x-13,by-46);g.quadraticCurveTo(x-14,by-66,x,by-60);g.quadraticCurveTo(x+14,by-66,x+13,by-46);g.closePath();g.fillStyle=vg(g,by-66,by-46,'#a0703f');g.fill();g.stroke();
+    rr(g,x-13,by-51,26,4,2,'#5a3418');
+  } else if(id==='rui'){
+    rr(g,x-14,by-52,28,10,3,'#fff');
+    for(const dx of [-10,0,10])circ(g,x+dx,by-60,9,'#fff');
+    rr(g,x-14,by-52,28,4,2,'#e4def5');
+  } else if(id==='bento'){
+    ell(g,x,by-42,26,7,'#e6c46a');
+    g.beginPath();g.arc(x,by-44,15,Math.PI,0);g.closePath();g.fillStyle=vg(g,by-59,by-44,'#f2d27a');g.fill();g.stroke();
+    rr(g,x-15,by-47,30,4,2,'#ff5d8f');lei(g,x,by-16);
+  }
+}
+/* rede presa num robô (fica lento) */
+export function netOver(g:any,x:number,y:number,r:number){
+  g.save();g.globalAlpha=.75;g.lineWidth=2;g.strokeStyle='#f4f1ff';g.beginPath();
+  for(let i=-2;i<=2;i++){g.moveTo(x-r,y+i*r*.35);g.lineTo(x+r,y+i*r*.35);g.moveTo(x+i*r*.35,y-r);g.lineTo(x+i*r*.35,y+r);}
+  g.stroke();g.globalAlpha=1;g.restore();ink(g,2.5);g.beginPath();g.ellipse(x,y,r,r*.9,0,0,7);g.stroke();ink(g);
+}
+/* Seu Bento como personagem jogável (tartaruga pescadora) */
+export function drawBentoHero(g:any,x:number,y:number,a:number,t:number,mv:boolean,fl:number,ch:any){
+  ink(g);
+  const st=mv?Math.sin(t*13):0,b=mv?-Math.abs(Math.sin(t*13))*3:Math.sin(t*3)*1.2,fx=Math.cos(a)>=0?1:-1;
+  ell(g,x-9,y-1+st*2,7,4.5,'#3d7f35');ell(g,x+9,y-1-st*2,7,4.5,'#3d7f35');
+  const by=y+b,behind=Math.sin(a)<-0.25;
+  if(behind)weapon(g,ch,x,by-12,a,t);
+  ell(g,x,by-12,21,15,rg(g,x,by-12,21,'#4d9a43'));
+  g.fillStyle='#3d7f35';[[-9,-14],[0,-18],[9,-14],[-5,-6],[5,-6]].forEach(p=>{g.beginPath();g.arc(x+p[0],by+p[1],4,0,7);g.fill();});
+  g.fillStyle=ch.belt||'#fff';g.fillRect(x-15,by-6,30,3.5);
+  ell(g,x,by-33,16,14,rg(g,x,by-33,16,ch.body||'#9be07a'));
+  if(!ch.sk){rr(g,x-12,by-50,24,7,3,'#fff');rr(g,x-4,by-53,8,4,2,ch.hair||'#2c76d1');}
+  const ex=Math.cos(a)*2.5,ey=Math.sin(a)*1.4;
+  g.lineWidth=2.2;g.beginPath();g.arc(x-5.5+ex,by-34+ey,4.6,0,7);g.stroke();g.beginPath();g.arc(x+5.5+ex,by-34+ey,4.6,0,7);g.stroke();
+  g.beginPath();g.moveTo(x-1+ex,by-34+ey);g.lineTo(x+1+ex,by-34+ey);g.stroke();ink(g);
+  eye(g,x-5.5+ex,by-34+ey,.6);eye(g,x+5.5+ex,by-34+ey,.6);
+  g.beginPath();g.arc(x+ex,by-27+ey,4,0.15*Math.PI,0.85*Math.PI);g.lineWidth=2;g.stroke();ink(g);
+  if(ch.sk)altGear(g,ch,x,by+4,fx,t);
+  if(!behind)weapon(g,ch,x,by-12,a,t);
+  if(fl>0){g.globalAlpha=Math.min(1,fl*6)*.75;circ(g,x,by-22,21,'#fff',true);g.globalAlpha=1;}
+}
 
 export function drawHero(g?:any,x?:any,y?:any,a?:any,t?:any,mv?:any,fl?:any,ch?:any){
-  ch=ch||CH[0];ink(g);
+  ch=ch||CH[0];if(ch.id==='bento'){drawBentoHero(g,x,y,a,t,mv,fl,ch);return;}ink(g);
   const st=mv?Math.sin(t*13):0;
   const b=mv?-Math.abs(Math.sin(t*13))*3:Math.sin(t*3)*1.2;
   const fx=Math.cos(a)>=0?1:-1;
@@ -221,13 +296,14 @@ export function drawBot(g?:any,e?:any,t?:any,a?:any){
     g.save();g.translate(x,y-40);g.rotate(w);
     circ(g,0,0,20,'#fff');circ(g,0,0,14,'#ff5d73');circ(g,0,0,8,'#fff');circ(g,0,0,3.5,'#ff5d73');
     g.restore();
-  } else if(e.type==='g'){
+  } else if(e.type==='g'||e.type==='f'){const F=e.type==='f';
     const st=mv?Math.sin(t*11+e.wob)*2:0;
-    rr(g,x-12,y-6+st,7,8,3,'#4b3f80');rr(g,x+5,y-6-st,7,8,3,'#4b3f80');
-    g.beginPath();g.moveTo(x,by-30);g.lineTo(x+3,by-40);g.stroke();
-    circ(g,x+3,by-42,4,(Math.sin(t*6+e.wob)>0||e.alert)?'#ff5d73':'#ffb3bf');
-    rr(g,x-17,by-32,34,28,11,vg(g,by-32,by-4,'#8d78e0'));
-    g.fillStyle='#6a57c2';g.fillRect(x-15.5,by-13,31,5);
+    rr(g,x-12,y-6+st,7,8,3,F?'#7a2a14':'#4b3f80');rr(g,x+5,y-6-st,7,8,3,F?'#7a2a14':'#4b3f80');
+    if(F){const fh=8+Math.sin(t*18+e.wob)*3;g.beginPath();g.moveTo(x-9,by-30);g.quadraticCurveTo(x-6,by-38-fh,x,by-44-fh);g.quadraticCurveTo(x+6,by-38-fh,x+9,by-30);g.closePath();g.fillStyle='#ffcc2e';g.fill();g.stroke();g.beginPath();g.moveTo(x-4,by-30);g.quadraticCurveTo(x,by-38-fh*.6,x+4,by-30);g.closePath();g.fillStyle='#ff5a36';g.fill();}
+    else{g.beginPath();g.moveTo(x,by-30);g.lineTo(x+3,by-40);g.stroke();
+    circ(g,x+3,by-42,4,(Math.sin(t*6+e.wob)>0||e.alert)?'#ff5d73':'#ffb3bf');}
+    rr(g,x-17,by-32,34,28,11,vg(g,by-32,by-4,F?'#ff7a2f':'#8d78e0'));
+    g.fillStyle=F?'#d9481f':'#6a57c2';g.fillRect(x-15.5,by-13,31,5);
     circ(g,x+ex*.6,by-20+ey*.4,9,'#fff');
     circ(g,x+ex*1.4,by-20+ey,4.2,e.alert?'#ff3b55':'#5b4aa8',true);
     if(e.alert){g.beginPath();g.moveTo(x-9,by-32);g.lineTo(x+1,by-28);g.moveTo(x+9,by-32);g.lineTo(x+1,by-28);g.stroke();}
@@ -251,7 +327,7 @@ export function drawBot(g?:any,e?:any,t?:any,a?:any){
     g.save();g.translate(x,by-28);g.rotate(a);rr(g,4,-6,30,12,4,vg(g,-6,6,'#4a4e66'));rr(g,30,-7,7,14,2,'#2a2e45');g.restore();
     circ(g,x,by-30,13,rg(g,x,by-30,13,'#ff7a6f'));
     circ(g,x+ex,by-31+ey*.5,4,'#ffe14d');
-  } else if(e.type==='X'){
+  } else if(e.type==='X'){if(e.mega){g.save();g.translate(x,y);g.scale(1.35,1.35);g.translate(-x,-y);}
     const ch=e.st==='windup';
     const X=x+(ch?(Math.random()-.5)*4:0);
     ell(g,X-14,y-2,11,6,'#2c2140');ell(g,X+14,y-2,11,6,'#2c2140');
@@ -272,7 +348,9 @@ export function drawBot(g?:any,e?:any,t?:any,a?:any){
     g.fillStyle='#ffcc2e';g.fillRect(X-33,by-88,66,3);
     gearShape(g,X,by-98,7,'#fff');
     g.save();g.translate(X,by-30);g.rotate(a);rr(g,18,-8,30,16,5,vg(g,-8,8,'#4a4e66'));rr(g,44,-10,9,20,3,'#2a2e45');g.restore();
+    if(e.mega){g.restore();g.globalAlpha=.22+.12*Math.sin(t*6);circ(g,x,by-60,70,'#ff5a36',true);g.globalAlpha=1;}
   }
+  if(e.slowT>0)netOver(g,x,by-(e.type==='X'?50:18),e.r+6);
   if(e.fl>0){g.globalAlpha=Math.min(1,e.fl*6)*.7;circ(g,x,by-(e.type==='X'?50:20),e.r+5,'#fff',true);g.globalAlpha=1;}
 }
 

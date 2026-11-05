@@ -2,7 +2,7 @@
    Este "jogo remoto" tem a mesma cara do motor para as telas em React Native:
    guarda o último estado que a WebView mandou e repassa os botões para ela. */
 import { AppState, Share } from 'react-native';
-import { paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon } from '../engine/draw';
+import { paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon, dressCh } from '../engine/draw';
 import { CH } from '../engine/data';
 import type { Game } from '../engine/game';
 import { getSaved, storeSave } from '../platform/make';
@@ -11,7 +11,7 @@ export function createRemoteGame(): Game {
   const subs = new Set<() => void>();
   const ui: any = {
     v: 0,
-    show: { menu: true, lobby: false, mapUI: false, dlg: false, res: false, pause: false, friends: false, heroes: false, skin: false, waitUI: false, arsenal: false, pauseBtn: false, inviteCard: false },
+    show: { shop: false, missions: false, menu: true, lobby: false, mapUI: false, dlg: false, res: false, pause: false, friends: false, heroes: false, skin: false, waitUI: false, arsenal: false, pauseBtn: false, inviteCard: false },
     toast: null, dlg: { name: '', text: '', title: null }, res: { title: '', sub: '', l1: '', l2: '', lose: false }, pause: { tip: '', quit: 'Sair' }, invite: { txt: '' },
   };
   let info: any = {
@@ -37,7 +37,7 @@ export function createRemoteGame(): Game {
   };
   const back = () => {
     const S = ui.show;
-    if (S.inviteCard || S.pause || S.res || S.arsenal || S.heroes || S.friends || S.skin || S.lobby || S.dlg || S.waitUI || S.mapUI || info.state === 'play') { post({ t: 'act', k: 'back', a: [] }); return true; }
+    if (S.inviteCard || S.pause || S.res || S.arsenal || S.heroes || S.friends || S.skin || S.lobby || S.shop || S.missions || S.dlg || S.waitUI || S.mapUI || info.state === 'play') { post({ t: 'act', k: 'back', a: [] }); return true; }
     return false;
   };
   const act: any = new Proxy({}, {
@@ -62,6 +62,7 @@ export function createRemoteGame(): Game {
     },
     paint: {
       weapon: (g: any, id: string, wi: number, lock: boolean) => paintWeapon(g, id, wi, lock),
+      outfit: (g: any, id: string, sk: string) => paintSkin(g, clk(), dressCh(id, sk)),
       menuScene: (g: any) => paintMenuScene(g, HOME, clk(), info.mini.ch),
       menuBg: (g: any, w: number, h: number) => paintMenuBg(g, w, h),
       skin: (g: any) => paintSkin(g, clk(), info.mini.ch),
@@ -70,7 +71,7 @@ export function createRemoteGame(): Game {
     },
     info: {
       menu: () => info.menu, skin: () => info.skin, wait: () => info.wait, arsenal: () => info.arsenal, friends: () => info.friends,
-      heroes: () => info.heroes, lobby: () => info.lobby, map: () => info.map, mini: () => info.mini, state: () => info.state,
+      heroes: () => info.heroes, lobby: () => info.lobby, map: () => info.map, shop: () => info.shop, missions: () => info.missions, mini: () => info.mini, state: () => info.state,
       layout: () => ({ W: lay.W, H: lay.H, INS: lay.INS, ROT: false, narrow: lay.W < 700, xnarrow: lay.W < 520, short: lay.H < 460 }),
       isTouch: () => true,
     },

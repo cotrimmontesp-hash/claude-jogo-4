@@ -34,6 +34,10 @@ function Home() {
           <View key={k as string} style={h.stat}><Text style={[h.statB, lay.short && { fontSize: 18 }]}>{v}</Text><Text style={h.statS}>{k}</Text></View>
         ))}
       </View>
+      <View style={h.pair}>
+        <Btn label={'Som: ' + (m.sfx ? 'ligado' : 'desligado')} size="sm" fontSize={13} padV={5} padH={6} style={{ flex: 1 }} onPress={game.act.toggleSfx} />
+        <Btn label={'Música: ' + (m.mus ? 'ligada' : 'desligada')} size="sm" fontSize={13} padV={5} padH={6} style={{ flex: 1 }} onPress={game.act.toggleMus} />
+      </View>
       {!lay.short && (
         <View style={h.logo}>
           <OText stroke={6} drop={6} style={{ fontFamily: FONT.display, fontSize: l1, lineHeight: l1, color: C.gold, textAlign: 'center' }}>Ilha</OText>
@@ -64,11 +68,11 @@ function Home() {
         <Btn label="Personagens" fontSize={15} padV={7} padH={3} style={{ flex: 1 }} onPress={game.act.openHeroes} />
         <Btn label={m.arms} fontSize={15} padV={7} padH={3} style={{ flex: 1 }} onPress={game.act.openArsenal} />
       </View>
-      <Btn label={m.skin || 'Personalizar'} kind="alt" fontSize={19} padV={7} padH={12} onPress={game.act.openSkin} />
       <View style={h.pair}>
-        <Btn label={'Som: ' + (m.sfx ? 'ligado' : 'desligado')} size="sm" fontSize={13} padV={5} padH={6} style={{ flex: 1 }} onPress={game.act.toggleSfx} />
-        <Btn label={'Música: ' + (m.mus ? 'ligada' : 'desligada')} size="sm" fontSize={13} padV={5} padH={6} style={{ flex: 1 }} onPress={game.act.toggleMus} />
+        <Btn label={m.skin || 'Personalizar'} kind="alt" fontSize={15} padV={7} padH={3} style={{ flex: 1 }} onPress={game.act.openSkin} />
+        <Btn label="Loja" kind="red" fontSize={15} padV={7} padH={3} style={{ flex: 1 }} onPress={game.act.openShop} />
       </View>
+      <Btn label={m.missions || 'Missões'} kind={m.missions && m.missions !== 'Missões' ? 'play' : 'gold'} fontSize={17} padV={6} padH={10} onPress={game.act.openMissions} />
       {!lay.short && <Text style={h.hint}>{m.hint}</Text>}
     </View>
   );
@@ -127,7 +131,9 @@ function Skin() {
           <Btn label={(s.outfit === 'alt' ? '✓ ' : '') + s.altName} kind={s.outfit === 'alt' ? 'gold' : 'alt'} size="sm" onPress={() => game.act.pickOutfit('alt')} />
           <Btn label={s.lv20Lock ? '🔒 ' + s.lv20Name + ' · nível ' + s.lv20 : (s.outfit === 'lv20' ? '✓ ' : '') + s.lv20Name + (s.lv20New ? ' (nova!)' : '')}
             kind={s.outfit === 'lv20' ? 'gold' : 'red'} size="sm" disabled={s.lv20Lock} onPress={() => game.act.pickOutfit('lv20')} />
+          {s.shopOwned && <Btn label={(s.outfit === 'shop' ? '✓ ' : '') + s.shopName} kind={s.outfit === 'shop' ? 'gold' : 'alt'} size="sm" onPress={() => game.act.pickOutfit('shop')} />}
         </Row>
+        {!s.shopOwned && <Text style={[ls.empty, { fontSize: 12 }]}>Tem mais uma roupa ({s.shopName}) na Loja.</Text>}
         {s.lv20Lock && <Text style={[ls.empty, { fontSize: 12 }]}>A roupa {s.lv20Name} libera quando o personagem chega no nível {s.lv20} (agora: nível {s.lv}).</Text>}
         <Lab style={{ width: '100%' }}>Cor da roupa</Lab>{sw(s.body, 'b', s.b)}
         <Lab style={{ width: '100%' }}>Cabelo</Lab>{sw(s.hair, 'h', s.h)}
@@ -411,7 +417,7 @@ const fr = StyleSheet.create({
 function Heroes() {
   const game = useGame(), lay = useLay();
   const v = useInfo(() => game.info.heroes());
-  const cols = lay.xnarrow ? 2 : 4;
+  const cols = lay.xnarrow ? 3 : 5;
   const cardW = Math.min(720, lay.W - 32 - lay.ins.l - lay.ins.r) - 48;
   const cw = Math.min(110, (cardW - 8 * (cols - 1)) / cols - 14);
   return (
@@ -571,6 +577,95 @@ function PauseBtn() {
   );
 }
 
+/* ---------- loja ---------- */
+function Shop() {
+  const game = useGame(), lay = useLay();
+  const s = useInfo(() => game.info.shop());
+  const sections: [string, string][] = [['outfit', 'Roupas'], ['color', 'Cores raras'], ['fx', 'Efeitos de tiro']];
+  const wide = !lay.narrow;
+  return (
+    <Ov bg={<MenuBg />}>
+      <Card maxW={720}>
+        <H3>Loja</H3>
+        <View style={sh.gears}><Text style={sh.gearsT}>⚙ {s.gears} engrenagens</Text></View>
+        <Text style={[ls.empty, { fontSize: 12 }]}>Ganhe engrenagens nas fases, nas ondas e no baú das Missões.</Text>
+        {sections.map(([type, title]) => (
+          <View key={type} style={{ width: '100%', gap: 6 }}>
+            <Lab>{title}</Lab>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {s.items.filter((i: any) => i.type === type).map((i: any) => (
+                <View key={i.k} style={[sh.item, { width: wide ? '31.5%' : '48%' } as any, i.eq && { backgroundColor: '#fff3c4' }]}>
+                  {i.type === 'outfit' ? <MiniCanvas w={240} h={240} width={70} draw={g => game.paint.outfit(g, i.ch, 'shop')} />
+                    : i.type === 'color' ? <View style={[sh.sw, { backgroundColor: i.col }]} />
+                    : <Text style={sh.fx}>{i.k === 'fx_confete' ? '🎉' : i.k === 'fx_arco' ? '🌈' : '🔥'}</Text>}
+                  <Text style={sh.name} numberOfLines={1}>{i.name}</Text>
+                  <Text style={sh.desc} numberOfLines={2}>{i.desc}</Text>
+                  {i.owned
+                    ? <Btn label={i.type === 'color' ? 'Usar' : i.eq ? '✓ Usando' : 'Usar'} kind={i.eq ? 'gold' : 'alt'} size="sm" onPress={() => game.act.shopUse(i.k)} />
+                    : <Btn label={'⚙ ' + i.price} kind={i.afford ? 'gold' : 'red'} size="sm" onPress={() => game.act.shopBuy(i.k)} />}
+                </View>
+              ))}
+            </View>
+          </View>
+        ))}
+        <Btn label="Voltar" kind="red" size="sm" onPress={game.act.shopBack} />
+      </Card>
+    </Ov>
+  );
+}
+const sh = StyleSheet.create({
+  gears: { backgroundColor: C.ink, borderRadius: 999, paddingVertical: 4, paddingHorizontal: 14 },
+  gearsT: { fontFamily: FONT.display, fontSize: 18, color: C.gold },
+  item: { alignItems: 'center', gap: 4, backgroundColor: C.paper, borderWidth: 3, borderColor: C.ink, borderRadius: 14, paddingVertical: 8, paddingHorizontal: 6, flexGrow: 1 },
+  sw: { width: 52, height: 52, borderRadius: 26, borderWidth: 3, borderColor: C.ink, marginVertical: 9 },
+  fx: { fontSize: 40, lineHeight: 70 },
+  name: { fontFamily: FONT.display, fontSize: 16, color: C.ink, textAlign: 'center' },
+  desc: { fontFamily: FONT.body, fontSize: 11, lineHeight: 14, color: C.sub, textAlign: 'center', minHeight: 28 },
+});
+
+/* ---------- missões do dia e baú ---------- */
+function Missions() {
+  const game = useGame();
+  const m = useInfo(() => game.info.missions());
+  return (
+    <Ov bg={<MenuBg />}>
+      <Card>
+        <H3>Missões do dia</H3>
+        <P>Complete as 3 missões para abrir o baú. Amanhã chegam missões novas.</P>
+        {m.list.map((x: any, i: number) => (
+          <View key={i} style={[mi.row, x.done && { backgroundColor: '#e3f9d6' }]}>
+            <Text style={mi.check}>{x.done ? '✅' : '🎯'}</Text>
+            <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+              <Text style={mi.t}>{x.t}</Text>
+              <View style={mi.bar}><View style={{ width: Math.round(x.p / x.goal * 100) + '%' as any, height: '100%', backgroundColor: x.done ? '#5ee04a' : C.teal }} /></View>
+            </View>
+            <Text style={mi.n}>{x.p}/{x.goal}</Text>
+          </View>
+        ))}
+        {m.chest ? (
+          <View style={mi.prize}>
+            <Text style={{ fontSize: 40 }}>🎁</Text>
+            <Text style={mi.pt}>Você ganhou:</Text>
+            {m.chest.lines.map((l: string, i: number) => <Text key={i} style={mi.pl}>{l}</Text>)}
+          </View>
+        ) : m.opened ? <Text style={ls.empty}>Baú de hoje já aberto. Volte amanhã!</Text>
+          : <Btn label={m.ready ? '🎁 Abrir baú' : '🔒 Baú (faça as 3 missões)'} kind={m.ready ? 'play' : 'gold'} disabled={!m.ready} onPress={game.act.openChest} />}
+        <Btn label="Voltar" kind="red" size="sm" onPress={game.act.missionsBack} />
+      </Card>
+    </Ov>
+  );
+}
+const mi = StyleSheet.create({
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, width: '100%', backgroundColor: C.paper, borderWidth: 3, borderColor: C.ink, borderRadius: 12, paddingVertical: 8, paddingHorizontal: 10 },
+  check: { fontSize: 22 },
+  t: { fontFamily: FONT.black, fontSize: 14, color: C.ink },
+  bar: { height: 10, borderRadius: 5, borderWidth: 2, borderColor: C.ink, backgroundColor: '#e4def5', overflow: 'hidden' },
+  n: { fontFamily: FONT.display, fontSize: 16, color: C.ink },
+  prize: { alignItems: 'center', gap: 2, backgroundColor: '#fff3c4', borderWidth: 3, borderColor: C.ink, borderRadius: 14, padding: 10, width: '100%' },
+  pt: { fontFamily: FONT.display, fontSize: 18, color: C.coral },
+  pl: { fontFamily: FONT.black, fontSize: 14, color: C.ink },
+});
+
 /** todas as camadas por cima da tela do jogo, na mesma ordem do jogo antigo */
 export function Screens() {
   const game = useGame();
@@ -589,6 +684,8 @@ export function Screens() {
       {s.friends && <Friends />}
       {s.heroes && <Heroes />}
       {s.arsenal && <Arsenal />}
+      {s.shop && <Shop />}
+      {s.missions && <Missions />}
       {s.inviteCard && <Invite />}
       <Toast />
     </>
