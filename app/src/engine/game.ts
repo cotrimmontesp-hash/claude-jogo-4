@@ -4,7 +4,7 @@
    recebe toques/teclas pela plataforma e guarda o estado das telas em `ui`,
    que as telas em React Native leem. */
 import { CH, PALS, TH, LV, LOBBY, WAVEL, NAMES, SW_BODY, SW_HAIR } from './data';
-import { INK, lt, vg, rg, ink, circ, ell, rrp, rr, shadow, txt, eye, gearShape, star, weapon, drawHero, drawBento, drawBot, setFontFn, paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard } from './draw';
+import { INK, lt, vg, rg, ink, circ, ell, rrp, rr, shadow, txt, eye, gearShape, star, weapon, drawHero, drawBento, drawBot, setFontFn, paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon, WPAL, ALT } from './draw';
 import { Peer } from '../net/peer';
 import type { Platform, Ctx2D, OffCanvas, Insets, PtrEv } from './types';
 
@@ -18,6 +18,13 @@ let W=800,H=450,DPR=1,SC=1,ROT=false,INS:Insets={t:0,r:0,b:0,l:0},VIG:any=null;
 let ctx:any=null;
 const F=(size:number,kind?:'display'|'body')=>pf.font(size,kind||'display');
 setFontFn(F);
+/* personagem com a arma equipada (wi) e, se escolhida, a roupa especial */
+function dressed(c:any,id:string,alt:boolean,keepHair:boolean){
+  const L=charLvl(id),e=save.wpn&&save.wpn[id];
+  const o:any={wi:clamp(e==null?0:e,0,L.u-1)};
+  if(alt&&ALT[id]){const A=ALT[id];o.sk='alt';o.body=A.body;o.belt=A.belt;if(A.hair&&!keepHair)o.hair=A.hair;o.full=CH.find(h=>h.id===id).name+' '+A.name;}
+  return Object.assign({},c,o);
+}
 
 /* ---------- estado das telas (lido pelas telas em React Native) ---------- */
 type Shown={[k:string]:boolean};
@@ -50,7 +57,7 @@ function persist(){try{pf.storage.save(JSON.stringify(save));}catch(e){}}
 
 function withSkin(base?:any,b?:any,h?:any){return (b||h)?Object.assign({},base,{body:b||base.body,hair:h||base.hair}):base;}
 const HEX=/^#[0-9a-f]{6}$/i;
-function myCh(){const base=CH[clamp(save.ch|0,0,CH.length-1)];const sk=save.skin&&save.skin[base.id];return sk?withSkin(base,HEX.test(sk.b)?sk.b:null,HEX.test(sk.h)?sk.h:null):base;}
+function myCh(){const base=CH[clamp(save.ch|0,0,CH.length-1)];const sk=save.skin&&save.skin[base.id];const c=sk?withSkin(base,HEX.test(sk.b)?sk.b:null,HEX.test(sk.h)?sk.h:null):base;return dressed(c,base.id,save.outfit&&save.outfit[base.id]==='alt',sk&&HEX.test(sk.h));}
 const WV={on:false,wave:0,state:'break',t:0,queue:[],spawnT:0,flash:0};
 function curL(){return cur===-2?WAVEL:cur===-1?LOBBY:LV[cur];}
 /* ---------- som: o motor só escolhe o som; a plataforma toca ---------- */
@@ -299,7 +306,7 @@ const WNAMES={
 const WNUM={tita:[3,3,3,4,5,4,4,5,6,5,5,6,6,7,7],lia:[1,1,1,1,2,1,1,3,2,1,2,2,3,3,3],zeca:[1,1,1,1,3,1,2,1,3,1,2,3,2,4,4],rui:[1,1,1,2,1,2,2,3,1,1,4,2,2,5,4]};
 const WPIER={tita:[10,11,12,13,14],lia:[5,6,9,10,12,13,14],zeca:[],rui:[]};
 const WBIG={zeca:[7,9,14],rui:[8,9,14],tita:[],lia:[]};
-const WCOL=['','','','','','#7ee6ff','#7ee6ff','#7ee6ff','#7ee6ff','#c45cff','#c45cff','#c45cff','#ffb800','#ffb800','#ff5d73'];
+const WCOL=WPAL.map((c,i)=>i?c:'');
 function weaponOf(id?:any,t?:any){t=clamp(t|0,0,14);const n=WNUM[id][t],n0=WNUM[id][0];
   return {t,name:WNAMES[id][t],n,dm:(1+.1*t)*Math.sqrt(n0/n),am:(1+.035*t)*(WBIG[id].includes(t)?1.35:1),rl:Math.max(.62,1-.025*t),rg:1+.02*t,pierce:WPIER[id].includes(t),col:WCOL[t]||null,lvl:WUNL[t]};}
 const WUNL=(()=>{const a=[1,5];let g=7;while(a.length<15){a.push(a[a.length-1]+g);g+=2;}return a;})();
@@ -990,8 +997,10 @@ function playWaves(){NET.leave();startWavesHost();}
 function openSkin(){hideAll();state='skin';show('skin');emit();}
 function skinInfo(){
   const base=CH[save.ch|0],cur2=myCh();
-  return {who:base.full+': escolha as cores',body:SW_BODY,hair:SW_HAIR,b:String(cur2.body).toLowerCase(),h:String(cur2.hair).toLowerCase()};
+  return {who:base.full+': escolha as cores',body:SW_BODY,hair:SW_HAIR,b:String(cur2.body).toLowerCase(),h:String(cur2.hair).toLowerCase(),
+    outfit:cur2.sk==='alt'?'alt':'normal',altName:ALT[base.id].name,id:base.id};
 }
+function pickOutfit(k:string){const base=CH[save.ch|0];save.outfit=save.outfit||{};save.outfit[base.id]=k==='alt'?'alt':'normal';persist();toast(k==='alt'?base.name+' '+ALT[base.id].name+' equipada!':'Roupa normal equipada.');emit();}
 function pickSkin(key:'b'|'h',c:string){const base=CH[save.ch|0];save.skin=save.skin||{};const sk=save.skin[base.id]=save.skin[base.id]||{};sk[key]=c;persist();emit();}
 function skinReset(){if(save.skin)delete save.skin[CH[save.ch|0].id];persist();emit();}
 function drawSkinPreview(g:Ctx2D){paintSkin(g,clock,myCh());}
@@ -1069,7 +1078,7 @@ function arsenalInfo(){
       info:(w.n>1?w.n+' tiros':'1 tiro')+' · dano '+Math.round(w.dm*100)+'%'+(w.pierce?' · atravessa':'')+' · alcance '+Math.round(w.rg*100)+'%'+(c.atk==='lob'||c.atk==='rocket'?' · explosão '+Math.round(w.am*100)+'%':''),
       pct:lock?Math.round(clamp(myXp/Math.max(1,totalTo(WUNL[i])),0,1)*100):0,
       btn:lock?'Nível '+WUNL[i]:i===e?'Equipada':'Equipar'});}
-  return {sel:AR.ch,tabs:CH.map(h=>h.name+' · '+charLvl(h.id).l),
+  return {id:c.id,sel:AR.ch,tabs:CH.map(h=>h.name+' · '+charLvl(h.id).l),
     head:c.full+' · nível '+L.l+(L.max?' (máximo)':'')+' · '+L.u+' de 15 armas liberadas'+(AR.ch!==(save.ch|0)?' · você está jogando com '+CH[save.ch|0].name:''),
     xp:L.max?100:Math.round(L.x/L.need*100),
     sub:L.max?'Nível máximo':'Faltam '+(L.need-L.x)+' XP para o nível '+(L.l+1)+'. Ganhe XP jogando com '+c.name+'.',rows};
@@ -1388,7 +1397,7 @@ async function joinRoom(code?:any,asHost?:any){
 function sendPresence(force?:any){
   if(!NET.game)return;
   const o:any={app:'tita',role:NET.isHost?'host':'pl',nm:save.name||'Jogador',sc:state==='play'?'play':state==='map'?'map':'wait',run:NET.isHost?runId:NET.clientRun,
-    x:P?P.x|0:0,y:P?P.y|0:0,a:P?Math.round(P.aim*100):0,hp:P?P.hp|0:0,mh:P?P.max:3600,dd:P&&P.dead?1:0,mv:P&&P.mv?1:0,ch:save.ch|0,cb:myCh().body,chh:myCh().hair,sh:myShots.slice(-8)};
+    x:P?P.x|0:0,y:P?P.y|0:0,a:P?Math.round(P.aim*100):0,hp:P?P.hp|0:0,mh:P?P.max:3600,dd:P&&P.dead?1:0,mv:P&&P.mv?1:0,ch:save.ch|0,cb:myCh().body,chh:myCh().hair,sk:myCh().sk?1:0,wi:myCh().wi|0,sh:myShots.slice(-8)};
   if(NET.isHost){
     o.ph=phase;o.lv=cur===-1?WAIT.sel:WORLD.start;o.md=WV.on?'w':'s';o.wm=WAIT.mode;o.wv=WV.wave;o.ws=WV.state==='break'?1:0;o.wt=Math.round(WV.t*10)/10;o.wq=WV.queue.length;o.pg=WORLD.prog;o.ct=Math.round(WAIT.ct*10)/10;o.ms=Math.round(MAP.s);o.mn=MAP.node;o.ul=save.unl;o.dn=save.done.slice(0,5);o.n=diffN;
     if(phase==='play'||phase==='win'){
@@ -1420,7 +1429,7 @@ function netTick(dt?:any){
     r.tx=+pr.x||0;r.ty=+pr.y||0;r.aim=(+pr.a||0)/100;const nhp=+pr.hp||0;if(r.hp!=null&&nhp<r.hp)r.fl=.15;r.hp=nhp;r.mh=+pr.mh||3600;
     if(r.dead===false&&pr.dd&&state==='play')burst(r.x,r.y-20,24,['#4cb7ff','#fff'],260,5);
     r.dead=!!pr.dd;r.mv=!!pr.mv;r.nm=String(pr.nm||'Jogador').slice(0,12);r.sc=String(pr.sc||'');r.run=+pr.run;
-    r.ci=Math.max(0,all.findIndex(a=>a.peer===p.peer));r.ch=clamp(+pr.ch|0,0,CH.length-1);r.chObj=withSkin(CH[r.ch],HEX.test(pr.cb)?pr.cb:null,HEX.test(pr.chh)?pr.chh:null);
+    r.ci=Math.max(0,all.findIndex(a=>a.peer===p.peer));r.ch=clamp(+pr.ch|0,0,CH.length-1);r.chObj=Object.assign({},withSkin(CH[r.ch],HEX.test(pr.cb)?pr.cb:null,HEX.test(pr.chh)?pr.chh:null),{wi:clamp(+pr.wi|0,0,14)},pr.sk?{sk:'alt'}:{});
     if(Math.hypot(r.tx-r.x,r.ty-r.y)>200){r.x=r.tx;r.y=r.ty;}
     const sh=Array.isArray(pr.sh)?pr.sh:[];
     let mx=NET.lastShot[p.peer];
@@ -1526,13 +1535,13 @@ const game={
   subscribe(f:()=>void){subs.add(f);return ()=>{subs.delete(f);};},
   setLayout,tick,draw,
   input:{keyDown,keyUp,ptrDown,ptrMove,ptrUp,homeDown,homeMove,homeUp,homeCancel},
-  paint:{menuScene:drawMenuScene,menuBg:drawMenuBg,skin:drawSkinPreview,portrait:drawPortrait,heroCard:drawHeroCard},
+  paint:{weapon:(g:Ctx2D,id:string,wi:number,lock:boolean)=>paintWeapon(g,id,wi,lock),menuScene:drawMenuScene,menuBg:drawMenuBg,skin:drawSkinPreview,portrait:drawPortrait,heroCard:drawHeroCard},
   info:{menu:menuInfo,skin:skinInfo,wait:waitInfo,arsenal:arsenalInfo,friends:friendsInfo,heroes:heroInfo,lobby:lobbyInfo,map:mapCardInfo,
     layout:()=>({W,H,INS,ROT,narrow:W<700,xnarrow:W<520,short:H<460}),isTouch:()=>isTouch,
     mini:()=>({ch:myCh(),sel:HV.sel,spk:curSpk}),state:()=>state},
   act:{
     btnSound,playSolo,playWaves,openLobby,openFriends,openHeroes,openArsenal,openSkin,toggleSfx,toggleMus,
-    pickSkin,skinReset,skinBack:showMenu,
+    pickSkin,pickOutfit,skinReset,skinBack:showMenu,
     lobbyName:setLobbyName,lobbyCode:setLobbyCode,createRoom,joinCode,joinListed:(c:string)=>joinRoom(c,false),lobbyBack:showMenu,
     mapEnter,mapBack:leaveToMenu,inviteRoom,
     waitLeave:leaveToMenu,wPrev,wNext,wMode,wStart,

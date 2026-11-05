@@ -121,7 +121,12 @@ function Skin() {
         <H3>Personalizar</H3>
         <P>{s.who}</P>
         <MiniCanvas w={240} h={240} width={130} draw={g => game.paint.skin(g)} />
-        <Lab style={{ width: '100%' }}>Roupa</Lab>{sw(s.body, 'b', s.b)}
+        <Lab style={{ width: '100%' }}>Roupa para equipar</Lab>
+        <Row>
+          <Btn label={(s.outfit === 'normal' ? '✓ ' : '') + 'Normal'} kind={s.outfit === 'normal' ? 'gold' : 'alt'} size="sm" onPress={() => game.act.pickOutfit('normal')} />
+          <Btn label={(s.outfit === 'alt' ? '✓ ' : '') + s.altName} kind={s.outfit === 'alt' ? 'gold' : 'alt'} size="sm" onPress={() => game.act.pickOutfit('alt')} />
+        </Row>
+        <Lab style={{ width: '100%' }}>Cor da roupa</Lab>{sw(s.body, 'b', s.b)}
         <Lab style={{ width: '100%' }}>Cabelo</Lab>{sw(s.hair, 'h', s.h)}
         <Row><Btn label="Cores originais" kind="alt" size="sm" onPress={game.act.skinReset} /><Btn label="Pronto" size="sm" onPress={game.act.skinBack} /></Row>
       </Card>
@@ -493,6 +498,7 @@ function Arsenal() {
           {a.rows.map((r: any) => (
             <View key={r.i} style={[ar.row, r.lock && ar.lock, r.eq && { backgroundColor: '#fff3c4' }]}>
               <View style={[ar.num, r.col && { backgroundColor: r.col }]}><Text style={ar.numT}>{r.i + 1}</Text></View>
+              <MiniCanvas key={a.id + r.i + (r.lock ? 'l' : '')} w={120} h={60} width={72} animate={r.i === 14 && !r.lock} draw={g => game.paint.weapon(g, a.id, r.i, r.lock)} />
               <View style={{ flex: 1, minWidth: 0 }}>
                 <Text style={[ar.name, r.lock && { color: C.sub2 }]} numberOfLines={1}>{r.name}</Text>
                 <Text style={ar.info}>{r.info}</Text>

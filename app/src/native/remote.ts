@@ -2,7 +2,7 @@
    Este "jogo remoto" tem a mesma cara do motor para as telas em React Native:
    guarda o último estado que a WebView mandou e repassa os botões para ela. */
 import { AppState, Share } from 'react-native';
-import { paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard } from '../engine/draw';
+import { paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon } from '../engine/draw';
 import { CH } from '../engine/data';
 import type { Game } from '../engine/game';
 import { getSaved, storeSave } from '../platform/make';
@@ -61,6 +61,7 @@ export function createRemoteGame(): Game {
       homeCancel() { HOME.drag = null; },
     },
     paint: {
+      weapon: (g: any, id: string, wi: number, lock: boolean) => paintWeapon(g, id, wi, lock),
       menuScene: (g: any) => paintMenuScene(g, HOME, clk(), info.mini.ch),
       menuBg: (g: any, w: number, h: number) => paintMenuBg(g, w, h),
       skin: (g: any) => paintSkin(g, clk(), info.mini.ch),
