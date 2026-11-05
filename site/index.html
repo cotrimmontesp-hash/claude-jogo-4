@@ -156,9 +156,24 @@ input.t:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
 .wch span{font-size:11px;font-weight:900;color:#7a6aa8;text-transform:uppercase;letter-spacing:.08em}
 .wch b{font-family:var(--display);font-weight:400;font-size:20px;white-space:nowrap}
 .wwait{font-size:12px;font-weight:800;color:#2a9d6a}
+.hpair{display:flex;gap:6px}.hpair .btn{flex:1;min-width:0;font-size:16px;padding:7px 4px}
 .sndrow{gap:6px}.sndrow .btn{flex:1;font-size:13px;padding:5px 6px}
 @media (max-height:460px){.hright .hint{display:none}.stats b{font-size:18px}.prof{padding:5px 10px}}
 @media (max-width:700px){.hwrap{grid-template-columns:1fr;height:auto}.hmid{order:-1}}
+.acard{max-width:620px}
+.atabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;width:100%}
+.atabs button{font-family:var(--display);font-size:15px;border:3px solid var(--ink);border-radius:10px;background:var(--paper);padding:5px 2px;cursor:pointer;color:var(--ink);box-shadow:0 3px 0 var(--ink)}
+.atabs button.sel{background:var(--gold)}
+.ahead{width:100%;display:flex;flex-direction:column;gap:4px;text-align:left;font-weight:900;font-size:13px;color:#6a5aa0}
+.alist{display:flex;flex-direction:column;gap:6px;width:100%}
+.arow{display:flex;align-items:center;gap:10px;background:var(--paper);border:3px solid var(--ink);border-radius:12px;padding:6px 8px 6px 10px;text-align:left}
+.arow .num{flex:none;width:34px;height:34px;border-radius:9px;border:3px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:17px;background:#fff}
+.arow .who{flex:1;min-width:0;display:flex;flex-direction:column}
+.arow .who b{font-family:var(--display);font-weight:400;font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arow .who span{font-size:12px;font-weight:800;color:#6a5aa0}
+.arow.lock{background:#e6e1f5;border-color:#8a7cba}.arow.lock .who b{color:#7a6aa8}
+.arow.eq{background:#fff3c4}
+.arow .lbar{height:6px;border-radius:3px;background:#d0c8ec;margin-top:3px;overflow:hidden}.arow .lbar i{display:block;height:100%;background:var(--teal)}
 .invite{position:absolute;z-index:10;right:calc(12px + var(--sr));top:calc(60px + var(--st));background:#fff;border:4px solid var(--ink);border-radius:16px;box-shadow:0 5px 0 var(--ink);padding:10px 12px;display:flex;flex-direction:column;gap:8px;max-width:300px}
 .invite p{margin:0;font-weight:900;font-size:15px}
 @media (prefers-reduced-motion:reduce){.btn{transition:none}}
@@ -182,9 +197,8 @@ input.t:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
     <div class="hright">
       <button id="soloBtn" class="btn big play">Jogar</button>
       <button id="wavesBtn" class="btn red">Modo Ondas</button>
-      <button id="onlineBtn" class="btn alt">Online</button>
-      <button id="friendsBtn" class="btn red" hidden>Amigos</button>
-      <button id="heroesBtn" class="btn">Personagens</button>
+      <div class="hpair"><button id="onlineBtn" class="btn alt">Online</button><button id="friendsBtn" class="btn red" hidden>Amigos</button></div>
+      <div class="hpair"><button id="heroesBtn" class="btn">Personagens</button><button id="armsBtn" class="btn">Armas</button></div>
       <button id="skinBtn" class="btn alt">Personalizar</button>
       <div class="row sndrow"><button class="btn sm" id="sfxBtn">Som: ligado</button><button class="btn sm" id="musBtn">Música: ligada</button></div>
       <p class="hint" id="ctrlHint"></p>
@@ -210,6 +224,7 @@ input.t:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
       <button class="btn sm alt" id="waitInvite">Convidar</button>
       <button class="btn sm" id="waitFriends" hidden>Amigos</button>
       <button class="btn sm" id="waitHeroes">Personagens</button>
+      <button class="btn sm" id="waitArms">Armas</button>
     </div>
   </div>
   <div class="waitCard">
@@ -293,6 +308,15 @@ input.t:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
     <div class="hgrid" id="hgrid"></div>
     <div class="hinfo"><div class="hname" id="hName"></div><div class="hrole" id="hRole"></div><p id="hDesc"></p><p class="hsup" id="hSup"></p><div class="hstats" id="hStats"></div><div class="hlvl" id="hLvl"></div><div class="wgrid" id="wGrid"></div><div class="winfo" id="wInfo"></div></div>
     <div class="row"><button class="btn" id="hPick">Jogar com este</button><button class="btn red sm" id="hBack">Voltar</button></div>
+  </div>
+</div>
+<div id="arsenal" class="ov menu" hidden>
+  <div class="card acard">
+    <h3>Armas</h3>
+    <div class="atabs" id="arTabs"></div>
+    <div class="ahead" id="arHead"></div>
+    <div class="alist" id="arList"></div>
+    <button class="btn red sm" id="arBack">Voltar</button>
   </div>
 </div>
 <div id="inviteCard" class="invite" hidden><p id="inviteTxt"></p><div class="row" style="justify-content:flex-start"><button class="btn sm" id="inviteGo">Entrar</button><button class="btn sm red" id="inviteNo">Agora não</button></div></div>
@@ -948,10 +972,10 @@ const WUNL=(()=>{const a=[1,5];let g=7;while(a.length<15){a.push(a[a.length-1]+g
 const LMAX=WUNL[14];
 function wUnlocked(l){let n=0;for(const v of WUNL)if(v<=l)n++;return n;}
 function charLvl(id){let x=(save.cxp&&save.cxp[id])|0,l=1,need=42;while(x>=need&&l<LMAX){x-=need;l++;need=40+l*2;}return {l,x,need,max:l>=LMAX,u:wUnlocked(l)};}
-function myW(){const c=myCh(),u=charLvl(c.id).u;const e=save.wpn&&save.wpn[c.id];return weaponOf(c.id,clamp(e==null?u-1:e,0,u-1));}
+function myW(){const c=myCh(),u=charLvl(c.id).u;const e=save.wpn&&save.wpn[c.id];return weaponOf(c.id,clamp(e==null?0:e,0,u-1));}
 function myRange(){return Math.min(820,RANGE[myCh().atk]*myW().rg);}
 function addCharXP(n){const c=myCh();save.cxp=save.cxp||{};const B=charLvl(c.id);save.cxp[c.id]=(save.cxp[c.id]|0)+n;const A=charLvl(c.id);
-  if(A.u>B.u){save.wpn=save.wpn||{};if(save.wpn[c.id]==null||save.wpn[c.id]>=B.u-1)save.wpn[c.id]=A.u-1;toast(c.full+' chegou ao nível '+A.l+'! Arma nova: '+WNAMES[c.id][A.u-1]);SFX.unlock();}
+  if(A.u>B.u){save.newW=save.newW||{};save.newW[c.id]=1;toast(c.full+' chegou ao nível '+A.l+'! Arma liberada: '+WNAMES[c.id][A.u-1]+'. Equipe em Armas.');SFX.unlock();}
   else if(A.l>B.l&&A.l%5===0)toast(c.full+' chegou ao nível '+A.l+'!');
   persist();}
 function patternPlayer(own,x,y,a,k,chi,dist,wi){
@@ -1039,7 +1063,7 @@ function deathFx(e,dummy){
   for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2;drops.push({x:e.x,y:e.y,r:6,vx:Math.cos(a)*90,vy:Math.sin(a)*90,z:0,vz:180+Math.random()*80,t:0});}
 }
 function lvlInfo(){let x=save.xp|0,l=1,need=100;while(x>=need){x-=need;l++;need=100+l*40;}return {l,x,need};}
-function addXP(n){const b=lvlInfo().l;save.xp=(save.xp|0)+n;const a=lvlInfo().l;if(a>b)toast('Subiu para o nível '+a+'!');persist();}
+function addXP(n){save.xp=(save.xp|0)+n;persist();}
 function killEnemy(e){if(e.type==='d'){e.hp=e.max;e.fl=.2;deathFx(e,true);return;}enemies.splice(enemies.indexOf(e),1);deathFx(e);}
 
 /* ---------- alvos (jogador local + remotos) ---------- */
@@ -1638,12 +1662,14 @@ function drawMenuScene(){
   g.save();g.translate(cx,cy-6+hopY);g.scale(4.4,4.4);shadow(g,0,6-hopY/4.4,15);drawHero(g,0,0,HOME.face,clock,false,0,myCh());g.restore();
 }
 function showMenu(){updSoundBtns();state='menu';hideAll();$('menu').hidden=false;$('friendsBtn').hidden=!friendsOn();updFriendsBadge();
-  const L=lvlInfo();$('pLvl').textContent=L.l;$('pName').textContent=save.name||'Jogador';$('pXp').style.width=Math.round(L.x/L.need*100)+'%';$('pXpT').textContent=L.x+' / '+L.need+' XP';
+  const hc=myCh(),L=charLvl(hc.id);$('pLvl').textContent=L.l;$('pName').textContent=save.name||'Jogador';$('pXp').style.width=(L.max?100:Math.round(L.x/L.need*100))+'%';
+  $('pXpT').textContent='Nível '+L.l+' de '+hc.name+' · '+(L.max?'máximo':L.x+' / '+L.need+' XP')+' · '+L.u+'/15 armas';
+  $('armsBtn').textContent=(save.newW&&save.newW[hc.id])?'Armas (nova!)':'Armas';
   $('sWins').textContent=save.done.length;$('sKills').textContent=save.kills|0;$('sGears').textContent=save.gears|0;$('sWave').textContent=save.bestWave|0;
   const c=myCh();$('homeHero').textContent=c.full;$('homeRole').textContent=c.role;
   $('ctrlHint').textContent=isTouch?'Polegar esquerdo anda. Botão vermelho atira: toque rápido acerta sozinho, segure e arraste para mirar.':'WASD para andar, mouse para mirar, clique para atirar, Espaço para o super, Esc para pausar.';
 }
-function hideAll(){['menu','lobby','mapUI','dlg','res','pause','friends','heroes','skin','waitUI'].forEach(id=>$(id).hidden=true);$('pauseBtn').hidden=true;paused=false;clearInterval(typing);typing=null;dcb=null;}
+function hideAll(){['menu','lobby','mapUI','dlg','res','pause','friends','heroes','skin','waitUI','arsenal'].forEach(id=>$(id).hidden=true);$('pauseBtn').hidden=true;paused=false;clearInterval(typing);typing=null;dcb=null;}
 $('soloBtn').onclick=()=>{NET.leave();const fin=save.done.includes(LV.length-1);startChapterHost(fin?0:clamp(save.unl-1,0,LV.length-1));};
 $('onlineBtn').onclick=()=>openLobby();
 $('sfxBtn').onclick=toggleSfx;$('musBtn').onclick=toggleMus;$('pSfx').onclick=toggleSfx;$('pMus').onclick=toggleMus;
@@ -1730,6 +1756,43 @@ $('wStart').onclick=()=>{if(!NET.isHost||WAIT.ct>0)return;phase='count';WAIT.ct=
 $('waitLeave').onclick=()=>{NET.leave();showMenu();};
 $('waitFriends').onclick=()=>openFriends();
 $('waitHeroes').onclick=()=>openHeroes();
+/* ---------- tela de armas ---------- */
+const AR={ch:0,back:'menu'};
+function openArsenal(){
+  AR.ch=save.ch|0;AR.back=state==='play'&&cur===-1?'wait':'menu';
+  if(AR.back==='wait')$('arsenal').hidden=false;else{hideAll();state='arsenal';$('arsenal').hidden=false;}
+  renderArsenal();
+}
+function renderArsenal(){
+  const c=CH[AR.ch],L=charLvl(c.id);
+  if(save.newW&&save.newW[c.id]){delete save.newW[c.id];persist();}
+  const tabs=$('arTabs');tabs.textContent='';
+  CH.forEach((h,i)=>{const b=document.createElement('button');b.textContent=h.name+' · '+charLvl(h.id).l;if(i===AR.ch)b.className='sel';b.onclick=()=>{AR.ch=i;renderArsenal();};tabs.appendChild(b);});
+  const hd=$('arHead');hd.textContent='';
+  const t=document.createElement('span');t.textContent=c.full+' · nível '+L.l+(L.max?' (máximo)':'')+' · '+L.u+' de 15 armas liberadas'+(AR.ch!==(save.ch|0)?' · você está jogando com '+CH[save.ch|0].name:'');
+  const xb=document.createElement('div');xb.className='xp';const xi=document.createElement('i');xi.style.width=(L.max?100:Math.round(L.x/L.need*100))+'%';xb.appendChild(xi);
+  const t2=document.createElement('span');t2.textContent=L.max?'Nível máximo':'Faltam '+(L.need-L.x)+' XP para o nível '+(L.l+1)+'. Ganhe XP jogando com '+c.name+'.';
+  hd.append(t,xb,t2);
+  const e=save.wpn&&save.wpn[c.id]!=null?clamp(save.wpn[c.id],0,L.u-1):0;
+  const list=$('arList');list.textContent='';
+  const totalTo=lv=>{let x=0;for(let l=1;l<lv;l++)x+=l===1?42:40+l*2;return x;};
+  const myXp=(save.cxp&&save.cxp[c.id])|0;
+  for(let i=0;i<15;i++){const w=weaponOf(c.id,i),lock=i>=L.u;
+    const row=document.createElement('div');row.className='arow'+(lock?' lock':'')+(i===e?' eq':'');
+    const n=document.createElement('div');n.className='num';n.textContent=String(i+1);if(!lock&&w.col)n.style.background=w.col;
+    const who=document.createElement('div');who.className='who';const b=document.createElement('b');b.textContent=w.name;
+    const sp=document.createElement('span');sp.textContent=(w.n>1?w.n+' tiros':'1 tiro')+' · dano '+Math.round(w.dm*100)+'%'+(w.pierce?' · atravessa':'')+' · alcance '+Math.round(w.rg*100)+'%'+(c.atk==='lob'||c.atk==='rocket'?' · explosão '+Math.round(w.am*100)+'%':'');
+    who.append(b,sp);
+    if(lock){const lb=document.createElement('div');lb.className='lbar';const li=document.createElement('i');li.style.width=Math.round(clamp(myXp/Math.max(1,totalTo(WUNL[i])),0,1)*100)+'%';lb.appendChild(li);who.appendChild(lb);}
+    const btn=document.createElement('button');btn.className='btn sm'+(i===e?'':' alt');
+    if(lock){btn.textContent='Nível '+WUNL[i];btn.disabled=true;}
+    else if(i===e){btn.textContent='Equipada';btn.disabled=true;}
+    else{btn.textContent='Equipar';btn.onclick=()=>{save.wpn=save.wpn||{};save.wpn[c.id]=i;persist();toast(w.name+' equipada em '+c.name+'!');renderArsenal();};}
+    row.append(n,who,btn);list.appendChild(row);}
+}
+$('armsBtn').onclick=()=>openArsenal();
+$('waitArms').onclick=()=>openArsenal();
+$('arBack').onclick=()=>{$('arsenal').hidden=true;if(AR.back==='menu')showMenu();else updWaitUI();};
 $('waitInvite').onclick=()=>$('inviteBtn').onclick();
 function startWavesHost(){
   hideAll();runId=++runCounter;WAIT.ct=0;loadLevel(-2,NET.game?NET.count:1,false);
@@ -2001,7 +2064,7 @@ function renderHeroInfo(){
     for(let j=0;j<5;j++){const it=document.createElement('i');if(j<v)it.className='on';bar.appendChild(it);}st.append(l,bar);});
   const L=charLvl(c.id);const hl=$('hLvl');hl.textContent='';const t1=document.createElement('span');t1.textContent='Nível '+L.l+(L.max?' (máximo)':'')+' · '+L.u+'/15 armas';
   const xb=document.createElement('div');xb.className='xp';const xi=document.createElement('i');xi.style.width=(L.max?100:Math.round(L.x/L.need*100))+'%';xb.appendChild(xi);const t2=document.createElement('span');t2.textContent=L.max?'':L.x+'/'+L.need+' XP';hl.append(t1,xb,t2);
-  const eq=save.wpn&&save.wpn[c.id]!=null?clamp(save.wpn[c.id],0,L.u-1):L.u-1;
+  const eq=save.wpn&&save.wpn[c.id]!=null?clamp(save.wpn[c.id],0,L.u-1):0;
   const wg=$('wGrid');wg.textContent='';
   for(let t=0;t<15;t++){const w=weaponOf(c.id,t),b=document.createElement('button');const lock=t>=L.u;b.className='wbtn'+(lock?' lock':'')+(t===eq?' eq':'');
     const nb=document.createElement('b');nb.textContent=lock?'🔒':String(t+1);if(!lock&&w.col)nb.style.color=w.col;const nm=document.createElement('span');nm.textContent=lock?'Nível '+WUNL[t]:w.name;b.append(nb,nm);
@@ -2009,7 +2072,7 @@ function renderHeroInfo(){
       if(lock){$('wInfo').textContent=info+' · libera no nível '+WUNL[t];return;}
       save.wpn=save.wpn||{};save.wpn[c.id]=t;persist();renderHeroInfo();$('wInfo').textContent='Equipada: '+info;};
     wg.appendChild(b);}
-  const ew=weaponOf(c.id,eq);$('wInfo').textContent='Arma equipada: '+ew.name+' · '+(ew.n>1?ew.n+' tiros':'1 tiro')+' · dano '+Math.round(ew.dm*100)+'%'+(ew.pierce?' · atravessa robôs':'');
+  const ew=weaponOf(c.id,eq);$('wInfo').textContent='Toque numa arma liberada para equipar (ou use o botão Armas). Equipada: '+ew.name+' · '+(ew.n>1?ew.n+' tiros':'1 tiro')+' · dano '+Math.round(ew.dm*100)+'%'+(ew.pierce?' · atravessa robôs':'');
   $('hPick').textContent=HV.sel===(save.ch|0)?'Escolhido':'Jogar com '+c.name;$('hPick').disabled=HV.sel===(save.ch|0);
 }
 function drawHeroCards(){
