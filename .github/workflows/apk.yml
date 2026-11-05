@@ -76,7 +76,7 @@ jobs:
         if: always()
         run: |
           cd shots || exit 0
-          grep -E "ReactNativeJS|AndroidRuntime|FATAL|skia|Skia|ExpoFont|expo" logcat.txt | tail -300 > log-js.txt || true
+          grep -E "ReactNativeJS|AndroidRuntime|FATAL|tita|Font|font" logcat.txt | tail -300 > log-js.txt || true
           rm -f logcat.txt
           git init -q; git checkout -q -b ci-shots; git add -A
           git -c user.name=ci -c user.email=ci@example.com commit -qm "fotos do teste ${{ github.run_number }}"

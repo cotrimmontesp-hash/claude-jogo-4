@@ -1,6 +1,6 @@
 /* Junta tudo: tela do jogo (canvas) + telas em React Native por cima. */
 import React, { useEffect, useMemo } from 'react';
-import { Platform as RNP, View } from 'react-native';
+import { BackHandler, Platform as RNP, View } from 'react-native';
 import type { Game } from '../engine/game';
 import { GameCtx, LayCtx } from './kit';
 import { GameCanvas } from './GameCanvas';
@@ -9,6 +9,7 @@ import { useLayout } from './useLayout';
 
 export function GameRoot({ game }: { game: Game }) {
   const L = useLayout();
+  useEffect(() => { const sub = BackHandler.addEventListener('hardwareBackPress', () => game.act.back()); return () => sub.remove(); }, [game]);
   useEffect(() => { game.setLayout(L.W, L.H, L.dpr, L.ins, L.rot); }, [game, L.W, L.H, L.dpr, L.rot, L.ins.t, L.ins.r, L.ins.b, L.ins.l]);
   const lay = useMemo(() => ({ W: L.W, H: L.H, ins: L.ins, narrow: L.W < 700, xnarrow: L.W < 520, short: L.H < 460 }), [L.W, L.H, L.ins.t, L.ins.r, L.ins.b, L.ins.l]);
   /* na web, com o celular em pé, gira tudo 90° em volta do centro */

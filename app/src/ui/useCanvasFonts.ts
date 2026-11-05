@@ -13,6 +13,7 @@ export function useCanvasFonts(): boolean {
     let d: any = null, b: any = null;
     try { d = mgr.matchFamilyStyle('Lilita One', { weight: 400 } as any); } catch (e) { }
     try { b = mgr.matchFamilyStyle('Nunito', { weight: 800 } as any); } catch (e) { }
+    console.warn('[tita] fontes do canvas', !!d, !!b);
     setTypefaces(d, b);
   }, [mgr]);
   return !!mgr;

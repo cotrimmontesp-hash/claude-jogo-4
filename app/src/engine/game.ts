@@ -1693,6 +1693,21 @@ function draw(g:Ctx2D){
 showMenu();
 initNet();
 
+/* botão "voltar" do Android: fecha a tela de cima; no início, deixa sair do app */
+function back():boolean{
+  const S=ui.show;
+  if(S.inviteCard){inviteNo();return true;}
+  if(S.pause){pauseContinue();return true;}
+  if(S.res){return true;}
+  if(S.arsenal){arBack();return true;}
+  if(S.heroes){heroBack();return true;}
+  if(S.friends){friendsBack();return true;}
+  if(S.skin||S.lobby){showMenu();return true;}
+  if(S.dlg){advance();return true;}
+  if(S.waitUI||S.mapUI){leaveToMenu();return true;}
+  if(state==='play'){setPause(true);return true;}
+  return false;
+}
 const game={
   ui,
   subscribe(f:()=>void){subs.add(f);return ()=>{subs.delete(f);};},
@@ -1712,7 +1727,7 @@ const game={
     friendAccept,friendReject,friendJoin,friendInvite,friendRemove,setFidIn,addFriend,shareFid,friendsBack,inviteGo,inviteNo,
     heroSel,heroWeapon,heroPick,heroBack,
     arTab,arEquip,arBack,
-    onHide,persist
+    onHide,persist,back
   }
 };
 return game;

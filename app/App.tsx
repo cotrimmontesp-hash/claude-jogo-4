@@ -22,6 +22,7 @@ export default function App() {
   const [late, setLate] = useState(false);
   useEffect(() => { const t = setTimeout(() => setLate(true), 15000); return () => clearTimeout(t); }, []);
   const fontsOk = fontsLoaded || !!fontErr || late;
+  useEffect(() => { console.warn('[tita] fontes', fontsLoaded, fontErr ? String(fontErr) : '-', 'canvas', canvasFonts, 'atraso', late); }, [fontsLoaded, fontErr, canvasFonts, late]);
   const [game, setGame] = useState<Game | null>(null);
   useEffect(() => { preload().finally(() => setReady(true)); }, []);
   useEffect(() => {
