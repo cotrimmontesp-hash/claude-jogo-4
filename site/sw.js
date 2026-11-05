@@ -1,6 +1,6 @@
-const CACHE = 'tita-coral-v7';
+const CACHE = 'tita-coral-v8';
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/', '/manifest.webmanifest', '/icon-192.png'])));
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/', '/manifest.webmanifest', '/icon-192.png', '/apple-touch-icon.png'])));
   self.skipWaiting();
 });
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
