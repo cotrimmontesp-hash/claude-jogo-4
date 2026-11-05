@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Tita e o Coral",
+    "slug": "tita-coral",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#2d1d70",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#2d1d70"
+    },
+    "androidStatusBar": {
+      "hidden": true,
+      "backgroundColor": "#2d1d70"
+    },
+    "androidNavigationBar": {
+      "visible": "sticky-immersive",
+      "backgroundColor": "#2d1d70"
+    },
+    "android": {
+      "package": "com.claude.titacoral",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#2d1d70"
+      },
+      "permissions": ["INTERNET"]
+    },
+    "ios": {
+      "bundleIdentifier": "com.claude.titacoral",
+      "supportsTablet": true,
+      "requireFullScreen": true
+    },
+    "web": {
+      "name": "Tita e o Coral Brilhante",
+      "shortName": "Tita",
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "themeColor": "#2d1d70",
+      "backgroundColor": "#2d1d70"
+    },
+    "plugins": [
+      ["expo-screen-orientation", { "initialOrientation": "LANDSCAPE" }]
+    ]
+  }
+}

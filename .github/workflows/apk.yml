@@ -8,6 +8,9 @@ permissions:
 jobs:
   apk:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,35 +20,29 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
-      - name: Preparar app
+      - name: Instalar pacotes (Expo + React Native)
         run: |
-          mkdir -p www && cp site/index.html site/icon-192.png site/icon-512.png www/
-          npm init -y
-          npm i @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
-          npx cap init "Tita e o Coral" com.claude.titacoral --web-dir www
-          npx cap add android
-          npx cap sync android
-          # tela sempre deitada e em tela cheia
-          sed -i 's/android:name=".MainActivity"/android:name=".MainActivity" android:screenOrientation="sensorLandscape"/' android/app/src/main/AndroidManifest.xml
-          grep -q sensorLandscape android/app/src/main/AndroidManifest.xml
-          sed -i 's#<style name="AppTheme.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">#&\n        <item name="android:windowFullscreen">true</item>#' android/app/src/main/res/values/styles.xml || true
-          # ícone do app
-          for d in android/app/src/main/res/mipmap-*; do cp site/icon-192.png $d/ic_launcher.png; cp site/icon-192.png $d/ic_launcher_round.png; cp site/icon-192.png $d/ic_launcher_foreground.png 2>/dev/null || true; done
-          rm -rf android/app/src/main/res/mipmap-anydpi-v26
-      - name: Usar sempre a mesma assinatura (permite atualizar por cima)
+          npm install --no-audit --no-fund
+          npx expo install --fix || true
+      - name: Conferir o TypeScript
+        run: npx tsc --noEmit
+      - name: Gerar o projeto Android
         run: |
-          mkdir -p ~/.android && cp android-key/debug.keystore ~/.android/debug.keystore
-          sed -i "0,/^android {/s##android {\n    signingConfigs { debug { storeFile file('../../android-key/debug.keystore'); storePassword 'android'; keyAlias 'androiddebugkey'; keyPassword 'android' } }#" android/app/build.gradle
-          grep -n "android-key" android/app/build.gradle
+          node scripts/build-game.mjs
+          npx expo prebuild -p android --no-install --clean
+          # mesma assinatura do app antigo: instala por cima e mantém o progresso
+          cp ../android-key/debug.keystore android/app/debug.keystore
           sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/" android/app/build.gradle
-          grep -n versionCode android/app/build.gradle
+          grep -n "versionCode\|signingConfig" android/app/build.gradle | head
       - name: Compilar APK
+        working-directory: app/android
         run: |
-          cd android && chmod +x gradlew && ./gradlew assembleDebug
-          cp app/build/outputs/apk/debug/app-debug.apk ../TitaCoral.apk
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+          cp app/build/outputs/apk/release/app-release.apk ../../TitaCoral.apk
       - name: Publicar APK
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ github.run_number }}
-          name: Tita e o Coral Brilhante v${{ github.run_number }}
+          name: Tita e o Coral Brilhante v${{ github.run_number }} (Expo)
           files: TitaCoral.apk

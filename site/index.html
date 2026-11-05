@@ -335,6 +335,7 @@ const INK='#1d1436', T=48;
 const $=id=>document.getElementById(id);
 const app=$('app'), cv=$('c'), ctx=cv.getContext('2d');
 const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+const QS=(()=>{try{const t=window.top.location.search;if(t)return t;}catch(e){}try{return location.search||'';}catch(e){return '';}})();
 let W=800,H=450,DPR=1,SC=1,ROT=false,INS={t:0,r:0,b:0,l:0},VIG=null;
 const probe=document.createElement('div');
 probe.style.cssText='position:fixed;left:0;top:0;padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);visibility:hidden;pointer-events:none';
@@ -1997,7 +1998,7 @@ function openFriends(){
   FR.backTo=state==='map'||(state==='play'&&cur===-1)?'map':'menu';
   if(FR.backTo==='map'){$('friends').hidden=false;}else{hideAll();state='friends';$('friends').hidden=false;}
   $('myFid').textContent=save.fid;
-  const q=(location.search.match(/[?&]amigo=([A-Za-z0-9]{6})/)||[])[1];if(q&&!$('fidIn').value&&cleanFid(q)!==save.fid)$('fidIn').value=cleanFid(q);
+  const q=(QS.match(/[?&]amigo=([A-Za-z0-9]{6})/)||[])[1];if(q&&!$('fidIn').value&&cleanFid(q)!==save.fid)$('fidIn').value=cleanFid(q);
   FR.pollT=0;renderFriends();
 }
 function renderFriends(){
@@ -2099,7 +2100,7 @@ function netErrText(c){return c==='full'?'Sala cheia (5 jogadores).':c==='peer-u
 async function initNet(){
   try{
     if(!window.claude||typeof window.claude.use!=='function'){
-      const go=()=>{NET.lobby=peerLobby();if(!$('lobby').hidden)openLobby();if(state==='menu')showMenu();if(/[?&]amigo=/.test(location.search)&&state==='menu')openFriends();else if(/[?&]sala=/.test(location.search)&&state==='menu')openLobby();};
+      const go=()=>{NET.lobby=peerLobby();if(!$('lobby').hidden)openLobby();if(state==='menu')showMenu();if(/[?&]amigo=/.test(QS)&&state==='menu')openFriends();else if(/[?&]sala=/.test(QS)&&state==='menu')openLobby();};
       if(typeof Peer!=='undefined')go();
       else window.addEventListener('load',()=>{if(typeof Peer!=='undefined'&&!NET.lobby)go();});
       return;}
@@ -2121,7 +2122,7 @@ function openLobby(){
   const p2p=!!(NET.lobby&&NET.lobby.p2p);
   $('lobbyMsg').textContent=!ok?'O online não conectou. Veja se a internet está ligada e abra de novo.':p2p?'Crie uma sala e passe o código de 4 letras. Até 5 jogadores, e quanto mais gente, mais fortes ficam os robôs.':'Até 5 jogadores na mesma sala. Quanto mais gente, mais fortes e numerosos ficam os robôs.';
   $('roomsCol').hidden=p2p;
-  const q=(location.search.match(/[?&]sala=([a-zA-Z]{4})/)||[])[1];if(q&&!$('codeIn').value)$('codeIn').value=q.toUpperCase();
+  const q=(QS.match(/[?&]sala=([a-zA-Z]{4})/)||[])[1];if(q&&!$('codeIn').value)$('codeIn').value=q.toUpperCase();
   renderRooms();
 }
 function renderRooms(){
