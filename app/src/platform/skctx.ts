@@ -177,12 +177,17 @@ export class SkCtx implements Ctx2D {
     return Skia.Shader.MakeTwoPointConicalGradient({ x: x0, y: y0 }, Math.max(0, g.a[2] * sf), { x: x1, y: y1 }, Math.max(0.0001, g.a[5] * sf), cols, pos, TileMode.Clamp);
   }
   private paint(stroke: boolean) {
-    const pt = stroke ? this.sp : this.fp, st = stroke ? this.s.stroke : this.s.fill, a = this.s.alpha;
+    const st = stroke ? this.s.stroke : this.s.fill, a = this.s.alpha;
+    const grad = st instanceof Grad, dash = stroke && this.s.dash.length > 0;
+    // pincel simples reaproveitado; com gradiente ou tracejado, um pincel novo
+    const pt = grad || dash ? Skia.Paint() : (stroke ? this.sp : this.fp);
+    if (grad || dash) { pt.setAntiAlias(true); if (stroke) pt.setStyle(PaintStyle.Stroke); }
     pt.setBlendMode(this.s.comp === 'lighter' ? BlendMode.Plus : BlendMode.SrcOver);
-    if (st instanceof Grad) {
-      pt.setShader(this.shader(st)); pt.setColor(color('#000')); pt.setAlphaf(a);
+    if (grad) {
+      const sh = this.shader(st as Grad);
+      pt.setColor(color('#000')); pt.setAlphaf(a);
+      if (sh) pt.setShader(sh);
     } else {
-      pt.setShader(null);
       const c = color(typeof st === 'string' ? st : '#000');
       pt.setColor(c); if (a < 1) pt.setAlphaf(c[3] * a);
     }
@@ -191,8 +196,7 @@ export class SkCtx implements Ctx2D {
       pt.setStrokeWidth(this.s.lw * sf);
       pt.setStrokeCap(this.s.cap === 'round' ? StrokeCap.Round : this.s.cap === 'square' ? StrokeCap.Square : StrokeCap.Butt);
       pt.setStrokeJoin(this.s.join === 'round' ? StrokeJoin.Round : this.s.join === 'bevel' ? StrokeJoin.Bevel : StrokeJoin.Miter);
-      if (this.s.dash.length) pt.setPathEffect(Skia.PathEffect.MakeDash(this.s.dash.map(v => v * sf), 0));
-      else pt.setPathEffect(null);
+      if (dash) pt.setPathEffect(Skia.PathEffect.MakeDash(this.s.dash.map(v => v * sf), 0));
     }
     return pt;
   }
@@ -239,7 +243,7 @@ export class SkCtx implements Ctx2D {
       if (bl === 'middle') dy = -(asc + desc) / 2; else if (bl === 'top' || bl === 'hanging') dy = -asc; else if (bl === 'bottom' || bl === 'ideographic') dy = -desc;
     }
     const pt = this.paint(stroke);
-    if (stroke) { pt.setStrokeWidth(this.s.lw); pt.setPathEffect(null); }
+    if (stroke) pt.setStrokeWidth(this.s.lw);
     this.pushM();
     this.c.drawText(s, x + dx, y + dy, pt, f);
     this.c.restore();
@@ -254,7 +258,7 @@ export class SkCtx implements Ctx2D {
   drawImage(img: any, x: number, y: number) {
     const im = img && img.image ? img.image() : null;
     if (!im) return;
-    const pt = this.fp; pt.setShader(null); pt.setColor(color('#000')); pt.setAlphaf(this.s.alpha); pt.setBlendMode(BlendMode.SrcOver);
+    const pt = this.fp; pt.setColor(color('#000')); pt.setAlphaf(this.s.alpha); pt.setBlendMode(BlendMode.SrcOver);
     this.pushM();
     this.c.drawImage(im, x, y, pt);
     this.c.restore();
