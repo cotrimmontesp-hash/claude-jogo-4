@@ -1,0 +1,9 @@
+achei: 1978
+posição: Pular 2210 70
+achei: 1401
+posição: Personagens 1600 699
+posição: Armas 1925 699
+posição: Personalizar 1764 848
+posição: Online 1600 550
+posição: Amigos 1925 550
+posição: Modo Ondas 1764 399
