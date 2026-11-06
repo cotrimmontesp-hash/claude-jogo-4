@@ -1807,6 +1807,8 @@ const game={
     onHide,persist,back
   }
 };
-(game as any).__dbg={get P(){return P;},DUEL,get RP(){return RP;}};
+(game as any).__dbg={get P(){return P;},DUEL,get RP(){return RP;},get grid(){return grid;},get WORLD(){return WORLD;},T,AW,onAreaClear,get enemies(){return enemies;},set enemies(v:any){enemies=v;}};
+/* só para testes: ?dbg na URL deixa o jogo acessível no console */
+if(QS.indexOf('dbg')>=0)try{(globalThis as any).__game=game;}catch(e){}
 return game;
 }
