@@ -74,7 +74,7 @@ function Home() {
   const md = useInfo(() => game.info.modes());
   const [picking, setPicking] = useState(false);
   const cm = md.list.find((x: any) => x.k === md.cur) || md.list[0] || { k: 'story', name: 'História', sub: '', col: C.teal, tag: '' };
-  const stage = Math.max(140, Math.min(340, lay.H * .74, lay.W * .36));
+  const stage = Math.max(130, Math.min(340, lay.H * .62, lay.W * .36));
   const tileW = Math.min(230, lay.W * .27);
   const ins = lay.ins;
   if (picking) return <ModePicker onClose={() => setPicking(false)} />;
