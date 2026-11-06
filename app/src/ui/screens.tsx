@@ -28,7 +28,7 @@ function SideBtn({ icon, label, color, onPress, badge }: { icon: string; label: 
     </Pressable>
   );
 }
-function Pill({ icon, value, label }: { icon: string; value: any; label: string }) {
+function StatPill({ icon, value, label }: { icon: string; value: any; label: string }) {
   return (
     <View style={hm.pill} accessibilityLabel={label + ': ' + value}>
       <Text style={hm.pillIcon}>{icon}</Text>
@@ -92,9 +92,9 @@ function Home() {
             </View>
           </Pressable>
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
-            <Pill icon="⚙️" value={m.gears} label="Engrenagens" />
-            <Pill icon="🤖" value={m.kills} label="Robôs derrotados" />
-            <Pill icon="🌊" value={m.wave} label="Recorde de ondas" />
+            <StatPill icon="⚙️" value={m.gears} label="Engrenagens" />
+            <StatPill icon="🤖" value={m.kills} label="Robôs derrotados" />
+            <StatPill icon="🌊" value={m.wave} label="Recorde de ondas" />
             <Pressable onPress={() => { game.act.btnSound(); game.act.toggleSfx(); }} style={hm.round} accessibilityLabel={'Som ' + (m.sfx ? 'ligado' : 'desligado')}><Text style={hm.roundT}>{m.sfx ? '🔊' : '🔇'}</Text></Pressable>
             <Pressable onPress={() => { game.act.btnSound(); game.act.toggleMus(); }} style={[hm.round, !m.mus && { opacity: .5 }]} accessibilityLabel={'Música ' + (m.mus ? 'ligada' : 'desligada')}><Text style={hm.roundT}>🎵</Text></Pressable>
           </View>
