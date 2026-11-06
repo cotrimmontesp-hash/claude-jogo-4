@@ -551,6 +551,8 @@ function superBtn(){const f=fireBtn();return {x:f.x-118,y:f.y+16,r:34};}
 /* devolve true quando o toque deve ficar preso ao canvas */
 function ptrDown(ev:PtrEv):boolean{
   const p={x:ev.x,y:ev.y};
+  /* diálogo aberto: um toque que chegou à tela do jogo também passa a fala */
+  if(ui.show.dlg){dlgPtr=ev.id;return false;}
   if(state==='map'){mapTap(p.x,p.y);return false;}
   if(state!=='play'||paused)return false;
   if(ev.type==='mouse'){lastInput='mouse';mouse.on=true;mouse.x=p.x;mouse.y=p.y;
@@ -572,7 +574,9 @@ function ptrMove(ev:PtrEv){
     else{const bx=k==='fire'?s.sx:s.ox,by=k==='fire'?s.sy:s.oy;const dx=s.x-bx,dy=s.y-by;if(Math.hypot(dx,dy)>16){s.dragged=true;s.ang=Math.atan2(dy,dx);}}
   }
 }
+let dlgPtr:any=null;
 function ptrUp(ev:PtrEv,cancelled?:boolean){
+  if(dlgPtr!==null&&dlgPtr===ev.id){dlgPtr=null;if(!cancelled)advance();}
   if(touch.move&&touch.move.id===ev.id)touch.move=null;
   const up=!cancelled&&state==='play';
   if(touch.fire&&touch.fire.id===ev.id){const s=touch.fire;touch.fire=null;if(up)playerShoot(s.dragged?s.ang:autoAim(),s.dragged?dragDist(s,s.sx,s.sy):autoDist());}

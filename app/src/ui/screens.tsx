@@ -1,7 +1,7 @@
 /* Todas as telas do jogo em React Native: início, personagens, armas, personalizar,
    online, amigos, sala de espera, mapa, diálogos, resultado, pausa, convite e avisos. */
-import React from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import React, { useRef } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Btn, C, Card, FONT, H2, H3, Lab, OText, Ov, P, Row, XpBar, st, useGame, useInfo, useLay } from './kit';
 import { MiniCanvas } from './MiniCanvas';
 
@@ -289,12 +289,28 @@ const mp = StyleSheet.create({
 });
 
 /* ---------- diálogo da história ---------- */
+const WEB = Platform.OS === 'web';
+const Wrap: any = WEB ? Pressable : View;
 function Dialog() {
   const game = useGame(), lay = useLay();
   const d = useInfo(() => ({ ...game.ui.dlg }));
   const ct = Math.max(28, Math.min(44, lay.W * .055));
+  /* toques "crus" (não o onPress): funcionam mesmo com o outro dedo ainda no
+     joystick, que é como a fala costuma aparecer no meio da fase */
+  const downs = useRef<{ [id: string]: number }>({}), onSkip = useRef(false);
+  const tStart = (e: any) => { for (const t of e.nativeEvent.changedTouches || [e.nativeEvent]) downs.current[String(t.identifier)] = Date.now(); };
+  const tEnd = (e: any) => {
+    for (const t of e.nativeEvent.changedTouches || [e.nativeEvent]) {
+      const id = String(t.identifier), t0 = downs.current[id]; delete downs.current[id];
+      if (t0 == null || Date.now() - t0 > 900) continue;
+      if (onSkip.current) { onSkip.current = false; continue; }
+      game.act.dlgTap();
+    }
+  };
+  const tCancel = (e: any) => { for (const t of e.nativeEvent.changedTouches || [e.nativeEvent]) delete downs.current[String(t.identifier)]; };
   return (
-    <Pressable style={[StyleSheet.absoluteFill, { zIndex: 6 }]} onPress={game.act.dlgTap} accessibilityRole="button" accessibilityLabel="Continuar">
+    <Wrap style={[StyleSheet.absoluteFill, { zIndex: 6 }]} accessibilityRole="button" accessibilityLabel="Continuar"
+      {...(WEB ? { onPress: game.act.dlgTap } : { onTouchStart: tStart, onTouchEnd: tEnd, onTouchCancel: tCancel, accessible: true, onAccessibilityTap: game.act.dlgTap })}>
       <MiniCanvas key={lay.W + 'x' + lay.H} w={lay.W} h={lay.H} width={lay.W} height={lay.H} animate={false} style={StyleSheet.absoluteFill}
         draw={g => { g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, lay.W, lay.H); const gr = g.createLinearGradient(0, lay.H * .35, 0, lay.H); gr.addColorStop(0, 'rgba(20,10,50,0)'); gr.addColorStop(1, 'rgba(20,10,50,.7)'); g.fillStyle = gr; g.fillRect(0, 0, lay.W, lay.H); }} />
       {d.title && (
@@ -303,7 +319,7 @@ function Dialog() {
           <OText stroke={6} style={{ fontFamily: FONT.display, color: '#fff', fontSize: ct, lineHeight: ct * 1.15, textAlign: 'center' }}>{d.title[1]}</OText>
         </View>
       )}
-      <Pressable onPress={game.act.dlgSkip} style={[dg.skip, { top: 10 + lay.ins.t, right: 14 + lay.ins.r }]} accessibilityRole="button">
+      <Pressable onTouchStart={WEB ? undefined : () => { onSkip.current = true; }} onPress={game.act.dlgSkip} style={[dg.skip, { top: 10 + lay.ins.t, right: 14 + lay.ins.r }]} accessibilityRole="button">
         <Text style={dg.skipT}>Pular</Text>
       </Pressable>
       <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center', gap: 6, paddingBottom: 12 + lay.ins.b, paddingLeft: 16 + lay.ins.l, paddingRight: 16 + lay.ins.r }}>
@@ -316,7 +332,7 @@ function Dialog() {
         </View>
         <Text style={dg.tap}>Toque para continuar</Text>
       </View>
-    </Pressable>
+    </Wrap>
   );
 }
 const dg = StyleSheet.create({
