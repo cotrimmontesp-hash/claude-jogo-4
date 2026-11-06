@@ -727,7 +727,7 @@ function drawBushes(g?:any,x0?:any,y0?:any,x1?:any,y1?:any){
   const alphaFor=(tx,ty)=>{const cx=tx*T+T/2,cy=ty*T+T/2;return (!P.dead&&P.inBush&&Math.hypot(cx-P.x,cy-P.y)<120)?.42:1;};
   const leaf=(px,py,a,L,Wd)=>{const dx=Math.cos(a)*L,dy=Math.sin(a)*L,nx=-Math.sin(a)*Wd,ny=Math.cos(a)*Wd;g.moveTo(px-dx,py-dy);g.quadraticCurveTo(px+nx,py+ny,px+dx,py+dy);g.quadraticCurveTo(px-nx,py-ny,px-dx,py-dy);};
   /* sombra no chão */
-  for(const [tx,ty] of tiles){if(isB(tx,ty+1))continue;g.globalAlpha=.22*alphaFor(tx,ty);g.fillStyle='#1d1436';g.beginPath();g.arc(tx*T+14,ty*T+T-3,13,0,7);g.arc(tx*T+34,ty*T+T-3,13,0,7);g.fill();}
+  for(const [tx,ty] of tiles){if(isB(tx,ty+1))continue;g.globalAlpha=.25*alphaFor(tx,ty);g.fillStyle='#1d1436';g.fillRect(tx*T-(isB(tx-1,ty)?0:5),ty*T+T-4,T+(isB(tx-1,ty)?0:5)+(isB(tx+1,ty)?0:5),8);}
   for(const pass of [0,1,2,3,4]){
     for(const [tx,ty] of tiles){
       g.globalAlpha=alphaFor(tx,ty);
@@ -743,11 +743,17 @@ function drawBushes(g?:any,x0?:any,y0?:any,x1?:any,y1?:any){
         g.beginPath();g.fillStyle=lt(th.bush,-.34);
         for(let i=0;i<leaves.length;i++){const l=leaves[i];if(l[2]!==2||isB(tx,ty+1))continue;leaf(X+l[0]+sw*.6,Y+l[1]+2,.5+((h>>i)&3)*.3,6,3);}
         g.fill();
+        if(!isB(tx,ty+1)){const gy=ty*T+T+1;g.beginPath();g.fillStyle=lt(th.bush,-.12);
+          for(let i=0;i<6;i++){const gx=X+3+i*8.4+((h>>(i*2))&3),gh=7+((h>>(i+5))&7);g.moveTo(gx-3,gy);g.lineTo(gx+((h>>i)&1?2:-2),gy-gh);g.lineTo(gx+3,gy);}
+          g.fill();g.strokeStyle=INK;g.lineWidth=1.5;g.beginPath();g.moveTo(X+(isB(tx-1,ty)?0:2),gy-1);g.lineTo(X+T-(isB(tx+1,ty)?0:2),gy-1);g.stroke();}
         g.fillStyle='rgba(255,255,255,.55)';g.beginPath();g.moveTo(X+20.4+sw,Y-3);g.arc(X+18+sw,Y-3,2.4,0,7);g.moveTo(X+35.6+sw,Y+3);g.arc(X+34+sw,Y+3,1.6,0,7);g.fill();
         continue;
       }
       g.beginPath();
-      for(const b of blobs){
+      /* base: a moita nasce do chão (fundo reto, sem balançar) */
+      if(!isB(tx,ty+1)&&pass<2){const e=pass===0?3.5:0,l=isB(tx-1,ty)?0:2,rt=isB(tx+1,ty)?0:2,yb=ty*T+T+(pass===0?1:-2);g.rect(X-e+l,ty*T+22-e,T+2*e-l-rt,yb-(ty*T+22-e));}
+      for(const b0 of blobs){
+        const k=Math.max(0,Math.min(1,(30-b0[1])/30)),b=[b0[0]+sw*(k-1),b0[1],b0[2]];
         if(pass===0){g.moveTo(X+b[0]+sw+b[2]+3.5,Y+b[1]);g.arc(X+b[0]+sw,Y+b[1],b[2]+3.5,0,7);}
         else if(pass===1){g.moveTo(X+b[0]+sw+b[2],Y+b[1]+2);g.arc(X+b[0]+sw,Y+b[1]+2,b[2],0,7);}
         else if(pass===2){g.moveTo(X+b[0]+sw+b[2]-3,Y+b[1]-2);g.arc(X+b[0]+sw,Y+b[1]-2,b[2]-3,0,7);}
