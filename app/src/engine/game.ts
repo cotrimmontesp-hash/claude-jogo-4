@@ -4,7 +4,7 @@
    recebe toques/teclas pela plataforma e guarda o estado das telas em `ui`,
    que as telas em React Native leem. */
 import { CH, PALS, TH, LV, LOBBY, WAVEL, NAMES, SW_BODY, SW_HAIR } from './data';
-import { INK, lt, vg, rg, ink, circ, ell, rrp, rr, shadow, txt, eye, gearShape, star, weapon, drawHero, drawBento, drawBot, setFontFn, paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon, WPAL, ALT, ALT2, LV20, SHOPO, dressCh } from './draw';
+import { INK, lt, vg, rg, ink, circ, ell, rrp, rr, shadow, txt, eye, gearShape, star, weapon, drawHero, drawBento, drawBot, setFontFn, paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon, WPAL, ALT, ALT2, LV20, SHOPO, dressCh, paintMode } from './draw';
 import { DUELL } from './data';
 import { Peer } from '../net/peer';
 import type { Platform, Ctx2D, OffCanvas, Insets, PtrEv } from './types';
@@ -1023,6 +1023,23 @@ function showMenu(){updSoundBtns();state='menu';hideAll();show('menu');emit();}
 function hideAll(){['menu','lobby','mapUI','dlg','res','pause','friends','heroes','skin','waitUI','arsenal','shop','missions'].forEach(id=>show(id,false));show('pauseBtn',false);paused=false;clearInterval(typing);typing=null;dcb=null;}
 function playSolo(){NET.leave();const fin=save.done.includes(LV.length-1);startChapterHost(fin?0:clamp(save.unl-1,0,LV.length-1));}
 function playWaves(){NET.leave();startWavesHost();}
+/* ---------- escolha do modo (como no Brawl Stars: o modo fica ao lado do Jogar) ---------- */
+const MODES=['story','waves','online','duel'];
+function nextChapter(){const fin=save.done.includes(LV.length-1);return fin?0:clamp(save.unl-1,0,LV.length-1);}
+function modesInfo(){
+  const c=nextChapter();
+  return {cur:MODES.includes(save.mode)?save.mode:'story',list:[
+    {k:'story',name:'História',sub:'Capítulo '+(c+1)+' · '+LV[c].name,tag:'AVENTURA',col:'#22c7c7'},
+    {k:'waves',name:'Modo Ondas',sub:'Recorde: onda '+(save.bestWave|0)+' · chefe a cada 10',tag:'SOBREVIVÊNCIA',col:'#ff5d73'},
+    {k:'online',name:'Com amigos',sub:'Até 5 jogadores na mesma sala',tag:'ONLINE',col:'#8b6cff'},
+    {k:'duel',name:'Duelo',sub:'Todos contra todos · 3 minutos',tag:'ONLINE',col:'#ff9f43'}]};
+}
+function setMode(m:string){save.mode=MODES.includes(m)?m:'story';persist();emit();}
+function playMode(){const m=MODES.includes(save.mode)?save.mode:'story';
+  if(m==='waves')playWaves();
+  else if(m==='online')openLobby();
+  else if(m==='duel'){openLobby();toast('Crie uma sala, chame os amigos e escolha Duelo na sala de espera.');}
+  else playSolo();}
 function openSkin(){hideAll();state='skin';show('skin');emit();}
 function skinInfo(){
   const base=CH[save.ch|0],cur2=myCh();
@@ -1743,13 +1760,13 @@ const game={
   subscribe(f:()=>void){subs.add(f);return ()=>{subs.delete(f);};},
   setLayout,tick,draw,
   input:{keyDown,keyUp,ptrDown,ptrMove,ptrUp,homeDown,homeMove,homeUp,homeCancel},
-  paint:{outfit:(g:Ctx2D,id:string,sk:string)=>paintSkin(g,clock,dressCh(id,sk)),weapon:(g:Ctx2D,id:string,wi:number,lock:boolean)=>paintWeapon(g,id,wi,lock),menuScene:drawMenuScene,menuBg:drawMenuBg,skin:drawSkinPreview,portrait:drawPortrait,heroCard:drawHeroCard},
+  paint:{mode:(g:Ctx2D,m:string)=>paintMode(g,m,clock),outfit:(g:Ctx2D,id:string,sk:string)=>paintSkin(g,clock,dressCh(id,sk)),weapon:(g:Ctx2D,id:string,wi:number,lock:boolean)=>paintWeapon(g,id,wi,lock),menuScene:drawMenuScene,menuBg:drawMenuBg,skin:drawSkinPreview,portrait:drawPortrait,heroCard:drawHeroCard},
   info:{menu:menuInfo,skin:skinInfo,wait:waitInfo,arsenal:arsenalInfo,friends:friendsInfo,heroes:heroInfo,lobby:lobbyInfo,map:mapCardInfo,
     layout:()=>({W,H,INS,ROT,narrow:W<700,xnarrow:W<520,short:H<460}),isTouch:()=>isTouch,
-    mini:()=>({ch:myCh(),sel:HV.sel,spk:curSpk}),state:()=>state,shop:shopInfo,missions:missionsInfo},
+    mini:()=>({ch:myCh(),sel:HV.sel,spk:curSpk}),state:()=>state,shop:shopInfo,missions:missionsInfo,modes:modesInfo},
   act:{
     btnSound,playSolo,playWaves,openLobby,openFriends,openHeroes,openArsenal,openSkin,toggleSfx,toggleMus,
-    openShop,shopBuy,shopUse,shopBack,openMissions,openChest,missionsBack,
+    setMode,playMode,openShop,shopBuy,shopUse,shopBack,openMissions,openChest,missionsBack,
     pickSkin,pickOutfit,skinReset,skinBack:showMenu,
     lobbyName:setLobbyName,lobbyCode:setLobbyCode,createRoom,joinCode,joinListed:(c:string)=>joinRoom(c,false),lobbyBack:showMenu,
     mapEnter,mapBack:leaveToMenu,inviteRoom,

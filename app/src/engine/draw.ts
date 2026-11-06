@@ -406,3 +406,25 @@ export function paintWeapon(g:any,id:string,wi:number,lock:boolean){
   g.save();g.translate(20,30);g.scale(1.5,1.5);weapon(g,ch,0,0,0,performance.now()/1000);g.restore();
   g.globalAlpha=1;
 }
+
+/* desenho de cada modo (cartões da escolha de modo), canvas 320x180 */
+export function paintMode(g:any,m:string,clock:number){
+  g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,320,180);
+  g.save();g.translate(160,92);g.globalAlpha=.16;g.fillStyle='#fff';for(let i=0;i<10;i++){g.rotate(Math.PI/5+clock*.03);g.beginPath();g.moveTo(0,0);g.lineTo(-22,-200);g.lineTo(22,-200);g.closePath();g.fill();}g.restore();g.globalAlpha=1;
+  const hero=(i:number,x:number,y:number,k:number,a:number)=>{g.save();g.translate(x,y);g.scale(k,k);shadow(g,0,0,15);drawHero(g,0,0,a,clock+i,false,0,CH[i]);g.restore();};
+  const bot=(type:string,x:number,y:number,k:number,a:number,w:number)=>{g.save();g.translate(x,y);g.scale(k,k);shadow(g,0,0,17);drawBot(g,{type,x:0,y:0,wob:w,mv:false,fl:0,r:type==='X'?36:17,st:'idle',alert:true},clock,a);g.restore();};
+  if(m==='story'){
+    /* farol com o coral brilhando */
+    const gl=g.createRadialGradient(250,60,4,250,60,70);gl.addColorStop(0,'rgba(255,240,150,.85)');gl.addColorStop(1,'rgba(255,240,150,0)');g.fillStyle=gl;g.beginPath();g.arc(250,60,70,0,7);g.fill();
+    ink(g,3);rr(g,238,40,24,100,6,'#fff');g.fillStyle='#ff5d73';g.fillRect(240,62,20,14);g.fillRect(240,96,20,14);rr(g,232,24,36,20,7,'#ffe14d');
+    hero(0,110,172,3.6,.2);
+  } else if(m==='waves'){
+    bot('g',70,150,2.4,.3,1);bot('s',250,150,2.4,Math.PI-.3,2);bot('t',160,120,2.2,Math.PI/2,3);
+    txt(g,'10',160,40,40,'#ffe14d');
+  } else if(m==='online'){
+    hero(1,80,170,2.7,.3);hero(3,240,170,2.7,Math.PI-.3);hero(0,160,178,3.1,.35);
+  } else {
+    hero(0,92,172,3.1,0);hero(1,228,172,3.1,Math.PI);
+    star(g,160,92,30,'#ffe14d');txt(g,'VS',160,94,26,'#ff5d73');
+  }
+}

@@ -1,6 +1,6 @@
 /* Todas as telas do jogo em React Native: início, personagens, armas, personalizar,
    online, amigos, sala de espera, mapa, diálogos, resultado, pausa, convite e avisos. */
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { Btn, C, Card, FONT, H2, H3, Lab, OText, Ov, P, Row, XpBar, st, useGame, useInfo, useLay } from './kit';
 import { MiniCanvas } from './MiniCanvas';
@@ -12,99 +12,164 @@ function MenuBg() {
     style={StyleSheet.absoluteFill} draw={g => game.paint.menuBg(g, lay.W, lay.H)} />;
 }
 
-/* ---------- início ---------- */
-function Home() {
-  const game = useGame(), lay = useLay();
-  const m = useInfo(() => game.info.menu());
-  const colW = (lay.W - 32 - lay.ins.l - lay.ins.r - 24) * (lay.narrow ? 1 : 1.15 / 3.05);
-  const stage = Math.max(120, Math.min(colW, 380, lay.H * (lay.narrow ? .5 : .62)));
-  const l1 = Math.max(34, Math.min(58, lay.W * .06)), l2 = Math.max(14, Math.min(22, lay.W * .024));
-  const left = (
-    <View style={[h.col, { flex: 1 }]}>
-      <View style={h.prof}>
-        <View style={h.lvl}><Text style={h.lvlT}>{m.lvl}</Text></View>
-        <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
-          <OText stroke={3} lines={1} style={h.pname}>{m.name}</OText>
-          <XpBar pct={m.xp} />
-          <Text style={h.pxp}>{m.xpT}</Text>
-        </View>
-      </View>
-      <View style={h.stats}>
-        {[[m.wins, 'Capítulos'], [m.kills, 'Robôs'], [m.gears, 'Engrenagens'], [m.wave, 'Recorde ondas']].map(([v, k]) => (
-          <View key={k as string} style={h.stat}><Text style={[h.statB, lay.short && { fontSize: 18 }]}>{v}</Text><Text style={h.statS}>{k}</Text></View>
-        ))}
-      </View>
-      <View style={h.pair}>
-        <Btn label={'Som: ' + (m.sfx ? 'ligado' : 'desligado')} size="sm" fontSize={13} padV={5} padH={6} style={{ flex: 1 }} onPress={game.act.toggleSfx} />
-        <Btn label={'Música: ' + (m.mus ? 'ligada' : 'desligada')} size="sm" fontSize={13} padV={5} padH={6} style={{ flex: 1 }} onPress={game.act.toggleMus} />
-      </View>
-      {!lay.short && (
-        <View style={h.logo}>
-          <OText stroke={6} drop={6} style={{ fontFamily: FONT.display, fontSize: l1, lineHeight: l1, color: C.gold, textAlign: 'center' }}>Ilha</OText>
-          <OText stroke={6} drop={5} style={{ fontFamily: FONT.display, fontSize: l2, lineHeight: l2 * 1.1, color: '#fff', textAlign: 'center' }}>do Coral</OText>
-        </View>
-      )}
-    </View>
-  );
-  const mid = (
-    <View style={[h.mid, { flex: lay.narrow ? undefined : 1.15 }]}>
-      <MiniCanvas w={520} h={520} width={stage} draw={g => game.paint.menuScene(g)}
-        onDown={(x, y) => game.input.homeDown(x, y)} onMove={(x, y) => game.input.homeMove(x, y)} onUp={() => game.input.homeUp()} onCancel={() => game.input.homeCancel()} />
-      <View style={{ alignItems: 'center', marginTop: -18 }}>
-        <OText stroke={5} style={{ fontFamily: FONT.display, fontSize: 26, color: '#fff', textAlign: 'center' }}>{m.hero}</OText>
-        <Text style={h.role}>{m.role}</Text>
-      </View>
-    </View>
-  );
-  const right = (
-    <View style={[h.col, { flex: lay.narrow ? undefined : .9, alignItems: 'stretch' }]}>
-      <Btn label="Jogar" kind="play" fontSize={34} padV={12} padH={10} start onPress={game.act.playSolo} />
-      <Btn label="Modo Ondas" kind="red" fontSize={19} padV={7} padH={12} start onPress={game.act.playWaves} />
-      <View style={h.pair}>
-        <Btn label="Online" kind="alt" fontSize={15} padV={7} padH={3} style={{ flex: 1 }} onPress={game.act.openLobby} />
-        {m.friends && <Btn label={m.friendsLabel} kind="red" fontSize={15} padV={7} padH={3} style={{ flex: 1 }} onPress={game.act.openFriends} />}
-      </View>
-      <View style={h.pair}>
-        <Btn label="Personagens" fontSize={15} padV={7} padH={3} style={{ flex: 1 }} onPress={game.act.openHeroes} />
-        <Btn label={m.arms} fontSize={15} padV={7} padH={3} style={{ flex: 1 }} onPress={game.act.openArsenal} />
-      </View>
-      <View style={h.pair}>
-        <Btn label={m.skin || 'Personalizar'} kind="alt" fontSize={15} padV={7} padH={3} style={{ flex: 1 }} onPress={game.act.openSkin} />
-        <Btn label="Loja" kind="red" fontSize={15} padV={7} padH={3} style={{ flex: 1 }} onPress={game.act.openShop} />
-      </View>
-      <Btn label={m.missions || 'Missões'} kind={m.missions && m.missions !== 'Missões' ? 'play' : 'gold'} fontSize={17} padV={6} padH={10} onPress={game.act.openMissions} />
-      {!lay.short && <Text style={h.hint}>{m.hint}</Text>}
-    </View>
-  );
+/* ---------- início (no estilo do Brawl Stars) ---------- */
+function SideBtn({ icon, label, color, onPress, badge }: { icon: string; label: string; color: string; onPress: () => void; badge?: boolean }) {
+  const game = useGame();
+  const [down, setDown] = useState(false);
   return (
-    <Ov bg={<MenuBg />} center={false}>
-      {lay.narrow ? (
-        <ScrollView contentContainerStyle={{ alignItems: 'center', gap: 12, paddingBottom: 12 }}>
-          {mid}<View style={{ width: '100%', maxWidth: 420, gap: 12 }}>{right}{left}</View>
-        </ScrollView>
-      ) : (
-        <View style={h.wrap}>{left}{mid}{right}</View>
-      )}
+    <Pressable onPress={() => { game.act.btnSound(); onPress(); }} onPressIn={() => setDown(true)} onPressOut={() => setDown(false)}
+      accessibilityRole="button" accessibilityLabel={label} style={{ alignItems: 'center', width: 72, transform: [{ translateY: down ? 3 : 0 }] }}>
+      <View>
+        <View style={[hm.sideShadow]} />
+        <View style={[hm.side, { backgroundColor: color }]}><Text style={hm.sideIcon}>{icon}</Text></View>
+        {badge && <View style={hm.badge}><Text style={hm.badgeT}>!</Text></View>}
+      </View>
+      <OText stroke={3} lines={1} style={hm.sideLab}>{label}</OText>
+    </Pressable>
+  );
+}
+function Pill({ icon, value, label }: { icon: string; value: any; label: string }) {
+  return (
+    <View style={hm.pill} accessibilityLabel={label + ': ' + value}>
+      <Text style={hm.pillIcon}>{icon}</Text>
+      <OText stroke={3} style={hm.pillT}>{String(value)}</OText>
+    </View>
+  );
+}
+function ModePicker({ onClose }: { onClose: () => void }) {
+  const game = useGame(), lay = useLay();
+  const md = useInfo(() => game.info.modes());
+  const cols = lay.W < 700 ? 2 : 4;
+  const cw = Math.min(200, (Math.min(lay.W, 900) - 40 - lay.ins.l - lay.ins.r - 14 * (cols - 1)) / cols);
+  return (
+    <Ov bg={<MenuBg />} z={7}>
+      <View style={{ alignItems: 'center', gap: 12, width: '100%' }}>
+        <OText stroke={6} drop={4} style={{ fontFamily: FONT.display, fontSize: 34, color: '#fff', textAlign: 'center' }}>Escolha o modo</OText>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 14, justifyContent: 'center' }}>
+          {md.list.map((m: any) => {
+            const sel = m.k === md.cur;
+            return (
+              <Pressable key={m.k} onPress={() => { game.act.btnSound(); game.act.setMode(m.k); onClose(); }} accessibilityRole="button" accessibilityLabel={m.name}
+                style={[hm.card, { width: cw, borderColor: sel ? C.gold : C.ink, transform: [{ translateY: sel ? -4 : 0 }] }]}>
+                <View style={[hm.cardTop, { backgroundColor: m.col }]}>
+                  <Text style={hm.tag}>{m.tag}</Text>
+                  <MiniCanvas w={320} h={180} width={cw - 6} height={(cw - 6) * 180 / 320} draw={g => game.paint.mode(g, m.k)} />
+                </View>
+                <View style={{ padding: 8, gap: 2, alignItems: 'center' }}>
+                  <Text style={hm.cardName}>{sel ? '✓ ' : ''}{m.name}</Text>
+                  <Text style={hm.cardSub} numberOfLines={2}>{m.sub}</Text>
+                </View>
+              </Pressable>
+            );
+          })}
+        </View>
+        <Btn label="Voltar" kind="red" size="sm" onPress={onClose} />
+      </View>
     </Ov>
   );
 }
+function Home() {
+  const game = useGame(), lay = useLay();
+  const m = useInfo(() => game.info.menu());
+  const md = useInfo(() => game.info.modes());
+  const [picking, setPicking] = useState(false);
+  const cm = md.list.find((x: any) => x.k === md.cur) || md.list[0] || { k: 'story', name: 'História', sub: '', col: C.teal, tag: '' };
+  const stage = Math.max(140, Math.min(340, lay.H * .74, lay.W * .36));
+  const tileW = Math.min(230, lay.W * .27);
+  const ins = lay.ins;
+  if (picking) return <ModePicker onClose={() => setPicking(false)} />;
+  return (
+    <Ov bg={<MenuBg />} center={false}>
+      <View style={{ flex: 1 }}>
+        {/* barra de cima: perfil e números */}
+        <View style={hm.top}>
+          <Pressable onPress={() => { game.act.btnSound(); game.act.openHeroes(); }} style={hm.prof} accessibilityRole="button" accessibilityLabel="Perfil">
+            <View style={hm.lvl}><Text style={hm.lvlT}>{m.lvl}</Text></View>
+            <View style={{ minWidth: 0, gap: 3, width: Math.min(200, lay.W * .22) }}>
+              <OText stroke={3} lines={1} style={hm.pname}>{m.name}</OText>
+              <XpBar pct={m.xp} />
+              <Text style={hm.pxp} numberOfLines={1}>{m.xpT}</Text>
+            </View>
+          </Pressable>
+          <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
+            <Pill icon="⚙️" value={m.gears} label="Engrenagens" />
+            <Pill icon="🤖" value={m.kills} label="Robôs derrotados" />
+            <Pill icon="🌊" value={m.wave} label="Recorde de ondas" />
+            <Pressable onPress={() => { game.act.btnSound(); game.act.toggleSfx(); }} style={hm.round} accessibilityLabel={'Som ' + (m.sfx ? 'ligado' : 'desligado')}><Text style={hm.roundT}>{m.sfx ? '🔊' : '🔇'}</Text></Pressable>
+            <Pressable onPress={() => { game.act.btnSound(); game.act.toggleMus(); }} style={[hm.round, !m.mus && { opacity: .5 }]} accessibilityLabel={'Música ' + (m.mus ? 'ligada' : 'desligada')}><Text style={hm.roundT}>🎵</Text></Pressable>
+          </View>
+        </View>
+        {/* meio: botões do lado, personagem no palco */}
+        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+          <View style={hm.sideGrid}>
+            <SideBtn icon="🛒" label="Loja" color="#ff5d73" onPress={game.act.openShop} />
+            <SideBtn icon="🦸" label="Heróis" color="#22c7c7" onPress={game.act.openHeroes} />
+            <SideBtn icon="⚔️" label={m.arms === 'Armas' ? 'Armas' : 'Armas!'} color="#ffb020" onPress={game.act.openArsenal} badge={m.arms !== 'Armas'} />
+            <SideBtn icon="🎨" label="Visual" color="#8b6cff" onPress={game.act.openSkin} badge={m.skin !== 'Personalizar'} />
+            <SideBtn icon="🎯" label="Missões" color="#4cd964" onPress={game.act.openMissions} badge={m.missions !== 'Missões'} />
+            {m.friends ? <SideBtn icon="👥" label="Amigos" color="#3f7be0" onPress={game.act.openFriends} badge={m.friendsLabel !== 'Amigos'} />
+              : <SideBtn icon="🌐" label="Online" color="#3f7be0" onPress={game.act.openLobby} />}
+          </View>
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <MiniCanvas w={520} h={520} width={stage} draw={g => game.paint.menuScene(g)}
+              onDown={(x, y) => game.input.homeDown(x, y)} onMove={(x, y) => game.input.homeMove(x, y)} onUp={() => game.input.homeUp()} onCancel={() => game.input.homeCancel()} />
+            <View style={{ alignItems: 'center', marginTop: -stage * .06 }}>
+              <OText stroke={5} style={{ fontFamily: FONT.display, fontSize: 24, color: '#fff', textAlign: 'center' }}>{m.hero}</OText>
+              <Text style={h.role}>{m.role}</Text>
+            </View>
+          </View>
+          <View style={{ width: tileW + 150 }} />
+        </View>
+      </View>
+      {/* canto de baixo à direita: modo + Jogar */}
+      <View style={[hm.playRow, { right: 16 + ins.r, bottom: 12 + ins.b }]}>
+        <Pressable onPress={() => { game.act.btnSound(); setPicking(true); }} accessibilityRole="button" accessibilityLabel={'Modo: ' + cm.name + '. Trocar modo'}
+          style={[hm.modeTile, { width: tileW, backgroundColor: cm.col }]}>
+          <View style={hm.modeIcon}><MiniCanvas key={cm.k} w={320} h={180} width={72} height={40.5} draw={g => game.paint.mode(g, cm.k)} /></View>
+          <View style={{ flex: 1, minWidth: 0 }}>
+            <OText stroke={3} lines={1} style={hm.modeName}>{cm.name}</OText>
+            <Text style={hm.modeSub} numberOfLines={1}>{cm.sub}</Text>
+            <Text style={hm.modeHint}>▸ trocar modo</Text>
+          </View>
+        </Pressable>
+        <Btn label="Jogar" kind="play" fontSize={36} padV={12} padH={22} start onPress={game.act.playMode} />
+      </View>
+    </Ov>
+  );
+}
+const hm = StyleSheet.create({
+  top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 10 },
+  prof: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(29,20,54,.6)', borderWidth: 3, borderColor: C.ink, borderRadius: 16, paddingVertical: 6, paddingHorizontal: 10 },
+  lvl: { width: 44, height: 44, borderRadius: 12, backgroundColor: C.gold, borderWidth: 3, borderColor: C.ink, alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '-4deg' }] },
+  lvlT: { fontFamily: FONT.display, fontSize: 22, color: C.ink },
+  pname: { fontFamily: FONT.display, fontSize: 18, color: '#fff' },
+  pxp: { fontFamily: FONT.black, fontSize: 10, color: C.hint },
+  pill: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: 'rgba(29,20,54,.75)', borderWidth: 3, borderColor: C.ink, borderRadius: 999, paddingVertical: 3, paddingLeft: 6, paddingRight: 12 },
+  pillIcon: { fontSize: 16 },
+  pillT: { fontFamily: FONT.display, fontSize: 17, color: '#fff' },
+  round: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#fff', borderWidth: 3, borderColor: C.ink, alignItems: 'center', justifyContent: 'center' },
+  roundT: { fontSize: 16 },
+  sideGrid: { width: 160, flexDirection: 'row', flexWrap: 'wrap', gap: 6, rowGap: 4, alignContent: 'center' },
+  side: { width: 54, height: 54, borderRadius: 14, borderWidth: 3, borderColor: C.ink, alignItems: 'center', justifyContent: 'center' },
+  sideShadow: { position: 'absolute', left: 0, right: 0, top: 4, height: 54, borderRadius: 14, backgroundColor: C.ink },
+  sideIcon: { fontSize: 26 },
+  sideLab: { fontFamily: FONT.display, fontSize: 14, color: '#fff', textAlign: 'center', marginTop: 4 },
+  badge: { position: 'absolute', right: -6, top: -6, width: 22, height: 22, borderRadius: 11, backgroundColor: C.coral, borderWidth: 2.5, borderColor: C.ink, alignItems: 'center', justifyContent: 'center' },
+  badgeT: { fontFamily: FONT.display, fontSize: 13, color: '#fff' },
+  playRow: { position: 'absolute', flexDirection: 'row', alignItems: 'flex-end', gap: 10 },
+  modeTile: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 3, borderColor: C.ink, borderRadius: 16, paddingVertical: 6, paddingHorizontal: 8, marginBottom: 5 },
+  modeIcon: { width: 78, height: 46, borderRadius: 10, backgroundColor: 'rgba(29,20,54,.35)', borderWidth: 2.5, borderColor: C.ink, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  modeName: { fontFamily: FONT.display, fontSize: 18, color: '#fff' },
+  modeSub: { fontFamily: FONT.black, fontSize: 10, color: '#fff' },
+  modeHint: { fontFamily: FONT.black, fontSize: 10, color: C.ink, opacity: .75 },
+  card: { backgroundColor: '#fff', borderWidth: 4, borderRadius: 18, overflow: 'hidden' },
+  cardTop: { alignItems: 'center', paddingTop: 4, borderBottomWidth: 3, borderBottomColor: C.ink },
+  tag: { fontFamily: FONT.black, fontSize: 10, letterSpacing: 1.2, color: '#fff', backgroundColor: 'rgba(29,20,54,.55)', paddingHorizontal: 8, paddingVertical: 1, borderRadius: 999, overflow: 'hidden' },
+  cardName: { fontFamily: FONT.display, fontSize: 19, color: C.ink, textAlign: 'center' },
+  cardSub: { fontFamily: FONT.body, fontSize: 11, lineHeight: 14, color: C.sub, textAlign: 'center' },
+});
 const h = StyleSheet.create({
-  wrap: { flex: 1, width: '100%', maxWidth: 1100, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', gap: 12 },
-  col: { gap: 10, minWidth: 0 },
-  mid: { alignItems: 'center', justifyContent: 'center', minWidth: 0 },
-  prof: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(29,20,54,.55)', borderWidth: 3, borderColor: C.ink, borderRadius: 16, paddingVertical: 8, paddingHorizontal: 12 },
-  lvl: { width: 48, height: 48, borderRadius: 12, backgroundColor: C.gold, borderWidth: 3, borderColor: C.ink, alignItems: 'center', justifyContent: 'center', transform: [{ rotate: '-4deg' }] },
-  lvlT: { fontFamily: FONT.display, fontSize: 24, color: C.ink },
-  pname: { fontFamily: FONT.display, fontSize: 20, color: '#fff' },
-  pxp: { fontFamily: FONT.black, fontSize: 11, color: C.hint },
-  stats: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  stat: { width: '48%', flexGrow: 1, backgroundColor: '#fff', borderWidth: 3, borderColor: C.ink, borderRadius: 12, paddingVertical: 4, paddingHorizontal: 6, alignItems: 'center' },
-  statB: { fontFamily: FONT.display, fontSize: 22, color: C.ink },
-  statS: { fontFamily: FONT.black, fontSize: 10, letterSpacing: .6, textTransform: 'uppercase', color: C.sub, textAlign: 'center' },
-  logo: { alignItems: 'center', transform: [{ rotate: '-3deg' }] },
   role: { fontFamily: FONT.black, fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase', color: C.gold, textShadowColor: C.ink, textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 0.1, textAlign: 'center' },
-  pair: { flexDirection: 'row', gap: 6 },
-  hint: { fontFamily: FONT.body, color: C.hint, fontSize: 14, lineHeight: 19, textAlign: 'center' },
 });
 
 /* ---------- personalizar ---------- */

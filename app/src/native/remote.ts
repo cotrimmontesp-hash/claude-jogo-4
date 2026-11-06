@@ -2,7 +2,7 @@
    Este "jogo remoto" tem a mesma cara do motor para as telas em React Native:
    guarda o último estado que a WebView mandou e repassa os botões para ela. */
 import { AppState, Share } from 'react-native';
-import { paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon, dressCh } from '../engine/draw';
+import { paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon, dressCh, paintMode } from '../engine/draw';
 import { CH } from '../engine/data';
 import type { Game } from '../engine/game';
 import { getSaved, storeSave } from '../platform/make';
@@ -63,6 +63,7 @@ export function createRemoteGame(): Game {
     paint: {
       weapon: (g: any, id: string, wi: number, lock: boolean) => paintWeapon(g, id, wi, lock),
       outfit: (g: any, id: string, sk: string) => paintSkin(g, clk(), dressCh(id, sk)),
+      mode: (g: any, m: string) => paintMode(g, m, clk()),
       menuScene: (g: any) => paintMenuScene(g, HOME, clk(), info.mini.ch),
       menuBg: (g: any, w: number, h: number) => paintMenuBg(g, w, h),
       skin: (g: any) => paintSkin(g, clk(), info.mini.ch),
@@ -71,7 +72,7 @@ export function createRemoteGame(): Game {
     },
     info: {
       menu: () => info.menu, skin: () => info.skin, wait: () => info.wait, arsenal: () => info.arsenal, friends: () => info.friends,
-      heroes: () => info.heroes, lobby: () => info.lobby, map: () => info.map, shop: () => info.shop, missions: () => info.missions, mini: () => info.mini, state: () => info.state,
+      heroes: () => info.heroes, lobby: () => info.lobby, map: () => info.map, shop: () => info.shop, missions: () => info.missions, modes: () => info.modes || { cur: 'story', list: [] }, mini: () => info.mini, state: () => info.state,
       layout: () => ({ W: lay.W, H: lay.H, INS: lay.INS, ROT: false, narrow: lay.W < 700, xnarrow: lay.W < 520, short: lay.H < 460 }),
       isTouch: () => true,
     },
