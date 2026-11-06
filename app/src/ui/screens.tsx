@@ -362,13 +362,19 @@ function Dialog() {
   const ct = Math.max(28, Math.min(44, lay.W * .055));
   /* toques "crus" (não o onPress): funcionam mesmo com o outro dedo ainda no
      joystick, que é como a fala costuma aparecer no meio da fase */
-  const downs = useRef<{ [id: string]: number }>({}), onSkip = useRef(false);
-  const tStart = (e: any) => { for (const t of e.nativeEvent.changedTouches || [e.nativeEvent]) downs.current[String(t.identifier)] = Date.now(); };
+  /* o "Pular" também é decidido pela posição do dedo: com um dedo no joystick,
+     o Android não entrega o toque normal (onPress) para o botão */
+  const downs = useRef<{ [id: string]: { t: number, skip: boolean } }>({});
+  const skipRef = useRef<any>(null), skipBox = useRef<null | { x: number, y: number, w: number, h: number }>(null);
+  const measureSkip = () => { try { skipRef.current && skipRef.current.measure((_x: number, _y: number, w: number, h: number, x: number, y: number) => { if (w > 0) skipBox.current = { x, y, w, h }; }); } catch (e) { } };
+  const onSkipBtn = (t: any) => { const b = skipBox.current; if (!b) return false; const s = 14; return t.pageX >= b.x - s && t.pageX <= b.x + b.w + s && t.pageY >= b.y - s && t.pageY <= b.y + b.h + s; };
+  const tStart = (e: any) => { if (!skipBox.current) measureSkip(); for (const t of e.nativeEvent.changedTouches || [e.nativeEvent]) downs.current[String(t.identifier)] = { t: Date.now(), skip: onSkipBtn(t) }; };
   const tEnd = (e: any) => {
     for (const t of e.nativeEvent.changedTouches || [e.nativeEvent]) {
-      const id = String(t.identifier), t0 = downs.current[id]; delete downs.current[id];
-      if (t0 == null || Date.now() - t0 > 900) continue;
-      if (onSkip.current) { onSkip.current = false; continue; }
+      const id = String(t.identifier), d0 = downs.current[id]; delete downs.current[id];
+      if (d0 == null) continue;
+      if (d0.skip) { game.act.dlgSkip(); return; }
+      if (Date.now() - d0.t > 900) continue;
       game.act.dlgTap();
     }
   };
@@ -384,8 +390,8 @@ function Dialog() {
           <OText stroke={6} style={{ fontFamily: FONT.display, color: '#fff', fontSize: ct, lineHeight: ct * 1.15, textAlign: 'center' }}>{d.title[1]}</OText>
         </View>
       )}
-      <Pressable onTouchStart={WEB ? undefined : () => { onSkip.current = true; }} onPress={game.act.dlgSkip} style={[dg.skip, { top: 10 + lay.ins.t, right: 14 + lay.ins.r }]} accessibilityRole="button">
-        <Text style={dg.skipT}>Pular</Text>
+      <Pressable ref={skipRef} onLayout={measureSkip} onPress={WEB ? game.act.dlgSkip : undefined} hitSlop={12} style={[dg.skip, { top: 10 + lay.ins.t, right: 14 + lay.ins.r }]} accessibilityRole="button" accessibilityLabel="Pular a conversa">
+        <Text style={dg.skipT}>Pular  ››</Text>
       </Pressable>
       <View pointerEvents="box-none" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center', gap: 6, paddingBottom: 12 + lay.ins.b, paddingLeft: 16 + lay.ins.l, paddingRight: 16 + lay.ins.r }}>
         <View pointerEvents="none" style={{ width: '100%', maxWidth: 720, flexDirection: 'row', gap: 12, alignItems: 'flex-end' }}>

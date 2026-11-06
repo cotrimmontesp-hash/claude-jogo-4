@@ -127,7 +127,7 @@ function spawnEnemy(type?:any,x?:any,y?:any){const mega=type==='Y';if(mega)type=
 
 /* ---------- mundo contínuo: as 5 áreas emendadas ---------- */
 const AW=26,AH=13,GATE_ROWS=[5,6,7];
-const WORLD={on:false,prog:0,start:0,areas:[],intro:{},capQ:[],capT:0,wallCvs:[]};
+const WORLD={on:false,prog:0,start:0,areas:[],intro:{},shut:{} as any,capQ:[],capT:0,wallCvs:[]};
 function areaOf(x?:any){return clamp(Math.floor(x/(AW*T)),0,LV.length-1);}
 function themeAtTx(tx?:any){return WORLD.on?TH[LV[clamp(Math.floor(tx/AW),0,LV.length-1)].theme]:theme;}
 function worldRows(){
@@ -137,7 +137,7 @@ function worldRows(){
   return rows;
 }
 function loadWorld(start?:any,n?:any,asClient?:any){
-  WORLD.on=true;WV.on=false;DUEL.on=false;WORLD.start=start;WORLD.prog=start;WORLD.intro={};WORLD.intro[start]=1;WORLD.capQ=[];WORLD.capT=0;
+  WORLD.on=true;WV.on=false;DUEL.on=false;WORLD.start=start;WORLD.prog=start;WORLD.intro={};WORLD.shut={};WORLD.intro[start]=1;WORLD.capQ=[];WORLD.capT=0;
   cur=start;theme=TH[LV[start].theme];diffN=n||1;dmgMul=1+.14*(diffN-1);
   const rows=worldRows();GH=rows.length;GW=rows[0].length;
   grid=[];enemies=[];bullets=[];parts=[];texts=[];drops=[];rings=[];winT=0;loseT=0;shake=0;gearsRun=0;allDeadT=0;eid=1;
@@ -162,6 +162,11 @@ function loadWorld(start?:any,n?:any,asClient?:any){
   buildGround();
 }
 function gateTiles(i?:any){const L=[];for(const y of GATE_ROWS){L.push([i*AW+AW-1,y],[(i+1)*AW,y]);}return L;}
+function closeGate(i?:any){
+  let n=0;
+  for(const [tx,ty] of gateTiles(i)){if(grid[ty]&&grid[ty][tx]!=='G'){grid[ty][tx]='G';n++;burst(tx*T+T/2,ty*T+T/2-10,8,['#9aa7bf','#fff','#ff5d73'],200,5);}}
+  if(n){SFX.hit();shake=Math.max(shake,5);toast('O portão fechou atrás de você!');}
+}
 function openGate(i?:any){
   SFX.gate();
   for(const [tx,ty] of gateTiles(i)){if(grid[ty]&&grid[ty][tx]==='G'){grid[ty][tx]='.';burst(tx*T+T/2,ty*T+T/2-10,10,['#ffe14d','#fff','#7ee6ff'],220,5);}}
@@ -190,6 +195,8 @@ function recordArea(a?:any){addCharXP(40);misAdd('area',1);save.gears+=gearsRun;
 function checkAreaEntry(){
   if(!WORLD.on||!P||P.dead)return;
   const a=areaOf(P.x);
+  /* passou pelo portão: ele fecha atrás e não dá pra voltar para a fase anterior */
+  if(a>WORLD.start&&!WORLD.shut[a]&&P.x>WORLD.areas[a].x0+T*2.2){WORLD.shut[a]=1;closeGate(a-1);}
   if(a>WORLD.start&&a<=WORLD.prog&&!WORLD.intro[a]&&P.x>WORLD.areas[a].x0+T*2.5){WORLD.intro[a]=1;banner=2.4;
     storyLines(LV[a].intro.map(l=>[l[0],heroLine(l[1])]));}
 }
@@ -713,20 +720,41 @@ function drawBushes(g?:any,x0?:any,y0?:any,x1?:any,y1?:any){
   const tiles=[];
   for(let ty=Math.max(0,y0);ty<=Math.min(GH-1,y1);ty++)for(let tx=Math.max(0,x0);tx<=Math.min(GW-1,x1);tx++)if(grid[ty][tx]==='B')tiles.push([tx,ty]);
   if(!tiles.length)return;
-  const blobs=[[12,6,17],[36,4,17],[24,22,19],[8,30,14],[40,30,14],[24,40,13]];
+  /* moita cheia, com folhas pontudas por cima (estilo Brawl Stars) */
+  const blobs=[[11,8,16],[37,8,16],[24,1,15],[8,27,15],[40,27,15],[24,20,18],[24,38,14]];
+  const leaves=[[9,-2,1],[24,-10,1],[39,-2,1],[3,14,1],[45,14,1],[16,8,0],[32,10,0],[22,28,0],[6,36,2],[42,36,2]];
+  const isB=(tx,ty)=>!!(grid[ty]&&grid[ty][tx]==='B');
   const alphaFor=(tx,ty)=>{const cx=tx*T+T/2,cy=ty*T+T/2;return (!P.dead&&P.inBush&&Math.hypot(cx-P.x,cy-P.y)<120)?.42:1;};
-  for(const pass of [0,1,2,3]){
+  const leaf=(px,py,a,L,Wd)=>{const dx=Math.cos(a)*L,dy=Math.sin(a)*L,nx=-Math.sin(a)*Wd,ny=Math.cos(a)*Wd;g.moveTo(px-dx,py-dy);g.quadraticCurveTo(px+nx,py+ny,px+dx,py+dy);g.quadraticCurveTo(px-nx,py-ny,px-dx,py-dy);};
+  /* sombra no chão */
+  for(const [tx,ty] of tiles){if(isB(tx,ty+1))continue;g.globalAlpha=.22*alphaFor(tx,ty);g.fillStyle='#1d1436';g.beginPath();g.arc(tx*T+14,ty*T+T-3,13,0,7);g.arc(tx*T+34,ty*T+T-3,13,0,7);g.fill();}
+  for(const pass of [0,1,2,3,4]){
     for(const [tx,ty] of tiles){
       g.globalAlpha=alphaFor(tx,ty);
-      const X=tx*T,Y=ty*T-12,sw=Math.sin(clock*1.6+tx*1.3+ty)*1.3;
-      for(const b of blobs){
-        g.beginPath();
-        if(pass===0){g.fillStyle=INK;g.arc(X+b[0]+sw,Y+b[1],b[2]+3.2,0,7);}
-        else if(pass===1){const th=themeAtTx(tx);g.fillStyle=lt(th.bush,-.2);g.arc(X+b[0]+sw,Y+b[1]+2,b[2],0,7);}
-        else if(pass===2){g.fillStyle=themeAtTx(tx).bush;g.arc(X+b[0]+sw,Y+b[1]-1,b[2]-2,0,7);}
-        else{g.fillStyle=themeAtTx(tx).bushL;g.arc(X+b[0]-5+sw,Y+b[1]-7,b[2]*.36,0,7);}
+      const th=themeAtTx(tx),X=tx*T,Y=ty*T-12,sw=Math.sin(clock*1.6+tx*1.3+ty)*1.3,h=hash(tx,ty);
+      if(pass===4){
+        /* folhas: claras em cima, escuras embaixo, cada moita com um giro diferente */
+        g.beginPath();g.fillStyle=lt(th.bushL,.12);
+        for(let i=0;i<leaves.length;i++){const l=leaves[i];if(l[2]!==1)continue;if(l[1]<0&&isB(tx,ty-1))continue;const a=-1.2+((h>>(i*3))&7)*.32+Math.sin(clock*2+i+tx)*.06;leaf(X+l[0]+sw*1.4,Y+l[1]+4,a,8,4.2);}
         g.fill();
+        g.beginPath();g.fillStyle=th.bushL;
+        for(let i=0;i<leaves.length;i++){const l=leaves[i];if(l[2]!==0)continue;const a=-.8+((h>>(i*2))&7)*.24;leaf(X+l[0]+sw,Y+l[1]+2,a,6.5,3.4);}
+        g.fill();
+        g.beginPath();g.fillStyle=lt(th.bush,-.34);
+        for(let i=0;i<leaves.length;i++){const l=leaves[i];if(l[2]!==2||isB(tx,ty+1))continue;leaf(X+l[0]+sw*.6,Y+l[1]+2,.5+((h>>i)&3)*.3,6,3);}
+        g.fill();
+        g.fillStyle='rgba(255,255,255,.55)';g.beginPath();g.moveTo(X+20.4+sw,Y-3);g.arc(X+18+sw,Y-3,2.4,0,7);g.moveTo(X+35.6+sw,Y+3);g.arc(X+34+sw,Y+3,1.6,0,7);g.fill();
+        continue;
       }
+      g.beginPath();
+      for(const b of blobs){
+        if(pass===0){g.moveTo(X+b[0]+sw+b[2]+3.5,Y+b[1]);g.arc(X+b[0]+sw,Y+b[1],b[2]+3.5,0,7);}
+        else if(pass===1){g.moveTo(X+b[0]+sw+b[2],Y+b[1]+2);g.arc(X+b[0]+sw,Y+b[1]+2,b[2],0,7);}
+        else if(pass===2){g.moveTo(X+b[0]+sw+b[2]-3,Y+b[1]-2);g.arc(X+b[0]+sw,Y+b[1]-2,b[2]-3,0,7);}
+        else{if(b[1]>24)continue;g.moveTo(X+b[0]-4+sw+b[2]*.5,Y+b[1]-7);g.arc(X+b[0]-4+sw,Y+b[1]-7,b[2]*.5,0,7);}
+      }
+      g.fillStyle=pass===0?INK:pass===1?lt(th.bush,-.26):pass===2?th.bush:lt(th.bushL,-.04);
+      g.fill();
     }
   }
   g.globalAlpha=1;
@@ -848,7 +876,7 @@ function drawHUD(){
   txt(g,n?('Robôs: '+n):'Área limpa!',W/2,top+38,15,n?'#ffcc2e':'#5ee04a');}
   ink(g,2);gearShape(g,24+INS.l,top+18,8,'#ffcc2e');txt(g,String(gearsRun),40+INS.l,top+19,18,'#fff','left');
   if(NET.game&&cur!==-1&&!DUEL.on)txt(g,'Jogadores: '+NET.count+'  ·  Dificuldade '+'★'.repeat(diffN),24+INS.l,top+44,13,'#fff','left');
-  const boss=enemies.find(e=>e.type==='X');
+  const boss=enemies.find(e=>e.type==='X'&&(!WORLD.on||areaOf(e.x)===areaOf(P.x)));
   if(boss){const w=Math.min(W*.4,380),y=top+60;
     txt(g,WV.on?'Capitão Ferrugem · nível '+Math.max(1,Math.floor(WV.wave/10)):boss.mega?'Mega Ferrugem':'Capitão Ferrugem',W/2,y,15,'#fff');
     rr(g,W/2-w/2-3,y+10,w+6,18,9,INK,true);rr(g,W/2-w/2,y+13,w*Math.max(0,boss.hp/boss.max),12,6,'#c45cff',true);}
