@@ -1,0 +1,50 @@
+name: Gerar APK
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Instalar pacotes (Expo + React Native)
+        run: |
+          npm install --no-audit --no-fund
+          node scripts/build-webgame.mjs
+      - name: Conferir o TypeScript
+        continue-on-error: true
+        run: npx tsc --noEmit
+      - name: Gerar o projeto Android
+        run: |
+          npx expo prebuild -p android --no-install --clean
+          sed -i "s/versionCode 1$/versionCode ${{ github.run_number }}/" android/app/build.gradle
+      - name: Compilar APK
+        working-directory: app/android
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+          cp app/build/outputs/apk/release/app-release.apk ../../TurboEstrada.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: TurboEstrada.apk
+      - name: Publicar APK
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Turbo Estrada v${{ github.run_number }}
+          files: TurboEstrada.apk

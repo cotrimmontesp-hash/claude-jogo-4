@@ -1,0 +1,10 @@
+node_modules/
+app/node_modules/
+app/dist/
+app/.expo/
+app/android/
+app/ios/
+app/src/webgame/html.ts
+*.apk
+*.aab
+*.ipa

@@ -1,0 +1,41 @@
+# Builds das lojas pelo EAS (Expo). Precisa do segredo EXPO_TOKEN no repositório.
+#  - Android: APK (perfil preview) ou AAB para a Play Store (perfil production)
+#  - iPhone: IPA (precisa de conta de desenvolvedor da Apple ligada à conta da Expo)
+name: Build EAS (lojas)
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'android, ios ou all'
+        default: android
+        required: true
+      profile:
+        description: 'preview (APK) ou production (AAB/IPA para as lojas)'
+        default: preview
+        required: true
+jobs:
+  eas:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Conferir o EXPO_TOKEN
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then echo "::error::Falta o segredo EXPO_TOKEN (Settings > Secrets > Actions)"; exit 1; fi
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - name: Instalar pacotes
+        run: npm install --no-audit --no-fund
+      - name: Ligar o projeto à conta da Expo (só na primeira vez)
+        run: eas init --non-interactive --force || true
+      - name: Build
+        run: eas build --platform ${{ github.event.inputs.platform }} --profile ${{ github.event.inputs.profile }} --non-interactive --no-wait

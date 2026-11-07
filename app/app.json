@@ -1,0 +1,68 @@
+{
+  "expo": {
+    "name": "Turbo Estrada",
+    "slug": "turbo-estrada",
+    "version": "1.0.0",
+    "orientation": "landscape",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0b0b1e",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0b0b1e"
+    },
+    "androidStatusBar": {
+      "hidden": true,
+      "backgroundColor": "#0b0b1e"
+    },
+    "androidNavigationBar": {
+      "visible": "sticky-immersive",
+      "backgroundColor": "#0b0b1e"
+    },
+    "android": {
+      "package": "com.claude.turboestrada",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0b0b1e"
+      },
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
+    },
+    "ios": {
+      "bundleIdentifier": "com.claude.turboestrada",
+      "supportsTablet": true,
+      "requireFullScreen": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "web": {
+      "name": "Turbo Estrada",
+      "shortName": "Turbo Estrada",
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "themeColor": "#0b0b1e",
+      "backgroundColor": "#0b0b1e"
+    },
+    "plugins": [
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "LANDSCAPE"
+        }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "node_modules/@expo-google-fonts/press-start-2p/PressStart2P_400Regular.ttf"
+          ]
+        }
+      ]
+    ]
+  }
+}
