@@ -1,7 +1,7 @@
 name: Gerar APK
 on:
   push:
-    branches: [main]
+    branches: [main, turbo-estrada]
   workflow_dispatch:
 permissions:
   contents: write
@@ -42,9 +42,11 @@ jobs:
           name: apk
           path: TurboEstrada.apk
       - name: Publicar APK
-        if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.run_number }}
+          tag_name: turbo-v${{ github.run_number }}
           name: Turbo Estrada v${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          prerelease: ${{ github.ref != 'refs/heads/main' }}
+          make_latest: ${{ github.ref == 'refs/heads/main' }}
           files: TurboEstrada.apk
