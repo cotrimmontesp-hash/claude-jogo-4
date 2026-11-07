@@ -111,7 +111,7 @@ export function createGame(pf: Platform) {
       if (R() < dens * .35) { const side = R() < .5 ? -1 : 1; const p = list[Math.floor(R() * list.length)]; add(s, p, side * (3.2 + R() * 2.5)); }
     }
     /* placas antes das curvas, do lado de fora */
-    for (const c of curveAt) { const at = Math.abs(c), d = Math.sign(c) || 1; for (let k = 0; k < 3; k++) { const s = segs[(at + k * 4) % segs.length]; if (s && s.i > 8) add(s, 'placa', -d * 1.2); } }
+    for (const c of curveAt) { const at = Math.abs(c), d = Math.sign(c) || 1; for (let k = 0; k < 3; k++) { const s = segs[(at + k * 4) % segs.length]; if (s && s.i > 8) add(s, d > 0 ? 'placaD' : 'placaE', -d * 1.2); } }
     /* trânsito */
     cars = [];
     const n = Math.round(segs.length / 48 * traffic);

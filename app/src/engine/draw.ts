@@ -132,7 +132,7 @@ export function carSprite(shape: number, col: string, turn: number, brake = 0): 
 export type Prop = 'cacto' | 'pedra' | 'palmeira' | 'pinheiro' | 'pinheiroN' | 'predio' | 'predio2' | 'poste' | 'placa' | 'boneco' | 'arbusto' | 'outdoor' | 'casa' | 'farol';
 export const PROP_SIZE: { [k: string]: [number, number, number] } = { /* largura, altura (px), tamanho no mundo */
   cacto: [12, 24, 1], pedra: [16, 10, .9], palmeira: [22, 34, 1.5], pinheiro: [16, 30, 1.3], pinheiroN: [16, 30, 1.3], predio: [26, 48, 3.2], predio2: [22, 40, 2.8],
-  poste: [8, 32, 1.4], placa: [14, 18, .9], boneco: [12, 16, .8], arbusto: [16, 9, .8], outdoor: [32, 22, 2.2], casa: [28, 22, 2.2], farol: [12, 40, 1.6],
+  poste: [8, 32, 1.4], placa: [14, 18, .9], placaE: [14, 18, .9], placaD: [14, 18, .9], boneco: [12, 16, .8], arbusto: [16, 9, .8], outdoor: [32, 22, 2.2], casa: [28, 22, 2.2], farol: [12, 40, 1.6],
 };
 function paintProp(g: Ctx2D, p: string, night: number) {
   const d = (c: string) => night >= 2 ? sh(c, -.72) : night === 1 ? sh(c, -.35) : c;
@@ -148,6 +148,8 @@ function paintProp(g: Ctx2D, p: string, night: number) {
     for (let y = 4; y < h - 6; y += 5) for (let x = 3; x < w - 4; x += 5) { const on = night >= 1 && ((x * 7 + y * 13) % 5 < 3); if (on) L(x, y, 3, 3, '#fce468'); else P(x, y, 3, 3, '#2c3c5c'); }
     P(w / 2 - 3, h - 6, 6, 6, '#2c2c34'); }
   else if (p === 'poste') { P(3, 4, 2, 28, '#6c6c74'); P(3, 2, 5, 2, '#6c6c74'); if (night >= 1) { L(5, 4, 3, 2, '#fcf8c8'); } else P(5, 4, 3, 2, '#c8c8c8'); }
+  else if (p === 'placaE' || p === 'placaD') { P(6, 10, 2, 8, '#6c6c74'); P(0, 0, 14, 10, '#f8c818'); P(0, 0, 14, 1, '#fce468'); P(0, 9, 14, 1, '#a87808');
+    const r = p === 'placaD'; for (let i = 0; i < 4; i++) { const x = r ? 4 + i : 9 - i; P(x, 1 + i, 2, 1, '#202020'); P(x, 8 - i, 2, 1, '#202020'); } }
   else if (p === 'placa') { P(6, 10, 2, 8, '#6c6c74'); P(0, 0, 14, 10, '#f8c818'); P(0, 0, 14, 1, '#fce468'); P(4, 3, 6, 1, '#202020'); P(7, 2, 2, 5, '#202020'); P(6, 2, 1, 1, '#202020'); }
   else if (p === 'boneco') { P(2, 7, 8, 8, '#f4f8fc'); P(3, 2, 6, 6, '#f4f8fc'); P(4, 4, 1, 1, '#202020'); P(7, 4, 1, 1, '#202020'); P(5, 5, 2, 1, '#f87818'); P(3, 0, 6, 2, '#202020'); P(1, 7, 10, 1, '#d82818'); }
   else if (p === 'arbusto') { P(1, 3, 14, 6, '#3c8c2c'); P(3, 1, 9, 3, '#4cac3c'); P(4, 2, 4, 1, '#7ccc5c'); }
