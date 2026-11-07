@@ -227,7 +227,7 @@ export function createGame(pf: Platform) {
     const k0 = ptrs.get(ev.id); if (k0 !== 'L' && k0 !== 'R') return;
     const k = btnAt(ev.x * LW / W, ev.y * LH / H); if (k === 'L' || k === 'R') ptrs.set(ev.id, k);
   }
-  function ptrUp(ev: PtrEv) { ptrs.delete(ev.id); }
+  function ptrUp(ev: PtrEv, _cancelled?: boolean) { ptrs.delete(ev.id); }
   const KM: { [c: string]: string } = { ArrowLeft: 'L', KeyA: 'L', ArrowRight: 'R', KeyD: 'R', ArrowUp: 'G', KeyW: 'G', Space: 'G', ArrowDown: 'B', KeyS: 'B' };
   function keyDown(code: string) {
     if (code === 'Escape' || code === 'KeyP') { if (ui.show.race && state !== 'over') setPause(!paused); else back(); return true; }

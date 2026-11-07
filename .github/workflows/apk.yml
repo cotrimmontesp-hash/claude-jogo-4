@@ -23,6 +23,7 @@ jobs:
       - name: Instalar pacotes (Expo + React Native)
         run: |
           npm install --no-audit --no-fund
+          npx expo install --fix || true
           node scripts/build-webgame.mjs
       - name: Conferir o TypeScript
         continue-on-error: true
