@@ -95,7 +95,7 @@ export function createGame(pf: Platform) {
     /* cenário */
     const PR: { [k: string]: string[] } = {
       deserto: ['cacto', 'cacto', 'cacto', 'pedra', 'pedra', 'arbusto', 'outdoor'],
-      praia: ['palmeira', 'palmeira', 'palmeira', 'casa', 'arbusto', 'outdoor', 'farol'],
+      praia: ['palmeira', 'palmeira', 'palmeira', 'palmeira', 'casa', 'arbusto', 'arbusto', 'outdoor'],
       serra: ['pinheiro', 'pinheiro', 'pinheiro', 'pinheiro', 'pedra', 'casa', 'arbusto'],
       cidade: ['predio', 'predio2', 'predio', 'predio2', 'outdoor', 'casa'],
       neve: ['pinheiroN', 'pinheiroN', 'pinheiroN', 'boneco', 'pedra', 'casa'],
@@ -107,6 +107,7 @@ export function createGame(pf: Platform) {
       if (s.i < 8) continue;
       if (sc === 'cidade' && s.i % 10 === 0) { add(s, 'poste', -1.12); add(s, 'poste', 1.12); }
       if (R() < dens) { const side = R() < .5 ? -1 : 1; const p = list[Math.floor(R() * list.length)]; const big = p.startsWith('predio') || p === 'outdoor' || p === 'casa'; add(s, p, side * ((big ? 1.9 : 1.35) + R() * (big ? 1.6 : 2.2))); }
+      if (sc === 'praia' && s.i % 400 === 200) add(s, 'farol', (R() < .5 ? -1 : 1) * 2.6);
       if (R() < dens * .35) { const side = R() < .5 ? -1 : 1; const p = list[Math.floor(R() * list.length)]; add(s, p, side * (3.2 + R() * 2.5)); }
     }
     /* placas antes das curvas, do lado de fora */
