@@ -127,7 +127,7 @@ function spawnEnemy(type?:any,x?:any,y?:any){const mega=type==='Y';if(mega)type=
 
 /* ---------- mundo contínuo: as 5 áreas emendadas ---------- */
 const AW=26,AH=13,GATE_ROWS=[5,6,7];
-const WORLD={on:false,prog:0,start:0,areas:[],intro:{},shut:{} as any,capQ:[],capT:0,wallCvs:[]};
+const WORLD={on:false,prog:0,start:0,areas:[],intro:{},shut:{} as any,capQ:[],capT:0,wallCvs:[],talk:null as any};
 function areaOf(x?:any){return clamp(Math.floor(x/(AW*T)),0,LV.length-1);}
 function themeAtTx(tx?:any){return WORLD.on?TH[LV[clamp(Math.floor(tx/AW),0,LV.length-1)].theme]:theme;}
 function worldRows(){
@@ -137,7 +137,7 @@ function worldRows(){
   return rows;
 }
 function loadWorld(start?:any,n?:any,asClient?:any){
-  WORLD.on=true;WV.on=false;DUEL.on=false;WORLD.start=start;WORLD.prog=start;WORLD.intro={};WORLD.shut={};WORLD.intro[start]=1;WORLD.capQ=[];WORLD.capT=0;
+  WORLD.on=true;WV.on=false;DUEL.on=false;WORLD.start=start;WORLD.prog=start;WORLD.intro={};WORLD.shut={};WORLD.intro[start]=1;WORLD.capQ=[];WORLD.capT=0;WORLD.talk=null;
   cur=start;theme=TH[LV[start].theme];diffN=n||1;dmgMul=1+.14*(diffN-1);
   const rows=worldRows();GH=rows.length;GW=rows[0].length;
   grid=[];enemies=[];bullets=[];parts=[];texts=[];drops=[];rings=[];winT=0;loseT=0;shake=0;gearsRun=0;allDeadT=0;eid=1;
@@ -179,10 +179,14 @@ function setProg(pg?:any){
   const sp=WORLD.areas[cur].spawn;P.spawn=[sp[0],sp[1]];
 }
 function areaEnemies(a?:any){let n=0;for(const e of enemies)if(areaOf(e.x)===a)n++;return n;}
+/* fala no meio da fase: o jogo pausa até a conversa acabar. Online, quem criou a sala manda
+   a conversa para todos e o jogo de todo mundo fica parado até o anfitrião terminar de ler. */
+let talkN=0;
 function storyLines(lines?:any,after?:any){
-  if(NET.game){WORLD.capQ=WORLD.capQ.concat(lines.map(l=>[l[0],l[1]==='TUTORIAL'?tutText():l[1]]));WORLD.capT=0;after&&after();return;}
+  if(NET.game&&!NET.isHost){after&&after();return;}
   state='story';touch.move=touch.fire=touch.sup=null;show('pauseBtn',false);
-  showDialog(lines,()=>{state='play';show('pauseBtn',true);after&&after();});
+  if(NET.game)WORLD.talk={id:++talkN,lines:lines.slice(0,12)};
+  showDialog(lines,()=>{WORLD.talk=null;state='play';show('pauseBtn',true);after&&after();});
 }
 function heroLine(t?:any){const hn=myCh().name;return hn==='Tita'?t:t.replace(/\bTita\b/g,hn);}
 function onAreaClear(){
@@ -887,10 +891,7 @@ function drawHUD(){
     txt(g,WV.on?'Capitão Ferrugem · nível '+Math.max(1,Math.floor(WV.wave/10)):boss.mega?'Mega Ferrugem':'Capitão Ferrugem',W/2,y,15,'#fff');
     rr(g,W/2-w/2-3,y+10,w+6,18,9,INK,true);rr(g,W/2-w/2,y+13,w*Math.max(0,boss.hp/boss.max),12,6,'#c45cff',true);}
   if(WORLD.on&&WORLD.prog>0&&areaOf(P.x)<WORLD.prog&&!P.dead){const a=.6+.4*Math.sin(clock*6);g.globalAlpha=a;txt(g,'Siga  ›››',W-130-INS.r,H*.42,26,'#ffe14d');g.globalAlpha=1;}
-  if(WORLD.capQ.length){const [sp,t]=WORLD.capQ[0];const nm=sp==='tita'?myCh().full:NAMES[sp];const w=Math.min(W-40,560),x=W/2-w/2,y=top+76;
-    g.font=F(14,'body');const words=String(t).split(' ');const lines=[];let ln='';for(const wd of words){const tt=ln?ln+' '+wd:wd;if(g.measureText(tt).width>w-24){lines.push(ln);ln=wd;}else ln=tt;}lines.push(ln);
-    ink(g,3);rr(g,x,y,w,30+lines.length*18,12,'rgba(255,255,255,.95)');txt(g,nm,x+12,y+13,14,'#ff5d73','left');
-    g.fillStyle=INK;g.font=F(14,'body');g.textAlign='left';g.textBaseline='middle';lines.forEach((l,i)=>g.fillText(l,x+12,y+31+i*18));}
+  /* (as falas não aparecem mais aqui em cima: viram a caixa de conversa, com o jogo pausado) */
   if(banner>0&&cur!==-1&&!WV.on){g.globalAlpha=Math.min(1,banner);if(WORLD.on)txt(g,'Capítulo '+(cur+1),W/2,H*.29,18,'#ffe14d');txt(g,L.boss?'Derrote o Capitão!':'Derrote todos os robôs!',W/2,H*.34,Math.min(34,W/16),'#fff');g.globalAlpha=1;}
   if(P.dead&&(cur===-1||NET.game&&phase==='play'))txt(g,'Voltando em '+Math.ceil(Math.max(0,P.respT))+'…',W/2,H*.45,28,'#fff');
   if(lastInput==='touch'){
@@ -1485,7 +1486,7 @@ function sendPresence(force?:any){
   const o:any={app:'tita',role:NET.isHost?'host':'pl',nm:save.name||'Jogador',sc:state==='play'?'play':state==='map'?'map':'wait',run:NET.isHost?runId:NET.clientRun,
     x:P?P.x|0:0,y:P?P.y|0:0,a:P?Math.round(P.aim*100):0,hp:P?P.hp|0:0,mh:P?P.max:3600,dd:P&&P.dead?1:0,mv:P&&P.mv?1:0,ch:save.ch|0,cb:myCh().body,chh:myCh().hair,fx:save.fx||null,kk:DUEL.kk,ddn:DUEL.dd,dk:DUEL.dk,sk:myCh().sk==='lv20'?2:myCh().sk?1:0,wi:myCh().wi|0,sh:myShots.slice(-8)};
   if(NET.isHost){
-    o.ph=phase;o.lv=cur===-1?WAIT.sel:WORLD.start;o.md=WV.on?'w':DUEL.on?'d':'s';o.dt=Math.round(DUEL.t);o.wm=WAIT.mode;o.wv=WV.wave;o.ws=WV.state==='break'?1:0;o.wt=Math.round(WV.t*10)/10;o.wq=WV.queue.length;o.pg=WORLD.prog;o.ct=Math.round(WAIT.ct*10)/10;o.ms=Math.round(MAP.s);o.mn=MAP.node;o.ul=save.unl;o.dn=save.done.slice(0,LV.length);o.n=diffN;
+    o.ph=phase;o.lv=cur===-1?WAIT.sel:WORLD.start;o.md=WV.on?'w':DUEL.on?'d':'s';o.dt=Math.round(DUEL.t);o.wm=WAIT.mode;o.wv=WV.wave;o.ws=WV.state==='break'?1:0;o.wt=Math.round(WV.t*10)/10;o.wq=WV.queue.length;o.pg=WORLD.prog;o.ct=Math.round(WAIT.ct*10)/10;o.ms=Math.round(MAP.s);o.mn=MAP.node;o.ul=save.unl;o.dn=save.done.slice(0,LV.length);o.n=diffN;o.tid=WORLD.talk?WORLD.talk.id:0;if(WORLD.talk)o.tl=WORLD.talk.lines;
     if(phase==='play'||phase==='win'){
       o.en=enemies.filter(e=>!WORLD.on||areaOf(e.x)<=WORLD.prog+1).sort((a,b)=>(areaOf(a.x)===WORLD.prog?0:1)-(areaOf(b.x)===WORLD.prog?0:1)).slice(0,26).map(e=>{const f=(e.alert?1:0)|(e.wind>0?2:0)|(e.st==='windup'?4:0)|(e.lunge>0?8:0)|(e.mv?16:0)|((e.slowT||0)>0?32:0)|(e.mega?64:0);const r=[e.id,e.type,e.x|0,e.y|0,Math.max(0,e.hp|0),e.max,Math.round((e.st==='windup'?e.dashA:e.face)*100),f];if(e.say)r.push(e.say.t);return r;});
       o.ev=NET.ev.slice();o.hi=NET.hits.slice();
@@ -1546,11 +1547,20 @@ function followHost(h?:any){
     if(state==='map')updateMapCard();
     NET.clientPhase='map';return;}
   if(run!==NET.clientRun&&(ph==='story'||ph==='play')){
-    NET.clientRun=run;runId=run;NET.lastEv=-1;NET.lastHit=-1;NET.clientPhase='';
+    NET.clientRun=run;runId=run;NET.talkId=0;NET.lastEv=-1;NET.lastHit=-1;NET.clientPhase='';
     hideAll();if(h.md==='w'){loadLevel(-2,+h.n||1,true);WV.on=true;WV.wave=0;WV.queue=[];WV.state='break';}else if(h.md==='d'){startDuelClient();}else loadWorld(lv,+h.n||1,true);
     if(ph==='story'&&h.md!=='w'){state='story';showDialog(LV[lv].intro,()=>{if(NET.clientPhase!=='play')toast('Aguardando o anfitrião começar…');},['Capítulo '+(lv+1),LV[lv].name]);}
   }
-  if(ph==='play'&&run===NET.clientRun&&state!=='play'){hideAll();beginPlay();}
+  const tid=+h.tid||0;
+  if(ph==='play'&&run===NET.clientRun&&state!=='play'&&!tid&&!NET.talkId){hideAll();beginPlay();}
+  if(ph==='play'&&run===NET.clientRun){
+    if(tid&&tid!==NET.talkId&&Array.isArray(h.tl)){
+      NET.talkId=tid;
+      if(state==='play'){state='story';touch.move=touch.fire=touch.sup=null;show('pauseBtn',false);
+        showDialog(h.tl.slice(0,12).map((l:any)=>[String(l&&l[0]||'tita'),String(l&&l[1]||'').slice(0,300)]),()=>{if(NET.talkId)toast('Esperando o anfitrião terminar de ler…');});}
+    }
+    if(!tid&&NET.talkId){NET.talkId=0;if(state==='story'){if(ui.show.dlg){clearInterval(typing);typing=null;dcb=null;show('dlg',false);}state='play';show('pauseBtn',true);}}
+  }
   if(WV.on&&run===NET.clientRun&&ph==='play'){const wv=+h.wv|0;if(wv>WV.wave){if(WV.wave>0){if(P&&!P.dead)P.hp=Math.min(P.max,P.hp+P.max*.35);addCharXP(15+WV.wave);addXP(10);if(WV.wave>(save.bestWave|0))save.bestWave=WV.wave;persist();}WV.wave=wv;misMax('wave',wv);WV.flash=2.2;}
     WV.state=+h.ws?'break':'fight';WV.t=+h.wt||0;WV.queue.length=clamp(+h.wq|0,0,200);}
   if(WORLD.on&&run===NET.clientRun&&(ph==='play'||ph==='win')){const pg=clamp(+h.pg|0,0,LV.length-1);if(pg>WORLD.prog){const was=WORLD.prog;setProg(pg);if(state==='play')storyLines(LV[was].outro);recordArea(was);toast('O portão abriu! Siga para a direita.');}}
