@@ -1,0 +1,300 @@
+11-08 04:32:08.896  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:09.033  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:09.193  2744  2779 W laude.titacora: Long monitor contention with owner mqt_js (2778) at boolean android.os.MessageQueue.enqueueMessage(android.os.Message, long)(MessageQueue.java:600) waiters=0 in android.os.Message android.os.MessageQueue.next() for 175ms
+11-08 04:32:09.531  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:10.338  2744  2778 W ReactNativeJS: '[tita] fontes', false, 'Error: Call to function \'ExpoAsset.downloadAsync\' has been rejected.\n→ Caused by: Module \'expo.modules.interfaces.filesystem.AppDirectories\' not found. Are you sure all modules are linked correctly?', 'canvas', true, 'atraso', true
+11-08 04:32:10.620  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:11.102  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:11.856  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:12.472  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:13.050  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:13.218  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:13.248  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:14.703  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:14.758  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:16.471  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:16.899  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:17.278  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:17.939  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:17.965  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:18.099  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:19.018  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:19.081  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:19.614  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:20.132  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:20.157  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:20.665  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:20.703  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:20.837  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:20.860  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:20.916  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:20.932  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:21.543  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:21.578  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:21.807  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:22.466  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:22.489  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:23.865  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:24.146  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:25.343  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:25.368  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:25.652  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:26.287  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:27.025  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:27.269  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:27.862  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:28.241  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:28.880  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:28.919  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:28.982  4024  4024 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-08 04:32:29.047  4024  4024 I AndroidRuntime: Using default boot image
+11-08 04:32:29.047  4024  4024 I AndroidRuntime: Leaving lock profiling enabled
+11-08 04:32:29.394  4024  4024 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-08 04:32:29.439  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:29.533  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:29.796  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:29.822  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:30.739  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:31.094  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:31.225  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:31.387  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:31.858  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:31.878  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:32.224  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:32.249  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:32.544  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:32.572  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:33.684  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:33.765  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:33.921  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:33.949  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:34.207  4024  4024 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@ec68; boundsInParent: Rect(0, 0 - 0, 22); boundsInScreen: Rect(370, 130 - 370, 152); packageName: com.claude.titacoral; className: android.view.ViewGroup; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+11-08 04:32:34.555  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:34.583  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:35.652  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:35.716  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:35.728  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:37.333  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:37.355  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:37.868  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:38.372  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:39.242  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:39.514  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:40.484  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:40.499  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:40.870  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:40.922  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:41.455  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:41.486  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:41.999  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:42.574  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:42.634  4024  4024 D AndroidRuntime: Shutting down VM
+11-08 04:32:43.366  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:43.410  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:43.839  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:43.882  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:45.257  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-1] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:45.393  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:45.879  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-2] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:46.331  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-8] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:46.597  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:47.115  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:48.206  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:48.279  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-8] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:48.413  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:48.466  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:48.498  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-8] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:49.166  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:49.250  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:50.092  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-8] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:50.479  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:50.518  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:50.542  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:50.559  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-8] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:50.701  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:51.142  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-8] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:51.194  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:51.216  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-8] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:51.316  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:51.388  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-8] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:51.480  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:52.269  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:52.478  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:52.499  4566  4566 W FontsContract: Platform version of downloadable fonts is deprecated. Please use androidx version instead.
+11-08 04:32:52.556  1064  1175 I FontLog : Received query Google Sans:500, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-08 04:32:52.556  1064  1175 I FontLog : Query [Google Sans:500] resolved to {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-08 04:32:52.557  1064  1175 I FontLog : Font PFD returned from cache for {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-08 04:32:52.557  1064  1175 I FontLog : Fetch {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-08 04:32:52.577  1064  1175 I FontLog : Pulling font file for id = 6, cache size = 6 [CONTEXT service_id=132 ]
+11-08 04:32:52.635  4566  4566 W FontsContract: Platform version of downloadable fonts is deprecated. Please use androidx version instead.
+11-08 04:32:52.694  1064  1175 I FontLog : Received query Google Sans, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-08 04:32:52.695  1064  1175 I FontLog : Query [Google Sans] resolved to {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-08 04:32:52.695  1064  1175 I FontLog : Font PFD returned from cache for {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-08 04:32:52.695  1064  1175 I FontLog : Fetch {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-08 04:32:52.706  1064  1175 I FontLog : Pulling font file for id = 7, cache size = 7 [CONTEXT service_id=132 ]
+11-08 04:32:52.712  4588  4588 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-08 04:32:52.753  4588  4588 I AndroidRuntime: Using default boot image
+11-08 04:32:52.753  4588  4588 I AndroidRuntime: Leaving lock profiling enabled
+11-08 04:32:52.775  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:52.892  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:53.359  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:53.457  4588  4588 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-08 04:32:53.787  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:54.530  1064  2002 I FontLog : Received query Noto Color Emoji Compat, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-08 04:32:54.530  1064  2002 I FontLog : Query [Noto Color Emoji Compat] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-08 04:32:54.554  1064  2002 I FontLog : Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-08 04:32:54.611  1064  3433 I FontLog : Pulling font file for id = 8, cache size = 8 [CONTEXT service_id=132 ]
+11-08 04:32:54.691  1064  1175 I FontLog : Pulling font file for id = 8, cache size = 8 [CONTEXT service_id=132 ]
+11-08 04:32:56.386  1064  2528 I FontLog : Received query Noto Color Emoji Compat, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-08 04:32:56.387  1064  2528 I FontLog : Query [Noto Color Emoji Compat] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-08 04:32:56.387  1064  2528 I FontLog : Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-08 04:32:56.496  1064  3225 I FontLog : Pulling font file for id = 9, cache size = 7 [CONTEXT service_id=132 ]
+11-08 04:32:56.520  1064  2875 I FontLog : Pulling font file for id = 9, cache size = 7 [CONTEXT service_id=132 ]
+11-08 04:32:57.353  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:58.065  4588  4588 D AndroidRuntime: Shutting down VM
+11-08 04:32:58.320  1064  3709 I FontLog : Received query Google Sans, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-08 04:32:58.320  1064  3709 I FontLog : Query [Google Sans] resolved to {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-08 04:32:58.321  1064  3709 I FontLog : Font PFD returned from cache for {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-08 04:32:58.393  1064  3709 I FontLog : Fetch {Google Sans, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-08 04:32:58.451  1064  3709 I FontLog : Pulling font file for id = 10, cache size = 8 [CONTEXT service_id=132 ]
+11-08 04:32:58.548  1064  1077 I FontLog : Received query Google Sans:500, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-08 04:32:58.548  1064  1077 I FontLog : Query [Google Sans:500] resolved to {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-08 04:32:58.550  1064  1077 I FontLog : Font PFD returned from cache for {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-08 04:32:58.550  1064  1077 I FontLog : Fetch {Google Sans, wdth 100.0, wght 500, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-08 04:32:58.605  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-9] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:32:58.616  1064  3225 I FontLog : Pulling font file for id = 11, cache size = 7 [CONTEXT service_id=132 ]
+11-08 04:32:58.648  1064  3709 I FontLog : Received query Google Sans:700, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-08 04:32:58.648  1064  3709 I FontLog : Query [Google Sans:700] resolved to {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-08 04:32:58.712  1064  3709 I FontLog : Fetch {Google Sans, wdth 100.0, wght 700, ital 0.0, bestEffort false} end status Status{statusCode=Fail fast, resolution=null} [CONTEXT service_id=132 ]
+11-08 04:32:59.582  2744  2751 I laude.titacora: Background concurrent copying GC freed 491482(15MB) AllocSpace objects, 47(6784KB) LOS objects, 49% free, 6721KB/13MB, paused 51us,12us total 464.394ms
+11-08 04:33:11.286  5073  5109 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.display.FontSizePreferenceController
+11-08 04:33:11.286  5073  5109 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.accessibility.FontWeightAdjustmentPreferenceController
+11-08 04:33:11.570  5334  5351 I AndroidRuntime: VM exiting with result code 0, cleanup skipped.
+11-08 04:33:12.059  5073  5109 D PrefCtrlListHelper: Could not find Context-only controller for pref: com.android.settings.display.FontSizePreferenceController
+11-08 04:33:22.240  5639  5653 I AndroidRuntime: VM exiting with result code 0, cleanup skipped.
+11-08 04:33:27.978  5742  5742 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-08 04:33:28.076  5742  5742 I AndroidRuntime: Using default boot image
+11-08 04:33:28.076  5742  5742 I AndroidRuntime: Leaving lock profiling enabled
+11-08 04:33:28.672  5742  5742 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-08 04:33:30.963  5742  5742 I AccessibilityNodeInfoDumper: Null child 0/1, parent: android.view.accessibility.AccessibilityNodeInfo@ad1c; boundsInParent: Rect(0, 0 - 852, 394); boundsInScreen: Rect(0, 0 - 2343, 1081); packageName: com.claude.titacoral; className: android.view.View; text: ; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: true; actions: [AccessibilityAction: ACTION_NEXT_HTML_ELEMENT - null, AccessibilityAction: ACTION_PREVIOUS_HTML_ELEMENT - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null, AccessibilityAction: ACTION_CONTEXT_CLICK - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]
+11-08 04:33:31.199  5742  5742 D AndroidRuntime: Shutting down VM
+11-08 04:33:33.214  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-12] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:33.289  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:33.337  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:33.356  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:33.367  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:33.697  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:33.787  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:33.845  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:33.867  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:34.532  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:34.642  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:34.936  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:35.082  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:35.503  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:36.365  5920  5920 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-08 04:33:36.371  5920  5920 I AndroidRuntime: Using default boot image
+11-08 04:33:36.371  5920  5920 I AndroidRuntime: Leaving lock profiling enabled
+11-08 04:33:36.417  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:36.450  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:36.551  5920  5920 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-08 04:33:36.585  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:36.633  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:37.687  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:37.711  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:38.325  5920  5920 I AccessibilityNodeInfoDumper: Null child 0/1, parent: android.view.accessibility.AccessibilityNodeInfo@ad1c; boundsInParent: Rect(0, 0 - 852, 394); boundsInScreen: Rect(0, 0 - 2343, 1081); packageName: com.claude.titacoral; className: android.view.View; text: ; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: true; actions: [AccessibilityAction: ACTION_NEXT_HTML_ELEMENT - null, AccessibilityAction: ACTION_PREVIOUS_HTML_ELEMENT - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null, AccessibilityAction: ACTION_CONTEXT_CLICK - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null]
+11-08 04:33:38.659  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:38.952  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:38.980  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:39.282  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:40.482  5920  5920 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@4f115; boundsInParent: Rect(0, 0 - 0, 22); boundsInScreen: Rect(370, 130 - 370, 152); packageName: com.claude.titacoral; className: android.view.ViewGroup; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+11-08 04:33:40.483  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:40.835  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:41.521  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:42.138  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:42.642  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:42.935  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:43.124  2744  2751 I laude.titacora: Background young concurrent copying GC freed 120270(5697KB) AllocSpace objects, 0(0B) LOS objects, 42% free, 7697KB/13MB, paused 45us,12us total 127.104ms
+11-08 04:33:43.134  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:43.544  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:43.655  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:44.595  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:45.086  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:45.707  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:45.839  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:45.852  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:45.963  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:46.391  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:47.090  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:47.168  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:47.312  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:47.668  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:47.723  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:47.826  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:48.126  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:48.447  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:48.598  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:50.243  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:50.976  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:51.602  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:51.703  6064  6084 I FontLog : Updating from directory version 0 to 24 from disk [CONTEXT service_id=132 ]
+11-08 04:33:51.710  6064  6084 I FontLog : Received query Noto Color Emoji Compat, URI content://com.google.android.gms.fonts [CONTEXT service_id=132 ]
+11-08 04:33:51.711  6064  6084 I FontLog : Query [Noto Color Emoji Compat] resolved to {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} [CONTEXT service_id=132 ]
+11-08 04:33:51.711  6064  6104 I FontLog : Using directory in FlatBuffer format [CONTEXT service_id=132 ]
+11-08 04:33:51.713  6064  6084 I FontLog : Fetch {Noto Color Emoji Compat, wdth 100.0, wght 400, ital 0.0, bestEffort false} end status Status{statusCode=SUCCESS, resolution=null} [CONTEXT service_id=132 ]
+11-08 04:33:51.766  6064  6077 I FontLog : Pulling font file for id = 1, cache size = 1 [CONTEXT service_id=132 ]
+11-08 04:33:51.832  6064  6076 I FontLog : Pulling font file for id = 1, cache size = 1 [CONTEXT service_id=132 ]
+11-08 04:33:52.154  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:52.164  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:52.977  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:53.099  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:53.120  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:54.670  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:55.116  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:55.249  5920  5920 D AndroidRuntime: Shutting down VM
+11-08 04:33:55.569  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:56.248  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:56.844  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:57.291  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:57.307  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:58.299  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:59.217  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:59.334  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:33:59.380  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:34:00.160  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:34:00.182  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-13] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:34:00.299  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:34:00.961  2744  2744 E laude.titacora: [SurfaceTexture-0-2744-14] updateAndRelease: EGLConsumer is not attached to an OpenGL ES context
+11-08 04:34:01.531   522  1053 I ActivityTaskManager: moveTaskToBack: Task{d7b8233 #12 type=standard A=10145:com.claude.titacoral U=0 visible=true mode=fullscreen translucent=false sz=1}
+11-08 04:34:02.442   522   556 I ActivityTaskManager: Config changes=20000480 {1.0 310mcc260mnc [en_US] ldltr sw392dp w392dp h750dp 440dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2340) mAppBounds=Rect(0, 136 - 1080, 2208) mMaxBounds=Rect(0, 0 - 1080, 2340) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.2 s.147 fontWeightAdjustment=0}
+11-08 04:34:02.445   522   556 W ActivityTaskManager: Current config: {1.0 310mcc260mnc [en_US] ldltr sw392dp w753dp h364dp 440dpi nrml long land finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 2340, 1080) mAppBounds=Rect(136, 0 - 2208, 1080) mMaxBounds=Rect(0, 0 - 2340, 1080) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_90} as.2 s.147 fontWeightAdjustment=0} unchanged for IME proc com.google.android.inputmethod.latin
+11-08 04:34:02.446   522   556 I WindowManager: Override config changes=20000480 {1.0 310mcc260mnc [en_US] ldltr sw392dp w392dp h750dp 440dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2340) mAppBounds=Rect(0, 136 - 1080, 2208) mMaxBounds=Rect(0, 0 - 1080, 2340) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.2 s.147 fontWeightAdjustment=0} for displayId=0
+11-08 04:34:02.459   522   556 V ActivityTaskManager: Sending to IME proc com.google.android.inputmethod.latin new config {1.0 310mcc260mnc [en_US] ldltr sw392dp w392dp h750dp 440dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2340) mAppBounds=Rect(0, 136 - 1080, 2208) mMaxBounds=Rect(0, 0 - 1080, 2340) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.2 s.147 fontWeightAdjustment=0}
+11-08 04:34:02.503  1420  1420 W GoogleInputMethodService: GoogleInputMethodService.onConfigurationChanged():1661 onConfigurationChanged() : NewConfig = {1.0 310mcc260mnc [en_US] ldltr sw392dp w392dp h750dp 440dpi nrml long port finger qwerty/v/v -nav/h winConfig={ mBounds=Rect(0, 0 - 1080, 2340) mAppBounds=Rect(0, 136 - 1080, 2208) mMaxBounds=Rect(0, 0 - 1080, 2340) mWindowingMode=fullscreen mDisplayWindowingMode=fullscreen mActivityType=undefined mAlwaysOnTop=undefined mRotation=ROTATION_0} as.2 s.184 fontWeightAdjustment=0}
+11-08 04:34:03.528  6432  6432 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-08 04:34:03.540  6432  6432 I AndroidRuntime: Using default boot image
+11-08 04:34:03.540  6432  6432 I AndroidRuntime: Leaving lock profiling enabled
+11-08 04:34:04.138  6432  6432 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-08 04:34:05.304  6432  6432 D AndroidRuntime: Shutting down VM
+11-08 04:34:11.625  6064  6704 W PhenotypeConfigurationU: Update for unknown DeviceConfig package com.google.android.gms.fonts [CONTEXT service_id=204 ]
+11-08 04:34:11.625  6064  6704 W PhenotypeConfigurationU: bqxl: No package exists for config package: com.google.android.gms.fonts
+11-08 04:34:11.787  6730  6730 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-08 04:34:11.793  6730  6730 I AndroidRuntime: Using default boot image
+11-08 04:34:11.793  6730  6730 I AndroidRuntime: Leaving lock profiling enabled
+11-08 04:34:11.866  6730  6730 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-08 04:34:12.881  6730  6730 D AndroidRuntime: Shutting down VM
+11-08 04:34:19.326  6780  6780 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-08 04:34:19.328  6780  6780 I AndroidRuntime: Using default boot image
+11-08 04:34:19.328  6780  6780 I AndroidRuntime: Leaving lock profiling enabled
+11-08 04:34:19.388  6780  6780 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-08 04:34:20.403  6780  6780 D AndroidRuntime: Shutting down VM
+11-08 04:34:26.755  6810  6810 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-08 04:34:26.756  6810  6810 I AndroidRuntime: Using default boot image
+11-08 04:34:26.756  6810  6810 I AndroidRuntime: Leaving lock profiling enabled
+11-08 04:34:26.822  6810  6810 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-08 04:34:27.836  6810  6810 D AndroidRuntime: Shutting down VM
+11-08 04:34:37.157  6842  6842 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-08 04:34:37.159  6842  6842 I AndroidRuntime: Using default boot image
+11-08 04:34:37.159  6842  6842 I AndroidRuntime: Leaving lock profiling enabled
+11-08 04:34:37.225  6842  6842 D AndroidRuntime: Calling main entry com.android.commands.uiautomator.Launcher
+11-08 04:34:38.243  6842  6842 D AndroidRuntime: Shutting down VM
