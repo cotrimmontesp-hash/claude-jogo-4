@@ -876,10 +876,10 @@ function drawHUD(){
   const top=10+INS.t,L=curL();
   if(cur===-1){if(WAIT.ct>0){const k=Math.ceil(WAIT.ct);txt(g,String(k),W/2,H*.42,90,'#ffe14d');txt(g,'Começando…',W/2,H*.42+60,20,'#fff');}}
   else if(DUEL.on){drawDuelHUD(g,top);}
-  else if(WV.on){txt(g,WV.wave?'Onda '+WV.wave:'Prepare-se!',W/2,top+16,24,'#fff');
-    const left=enemies.length+WV.queue.length;txt(g,WV.state==='break'?(WV.wave?'Próxima onda em '+Math.ceil(Math.max(0,WV.t)):'A primeira onda vem aí'):'Robôs: '+left,W/2,top+40,15,WV.state==='break'?'#5ee04a':'#ffcc2e');
+  else if(WV.on){txt(g,WV.wave?'Onda '+WV.wave:'Prepare-se!',W/2,top+14,17,'#fff');
+    const left=enemies.length+WV.queue.length;txt(g,WV.state==='break'?(WV.wave?'Próxima onda em '+Math.ceil(Math.max(0,WV.t)):'A primeira onda vem aí'):'Robôs: '+left,W/2,top+34,13,WV.state==='break'?'#5ee04a':'#ffcc2e');
     txt(g,'Recorde: '+(save.bestWave|0),W-70-INS.r,top+70,13,'#fff');
-    if(WV.flash>0){g.globalAlpha=Math.min(1,WV.flash);txt(g,WV.wave%10===0?'ONDA '+WV.wave+' · CHEFE!':'ONDA '+WV.wave,W/2,H*.36,Math.min(46,W/12),WV.wave%10===0?'#ff5d73':'#ffe14d');g.globalAlpha=1;}}
+    if(WV.flash>0){g.globalAlpha=Math.min(1,WV.flash);txt(g,WV.wave%10===0?'ONDA '+WV.wave+' · CHEFE!':'ONDA '+WV.wave,W/2,H*.3,Math.min(26,W/22),WV.wave%10===0?'#ff5d73':'#ffe14d');g.globalAlpha=1;}}
   else{txt(g,L.name,W/2,top+14,20,'#fff');
   const n=WORLD.on?areaEnemies(cur):enemies.length;
   if(WORLD.on){for(let i=0;i<LV.length;i++){const x=W/2-48+i*24,done=i<WORLD.prog,here=i===areaOf(P.x);ink(g,2.5);circ(g,x,top+60,here?7:5,done?'#5ee04a':here?'#ffcc2e':'rgba(255,255,255,.5)');if(i<LV.length-1){g.strokeStyle='rgba(255,255,255,.5)';g.lineWidth=2;g.beginPath();g.moveTo(x+8,top+60);g.lineTo(x+16,top+60);g.stroke();}}ink(g);}
