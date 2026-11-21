@@ -29,7 +29,7 @@ export class DataConnection extends Emitter {
   private dc: any = null; private owner: Peer; private queued: any[] = []; private remoteSet = false; private closed = false;
   /** caminho de reserva: quando a ligação direta não abre (internets diferentes,
       4G x Wi-Fi), as mensagens passam pelo servidor que já usamos para nos encontrar */
-  relay = false; private rlT: any = null; private rlTries = 0; private rlPend: any = null; private rlFlushT: any = null;
+  relay = false; private rlT: any = null; private rlLast = 0; private rlKa: any = null; private rlTries = 0; private rlPend: any = null; private rlFlushT: any = null;
   constructor(owner: Peer, peer: string, connectionId: string, label?: string, private caller = false, relayOnly = false) {
     super(); this.owner = owner; this.peer = peer; this.connectionId = connectionId; this.label = label || connectionId;
     // quem chama tenta a reserva se a ligação direta não abrir logo
@@ -49,7 +49,9 @@ export class DataConnection extends Emitter {
     clearTimeout(this.rlT); this.rlT = null;
     if (this.relay) return;
     const was = this.open;
-    this.relay = true; this.open = true;
+    this.relay = true; this.open = true; this.rlLast = Date.now();
+    // sinal de vida: sem notícias por 15 s, a conexão é dada como fechada
+    this.rlKa = setInterval(() => { if (Date.now() - this.rlLast > 15000) { this.close(true); return; } this.rl('k'); }, 4000);
     try { this.dc && this.dc.close(); } catch (e) {}
     try { this.peerConnection && this.peerConnection.close(); } catch (e) {}
     this.dc = null;
@@ -57,6 +59,7 @@ export class DataConnection extends Emitter {
   }
   _onRelay(kind: string, d: any) {
     if (this.closed) return;
+    this.rlLast = Date.now();
     if (kind === 'hi') { this.goRelay(); this.rl('ok'); }
     else if (kind === 'ok') { if (this.caller) this.goRelay(); }
     else if (kind === 'd') { if (this.relay && d !== undefined) this.emit('data', d); }
@@ -143,7 +146,7 @@ export class DataConnection extends Emitter {
   close(fromRemote?: boolean) {
     if (this.closed) return;
     if (this.relay && !fromRemote) this.rl('bye');
-    this.closed = true; clearTimeout(this.rlT); clearTimeout(this.rlFlushT);
+    this.closed = true; clearTimeout(this.rlT); clearTimeout(this.rlFlushT); clearInterval(this.rlKa);
     const was = this.open; this.open = false;
     try { this.dc && this.dc.close(); } catch (e) {}
     try { this.peerConnection && this.peerConnection.close(); } catch (e) {}
@@ -152,46 +155,147 @@ export class DataConnection extends Emitter {
   }
 }
 
+/* ---------- servidores para os aparelhos se acharem ----------
+   O servidor público do PeerJS às vezes fica fora do ar. Por isso o jogo
+   também usa dois servidores públicos MQTT (EMQX e HiveMQ): cada recado vai
+   por todos os que estiverem ligados e quem recebe ignora as repetições. */
+const MQTT_URLS: string[] = ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt'];
+const TOPIC = 'ilhadocoral-v1/';
+const enc = (str: string) => { const u = unescape(encodeURIComponent(str)); const a = new Uint8Array(u.length); for (let i = 0; i < u.length; i++) a[i] = u.charCodeAt(i); return a; };
+const dec = (a: Uint8Array) => { let u = ''; for (let i = 0; i < a.length; i += 8192) u += String.fromCharCode.apply(null, Array.from(a.subarray(i, i + 8192))); try { return decodeURIComponent(escape(u)); } catch (e) { return u; } };
+const mStr = (str: string) => { const b = enc(str); const o = new Uint8Array(b.length + 2); o[0] = b.length >> 8; o[1] = b.length & 255; o.set(b, 2); return o; };
+function mPacket(head: number, parts: Uint8Array[]) {
+  let n = 0; for (const p of parts) n += p.length;
+  const len: number[] = []; let x = n; do { let d = x % 128; x = Math.floor(x / 128); if (x > 0) d |= 128; len.push(d); } while (x > 0);
+  const o = new Uint8Array(1 + len.length + n); o[0] = head; o.set(len, 1); let k = 1 + len.length; for (const p of parts) { o.set(p, k); k += p.length; }
+  return o;
+}
+
+interface Link { name: string; ready: boolean; send(o: any): void; close(): void }
+
+class MqttLink implements Link {
+  name: string; ready = false; private ws: any = null; private ping: any = null; private retry: any = null; private dead = false; private tries = 0; private buf = new Uint8Array(0);
+  constructor(private url: string, private owner: Peer) { this.name = url; this.connect(); }
+  private connect() {
+    if (this.dead) return;
+    const WS = G.WebSocket; if (!WS) return;
+    let ws: any; try { ws = new WS(this.url, ['mqtt']); } catch (e) { this.later(); return; }
+    this.ws = ws; ws.binaryType = 'arraybuffer'; this.buf = new Uint8Array(0);
+    ws.onopen = () => {
+      const cid = 'ic' + rnd(18);
+      ws.send(mPacket(0x10, [mStr('MQTT'), new Uint8Array([4, 2, 0, 45]), mStr(cid)]));
+    };
+    ws.onmessage = (ev: any) => { if (this.ws !== ws) return; const d = ev.data; if (typeof d === 'string') return; this.feed(new Uint8Array(d)); };
+    ws.onclose = () => { if (this.ws !== ws) return; this.ws = null; const was = this.ready; this.ready = false; clearInterval(this.ping); if (was) this.owner._linkDown(this); this.later(); };
+    ws.onerror = () => {};
+  }
+  private later() { if (this.dead) return; clearTimeout(this.retry); this.retry = setTimeout(() => this.connect(), Math.min(15000, 1500 * Math.pow(1.6, this.tries++))); }
+  private feed(chunk: Uint8Array) {
+    const b = new Uint8Array(this.buf.length + chunk.length); b.set(this.buf); b.set(chunk, this.buf.length); this.buf = b;
+    for (;;) {
+      if (this.buf.length < 2) return;
+      let mul = 1, len = 0, i = 1, byte = 0;
+      do { if (i >= this.buf.length) return; byte = this.buf[i++]; len += (byte & 127) * mul; mul *= 128; } while (byte & 128);
+      if (this.buf.length < i + len) return;
+      const head = this.buf[0], body = this.buf.subarray(i, i + len);
+      this.buf = this.buf.slice(i + len);
+      this.packet(head, body);
+    }
+  }
+  private packet(head: number, body: Uint8Array) {
+    const t = head >> 4;
+    if (t === 2) { // CONNACK
+      if (body[1] !== 0) { try { this.ws && this.ws.close(); } catch (e) {} return; }
+      this.ws.send(mPacket(0x82, [new Uint8Array([0, 1]), mStr(TOPIC + this.owner.id), new Uint8Array([0])]));
+    } else if (t === 9) { // SUBACK
+      if (body[2] === 0x80) { try { this.ws && this.ws.close(); } catch (e) {} return; }
+      this.ready = true; this.tries = 0;
+      clearInterval(this.ping); this.ping = setInterval(() => { try { this.ws && this.ws.send(new Uint8Array([0xC0, 0])); } catch (e) {} }, 20000);
+      this.owner._linkUp(this);
+    } else if (t === 3) { // PUBLISH
+      const tl = (body[0] << 8) | body[1]; let k = 2 + tl; if ((head >> 1) & 3) k += 2;
+      let m: any; try { m = JSON.parse(dec(body.subarray(k))); } catch (e) { return; }
+      if (m && typeof m === 'object') this.owner._onMsg(m, this);
+    }
+  }
+  send(o: any) {
+    if (!this.ready || !this.ws || !o.dst) return;
+    try { this.ws.send(mPacket(0x30, [mStr(TOPIC + o.dst), enc(JSON.stringify(Object.assign({ src: this.owner.id }, o)))])); } catch (e) {}
+  }
+  close() { this.dead = true; this.ready = false; clearInterval(this.ping); clearTimeout(this.retry); try { this.ws && this.ws.close(); } catch (e) {} this.ws = null; }
+}
+
+class PeerJsLink implements Link {
+  name = 'peerjs'; ready = false; private ws: any = null; private hb: any = null; private retry: any = null; private dead = false; private tries = 0; private token = rnd(10);
+  constructor(private owner: Peer) { this.connect(); }
+  private connect() {
+    if (this.dead) return;
+    const WS = G.WebSocket; if (!WS) return;
+    let ws: any;
+    try { ws = new WS((G.__PEERJS_URL || 'wss://' + HOST + ':443/peerjs') + '?key=' + KEY + '&id=' + encodeURIComponent(this.owner.id) + '&token=' + this.token + '&version=1.5.4'); }
+    catch (e) { this.later(); return; }
+    this.ws = ws;
+    ws.onmessage = (ev: any) => {
+      let m: any; try { m = JSON.parse(ev.data); } catch (e) { return; }
+      if (m.type === 'OPEN') { this.ready = true; this.tries = 0; this.owner._linkUp(this); return; }
+      if (m.type === 'ID-TAKEN') { this.owner._idTaken(this); return; }
+      this.owner._onMsg(m, this);
+    };
+    ws.onclose = () => { if (this.ws !== ws) return; this.ws = null; clearInterval(this.hb); const was = this.ready; this.ready = false; if (was) this.owner._linkDown(this); this.later(); };
+    ws.onerror = () => {};
+    clearInterval(this.hb); this.hb = setInterval(() => this.raw({ type: 'HEARTBEAT' }), 5000);
+  }
+  private later() { if (this.dead) return; clearTimeout(this.retry); this.retry = setTimeout(() => this.connect(), Math.min(20000, 2000 * Math.pow(1.6, this.tries++))); }
+  private raw(o: any) { const ws = this.ws; if (!ws || ws.readyState !== 1) return; try { ws.send(JSON.stringify(o)); } catch (e) {} }
+  send(o: any) { if (this.ready) this.raw(o); }
+  close() { this.dead = true; this.ready = false; clearInterval(this.hb); clearTimeout(this.retry); try { this.ws && this.ws.close(); } catch (e) {} this.ws = null; }
+}
+
 export class Peer extends Emitter {
   id: string; open = false; destroyed = false; disconnected = false;
-  private ws: any = null; private token = rnd(10); private hb: any = null; private conns: { [cid: string]: DataConnection } = {};
+  private links: Link[] = []; private conns: { [cid: string]: DataConnection } = {};
+  private seen: { [k: string]: 1 } = {}; private seenQ: string[] = []; private failT: any = null;
   constructor(id?: string) {
     super();
     this.id = id || 'titacoral-v1-x-' + rnd(12);
-    setTimeout(() => this.connectWs(), 0);
-  }
-  private connectWs() {
-    if (this.destroyed) return;
-    const WS = G.WebSocket;
-    if (!WS) { this.emit('error', new PeerError('browser-incompatible')); return; }
-    let ws: any;
-    try { ws = new WS((G.__PEERJS_URL || 'wss://' + HOST + ':443/peerjs') + '?key=' + KEY + '&id=' + encodeURIComponent(this.id) + '&token=' + this.token + '&version=1.5.4'); }
-    catch (e) { this.emit('error', new PeerError('network')); return; }
-    this.ws = ws; this.disconnected = false;
-    ws.onmessage = (ev: any) => { let m: any; try { m = JSON.parse(ev.data); } catch (e) { return; } this.onMsg(m); };
-    ws.onclose = () => {
-      if (this.ws !== ws) return;
-      clearInterval(this.hb); this.ws = null;
+    setTimeout(() => {
       if (this.destroyed) return;
-      const wasOpen = this.open; this.open = false; this.disconnected = true;
-      if (wasOpen) this.emit('disconnected', this.id); else this.emit('error', new PeerError('network', 'Sem conexão com o servidor'));
-    };
-    ws.onerror = () => {};
-    clearInterval(this.hb);
-    this.hb = setInterval(() => { this._send({ type: 'HEARTBEAT' }); }, 5000);
+      if (!G.WebSocket) { this.emit('error', new PeerError('browser-incompatible')); return; }
+      const urls: string[] = Array.isArray(G.__MQTT_URLS) ? G.__MQTT_URLS : MQTT_URLS;
+      this.links.push(new PeerJsLink(this));
+      for (const u of urls) this.links.push(new MqttLink(u, this));
+      // nenhum servidor respondeu
+      this.failT = setTimeout(() => { if (!this.open && !this.destroyed) this.emit('error', new PeerError('network', 'Sem conexão com o servidor')); }, 12000);
+    }, 0);
   }
-  private onMsg(m: any) {
+  _linkUp(_l: Link) {
+    if (this.destroyed) return;
+    this.disconnected = false;
+    if (!this.open) { this.open = true; clearTimeout(this.failT); this.emit('open', this.id); }
+  }
+  _linkDown(_l: Link) {
+    if (this.destroyed) return;
+    if (this.open && !this.links.some(x => x.ready)) { this.open = false; this.disconnected = true; this.emit('disconnected', this.id); }
+  }
+  _idTaken(l: Link) {
+    // já entrou por outro servidor: só deixa de usar o do PeerJS
+    if (this.open) { l.close(); this.links = this.links.filter(x => x !== l); return; }
+    this.emit('error', new PeerError('unavailable-id', 'ID em uso')); this.destroy();
+  }
+  _onMsg(m: any, from: Link) {
+    if (this.destroyed || !m) return;
+    const mid = m.mid || (m.payload && m.payload._mid);
+    if (mid) { const k = String(mid); if (this.seen[k]) return; this.seen[k] = 1; this.seenQ.push(k); if (this.seenQ.length > 600) delete this.seen[this.seenQ.shift() as string]; }
     const p = m.payload || {};
     switch (m.type) {
-      case 'OPEN': this.open = true; this.emit('open', this.id); break;
-      case 'ID-TAKEN': this.emit('error', new PeerError('unavailable-id', 'ID em uso')); this.destroy(); break;
-      case 'INVALID-KEY': this.emit('error', new PeerError('invalid-key')); this.destroy(); break;
-      case 'ERROR': this.emit('error', new PeerError('server-error', p.msg)); break;
+      case 'INVALID-KEY': case 'ERROR': break;
       case 'EXPIRE': {
+        // pelo PeerJS a sala não existe, mas ela pode estar nos outros servidores
+        if (this.links.some(x => x.ready && x !== from)) break;
         for (const k in this.conns) { const c = this.conns[k]; if (c.peer === m.src && !c.open) { (c as any).emit2('error', new PeerError('peer-unavailable')); c.close(); } }
         this.emit('error', new PeerError('peer-unavailable', 'Não achei ' + m.src));
         break; }
-      case 'LEAVE': for (const k in this.conns) { const c = this.conns[k]; if (c.peer === m.src) c.close(); } break;
+      case 'LEAVE': for (const k in this.conns) { const c = this.conns[k]; if (c.peer === m.src && !c.open) c.close(); } break;
       case 'OFFER': {
         if (!p.connectionId || this.conns[p.connectionId]) break;
         const c = new DataConnection(this, m.src, p.connectionId, p.label);
@@ -211,7 +315,13 @@ export class Peer extends Emitter {
         if (c && p.candidate) c._onCandidate(p.candidate); break; }
     }
   }
-  _send(o: any) { const ws = this.ws; if (!ws || ws.readyState !== 1) return; try { ws.send(JSON.stringify(o)); } catch (e) {} }
+  _send(o: any) {
+    if (this.destroyed) return;
+    const id = rnd(12);
+    const m = Object.assign({ mid: id }, o);
+    if (m.payload && typeof m.payload === 'object') m.payload = Object.assign({ _mid: id }, m.payload);
+    for (const l of this.links) l.send(m);
+  }
   _forget(c: DataConnection) { if (this.conns[c.connectionId] === c) delete this.conns[c.connectionId]; }
   connect(peer: string, opts?: any) {
     const cid = 'dc_' + rnd(12);
@@ -219,16 +329,17 @@ export class Peer extends Emitter {
     const c = new DataConnection(this, peer, cid, undefined, true, only);
     this.conns[cid] = c;
     if (only) return c;
-    if (this.open) c._start(); else this.on('open', () => c._start());
+    if (this.open) c._start(); else { const go = () => { this.off('open', go); c._start(); }; this.on('open', go); }
     return c;
   }
-  reconnect() { if (this.destroyed || this.ws) return; this.connectWs(); }
+  /** os servidores voltam sozinhos; fica aqui para quem já chamava */
+  reconnect() {}
   destroy() {
     if (this.destroyed) return; this.destroyed = true; this.open = false;
-    clearInterval(this.hb);
+    clearTimeout(this.failT);
     for (const k in this.conns) this.conns[k].close();
-    try { this.ws && this.ws.close(); } catch (e) {}
-    this.ws = null;
+    for (const l of this.links) l.close();
+    this.links = [];
   }
 }
 
