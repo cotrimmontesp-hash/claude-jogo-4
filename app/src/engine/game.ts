@@ -1073,7 +1073,7 @@ function setMode(m:string){save.mode=MODES.includes(m)?m:'story';persist();emit(
 function playMode(){const m=MODES.includes(save.mode)?save.mode:'story';
   if(m==='waves')playWaves();
   else if(m==='online')openLobby();
-  else if(m==='duel'){openLobby();toast('Crie uma sala, chame os amigos e escolha Duelo na sala de espera.');}
+  else if(m==='duel'){WAIT.want='d';openLobby();toast('Crie uma sala e chame os amigos: o Duelo já fica escolhido.');}
   else playSolo();}
 function openSkin(){hideAll();state='skin';show('skin');emit();}
 function skinInfo(){
@@ -1135,12 +1135,13 @@ function waitInfo(){
   const i=clamp(WAIT.sel,0,LV.length-1),wv=WAIT.mode==='w',du=WAIT.mode==='d',h=NET.isHost;
   return {code:NET.code?'Sala '+NET.code.toUpperCase():'',count:NET.count+'/5 jogadores',
     chN:du?'Modo Duelo':wv?'Modo Ondas':'Começar na área '+(i+1),chT:du?'Todos contra todos · 3 min':wv?'Ondas infinitas':LV[i].name,
-    mode:du?'Duelo':wv?'Ondas':'História',host:h,arrows:h&&!wv&&!du,startOff:WAIT.ct>0,start:WAIT.ct>0?'Começando…':'Começar',
+    mode:du?'Duelo':wv?'Ondas':'História',md:WAIT.mode,host:h,arrows:h&&!wv&&!du,startOff:WAIT.ct>0,start:WAIT.ct>0?'Começando…':'Começar',
     wait:h?'Treine nos alvos. Quando todo mundo chegar, toque em Começar.':'Treine nos alvos enquanto o anfitrião escolhe a fase.',
     friends:friendsOn(),friendsLabel:friendsLabel()};
 }
 function wPrev(){if(!NET.isHost||WAIT.ct>0)return;WAIT.sel=(WAIT.sel+save.unl-1)%save.unl;updWaitUI();}
 function wNext(){if(!NET.isHost||WAIT.ct>0)return;WAIT.sel=(WAIT.sel+1)%save.unl;updWaitUI();}
+function wSetMode(m:string){if(!NET.isHost||WAIT.ct>0)return;if(m==='s'||m==='w'||m==='d'){WAIT.mode=m;updWaitUI();}}
 function wMode(){if(!NET.isHost||WAIT.ct>0)return;WAIT.mode=WAIT.mode==='s'?'w':WAIT.mode==='w'?'d':'s';updWaitUI();}
 function wStart(){if(!NET.isHost||WAIT.ct>0)return;if(WAIT.mode==='d'&&NET.count<2){toast('O Duelo precisa de pelo menos 2 jogadores na sala.');return;}phase='count';WAIT.ct=3.2;updWaitUI();}
 function leaveToMenu(){NET.leave();showMenu();}
@@ -1471,7 +1472,7 @@ async function joinRoom(code?:any,asHost?:any){
     NET.game=g;NET.code=code;NET.isHost=!!asHost;NET.joinedAt=clock;NET.lastEv=-1;NET.lastHit=-1;NET.lastShot={};NET.clientRun=-1;NET.clientPhase='';NET.hostGoneT=0;NET.ev=[];NET.hits=[];
     g.onPeers(()=>{},err=>{if(NET.game===g){toast(err&&err.code&&NET.lobby.p2p?netErrText(err.code):'A conexão com a sala caiu.');NET.leave();showMenu();}});
     sendPresence(true);
-    if(asHost){WAIT.sel=clamp(MAP.node,0,save.unl-1);enterWait();toast('Sala '+code.toUpperCase()+' criada. Passe o código para os amigos.');}
+    if(asHost){WAIT.sel=clamp(MAP.node,0,save.unl-1);if(WAIT.want){WAIT.mode=WAIT.want;WAIT.want=null;}enterWait();toast('Sala '+code.toUpperCase()+' criada. Passe o código para os amigos.');}
     else{
       toast('Entrando na sala '+code.toUpperCase()+'…');
       setTimeout(()=>{if(NET.game!==g)return;const others=g.peers().filter(p=>!p.sameTab&&p.presence&&p.presence.app==='tita');
@@ -1817,7 +1818,7 @@ const game={
     waitLeave:leaveToMenu,wPrev,wNext,wMode,wStart,
     dlgTap:advance,dlgSkip:closeDialog,
     resPick,pause:()=>setPause(true),pauseContinue,pauseQuit,
-    friendAccept,friendReject,friendJoin,friendInvite,friendRemove,setFidIn,addFriend,shareFid,friendsBack,inviteGo,inviteNo,
+    wSetMode,friendAccept,friendReject,friendJoin,friendInvite,friendRemove,setFidIn,addFriend,shareFid,friendsBack,inviteGo,inviteNo,
     heroSel,heroWeapon,heroPick,heroBack,
     arTab,arEquip,arBack,
     onHide,persist,back

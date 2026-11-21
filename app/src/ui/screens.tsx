@@ -248,7 +248,13 @@ function WaitUI() {
         <View style={wt.card}>
           <Text style={wt.title}>Sala de espera · {w.code} · {w.count}</Text>
           <View style={wt.row}>
-            {w.host && <Btn label={w.mode} kind="alt" size="sm" onPress={game.act.wMode} />}
+            {([['s', 'História'], ['w', 'Ondas'], ['d', 'Duelo']] as const).map(([k, n]) => (
+              <Btn key={k} label={n} size="sm" fontSize={15} padH={10} kind={w.md === k ? 'gold' : 'alt'}
+                disabled={!w.host && w.md !== k} style={{ opacity: w.md === k ? 1 : .85 }}
+                onPress={() => game.act.wSetMode(k)} />
+            ))}
+          </View>
+          <View style={wt.row}>
             {w.arrows && <Btn label="‹" size="sm" a11y="Capítulo anterior" onPress={game.act.wPrev} />}
             <View style={{ alignItems: 'center', minWidth: 0, flexShrink: 1 }}>
               <Text style={wt.chN}>{w.chN}</Text>
