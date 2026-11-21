@@ -30,10 +30,11 @@ export class DataConnection extends Emitter {
   /** caminho de reserva: quando a ligação direta não abre (internets diferentes,
       4G x Wi-Fi), as mensagens passam pelo servidor que já usamos para nos encontrar */
   relay = false; private rlT: any = null; private rlTries = 0; private rlPend: any = null; private rlFlushT: any = null;
-  constructor(owner: Peer, peer: string, connectionId: string, label?: string, private caller = false) {
+  constructor(owner: Peer, peer: string, connectionId: string, label?: string, private caller = false, relayOnly = false) {
     super(); this.owner = owner; this.peer = peer; this.connectionId = connectionId; this.label = label || connectionId;
     // quem chama tenta a reserva se a ligação direta não abrir logo
-    if (caller) this.rlT = setTimeout(() => this.tryRelay(), 4500);
+    // (recados curtos, como pedido de amizade e convite, já vão direto pela reserva)
+    if (caller) this.rlT = setTimeout(() => this.tryRelay(), relayOnly ? 0 : 3000);
     else this.rlT = setTimeout(() => { if (!this.open) this.close(); }, 40000);
   }
   private rl(kind: string, d?: any) { this.owner._send({ type: 'CANDIDATE', dst: this.peer, payload: { type: 'data', connectionId: this.connectionId, rl: kind, d } }); }
@@ -212,10 +213,12 @@ export class Peer extends Emitter {
   }
   _send(o: any) { const ws = this.ws; if (!ws || ws.readyState !== 1) return; try { ws.send(JSON.stringify(o)); } catch (e) {} }
   _forget(c: DataConnection) { if (this.conns[c.connectionId] === c) delete this.conns[c.connectionId]; }
-  connect(peer: string, _opts?: any) {
+  connect(peer: string, opts?: any) {
     const cid = 'dc_' + rnd(12);
-    const c = new DataConnection(this, peer, cid, undefined, true);
+    const only = !!(opts && opts.relayOnly);
+    const c = new DataConnection(this, peer, cid, undefined, true, only);
     this.conns[cid] = c;
+    if (only) return c;
     if (this.open) c._start(); else this.on('open', () => c._start());
     return c;
   }

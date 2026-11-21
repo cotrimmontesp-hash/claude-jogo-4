@@ -1343,7 +1343,7 @@ function addFriendLocal(id:string,name:string){if(!save.friends.some((f:any)=>f.
 function sendTo(fid:string,msg:any,onReply:any,ms?:number){
   if(!FR.me||!FR.ready){onReply&&onReply(null);return;}
   let done=false;let c:any;const fin=(v:any)=>{if(done)return;done=true;try{c&&c.close();}catch(e){}onReply&&onReply(v);};
-  try{c=FR.me.connect(P2P_PREFIX+'u-'+fid,{reliable:true});}catch(e){onReply&&onReply(null);return;}
+  try{c=FR.me.connect(P2P_PREFIX+'u-'+fid,{reliable:true,relayOnly:true});}catch(e){onReply&&onReply(null);return;}
   c.on('open',()=>{try{c.send(msg);}catch(e){}});c.on('data',(d:any)=>fin(d));c.on('error',()=>fin(null));
   setTimeout(()=>fin(null),ms||5000);
 }
