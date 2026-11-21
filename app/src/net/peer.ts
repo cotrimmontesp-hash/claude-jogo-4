@@ -255,9 +255,13 @@ export class Peer extends Emitter {
   id: string; open = false; destroyed = false; disconnected = false;
   private links: Link[] = []; private conns: { [cid: string]: DataConnection } = {};
   private seen: { [k: string]: 1 } = {}; private seenQ: string[] = []; private failT: any = null;
-  constructor(id?: string) {
+  /** shareId: o código fixo do jogador (amigos). Se o PeerJS ainda achar que ele
+      está em uso (app reaberto), só deixa de usar o PeerJS e segue nos outros. */
+  private shareId = false;
+  constructor(id?: string, opts?: { shareId?: boolean }) {
     super();
     this.id = id || 'titacoral-v1-x-' + rnd(12);
+    this.shareId = !!(opts && opts.shareId);
     setTimeout(() => {
       if (this.destroyed) return;
       if (!G.WebSocket) { this.emit('error', new PeerError('browser-incompatible')); return; }
@@ -279,7 +283,7 @@ export class Peer extends Emitter {
   }
   _idTaken(l: Link) {
     // já entrou por outro servidor: só deixa de usar o do PeerJS
-    if (this.open) { l.close(); this.links = this.links.filter(x => x !== l); return; }
+    if (this.open || (this.shareId && this.links.length > 1)) { l.close(); this.links = this.links.filter(x => x !== l); return; }
     this.emit('error', new PeerError('unavailable-id', 'ID em uso')); this.destroy();
   }
   _onMsg(m: any, from: Link) {

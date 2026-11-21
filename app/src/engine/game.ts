@@ -1319,7 +1319,7 @@ function cleanFid(v:any){return String(v||'').toUpperCase().replace(/[^A-Z0-9]/g
 function friendsOn(){return !!(NET.lobby&&NET.lobby.p2p);}
 function startFriends(){
   if(FR.me)return;
-  let pr:any;try{pr=new Peer(P2P_PREFIX+'u-'+save.fid);}catch(e){return;}
+  let pr:any;try{pr=new Peer(P2P_PREFIX+'u-'+save.fid,{shareId:true});}catch(e){return;}
   FR.me=pr;
   pr.on('open',()=>{FR.ready=true;FR.tries=0;pollFriends();renderFriends();});
   pr.on('connection',(c:any)=>{c.on('data',(d:any)=>onFriendMsg(c,d));setTimeout(()=>{try{c.close();}catch(e){}},8000);});
@@ -1351,8 +1351,10 @@ function sendTo(fid:string,msg:any,onReply:any,ms?:number){
 function pollFriends(){
   if(!FR.ready)return;
   for(const f of save.friends){sendTo(f.id,{t:'ping',id:save.fid,name:save.name||'Jogador'},(d:any)=>{
-    if(d&&d.t==='pong'){FR.status[f.id]={on:true,room:d.room?String(d.room).toLowerCase().replace(/[^a-z]/g,'').slice(0,4):null,at:clock};if(d.name&&d.name!==f.name){f.name=String(d.name).slice(0,12);persist();}}
-    else FR.status[f.id]={on:false,room:null,at:clock};
+    if(d&&d.t==='pong'){FR.status[f.id]={on:true,room:d.room?String(d.room).toLowerCase().replace(/[^a-z]/g,'').slice(0,4):null,at:clock,okAt:clock};if(d.name&&d.name!==f.name){f.name=String(d.name).slice(0,12);persist();}}
+    else{const o=FR.status[f.id];
+      // uma resposta perdida não derruba: só fica offline depois de ~20 s sem notícias
+      if(!(o&&o.on&&clock-(o.okAt||0)<20))FR.status[f.id]={on:false,room:null,at:clock};}
     renderFriends();},4500);}
 }
 function friendsTick(dt:number){
