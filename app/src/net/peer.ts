@@ -27,8 +27,39 @@ export class PeerError extends Error { type: string; constructor(type: string, m
 export class DataConnection extends Emitter {
   peer: string; connectionId: string; open = false; label: string; peerConnection: any = null;
   private dc: any = null; private owner: Peer; private queued: any[] = []; private remoteSet = false; private closed = false;
-  constructor(owner: Peer, peer: string, connectionId: string, label?: string) {
+  /** caminho de reserva: quando a ligação direta não abre (internets diferentes,
+      4G x Wi-Fi), as mensagens passam pelo servidor que já usamos para nos encontrar */
+  relay = false; private rlT: any = null; private rlTries = 0; private rlPend: any = null; private rlFlushT: any = null;
+  constructor(owner: Peer, peer: string, connectionId: string, label?: string, private caller = false) {
     super(); this.owner = owner; this.peer = peer; this.connectionId = connectionId; this.label = label || connectionId;
+    // quem chama tenta a reserva se a ligação direta não abrir logo
+    if (caller) this.rlT = setTimeout(() => this.tryRelay(), 4500);
+    else this.rlT = setTimeout(() => { if (!this.open) this.close(); }, 40000);
+  }
+  private rl(kind: string, d?: any) { this.owner._send({ type: 'CANDIDATE', dst: this.peer, payload: { type: 'data', connectionId: this.connectionId, rl: kind, d } }); }
+  private tryRelay() {
+    if (this.open || this.closed) return;
+    if (++this.rlTries > 8) { this.close(); return; }
+    this.rl('hi');
+    clearTimeout(this.rlT); this.rlT = setTimeout(() => this.tryRelay(), 1500);
+  }
+  private goRelay() {
+    if (this.closed) return;
+    clearTimeout(this.rlT); this.rlT = null;
+    if (this.relay) return;
+    const was = this.open;
+    this.relay = true; this.open = true;
+    try { this.dc && this.dc.close(); } catch (e) {}
+    try { this.peerConnection && this.peerConnection.close(); } catch (e) {}
+    this.dc = null;
+    if (!was) this.emit('open');
+  }
+  _onRelay(kind: string, d: any) {
+    if (this.closed) return;
+    if (kind === 'hi') { this.goRelay(); this.rl('ok'); }
+    else if (kind === 'ok') { if (this.caller) this.goRelay(); }
+    else if (kind === 'd') { if (this.relay && d !== undefined) this.emit('data', d); }
+    else if (kind === 'bye') { this.close(true); }
   }
   private makePc() {
     const PC = G.RTCPeerConnection;
@@ -42,14 +73,18 @@ export class DataConnection extends Emitter {
     });
     pc.addEventListener('iceconnectionstatechange', () => {
       const s = pc.iceConnectionState;
-      if (s === 'failed' || s === 'closed') { this.close(); }
+      if (s === 'failed' || s === 'closed') {
+        if (this.relay) return;
+        if (!this.open) { if (this.caller) this.tryRelay(); return; }
+        this.close();
+      }
     });
     pc.addEventListener('datachannel', (ev: any) => { this.useChannel(ev.channel); });
     return pc;
   }
   private useChannel(dc: any) {
     this.dc = dc;
-    const onOpen = () => { if (this.open || this.closed) return; this.open = true; this.emit('open'); };
+    const onOpen = () => { if (this.open || this.closed) return; clearTimeout(this.rlT); this.rlT = null; this.open = true; this.emit('open'); };
     dc.addEventListener('open', onOpen);
     dc.addEventListener('message', (ev: any) => {
       let d = ev && ev.data;
@@ -57,7 +92,7 @@ export class DataConnection extends Emitter {
       try { d = JSON.parse(d); } catch (e) { return; }
       this.emit('data', d);
     });
-    dc.addEventListener('close', () => this.close());
+    dc.addEventListener('close', () => { if (!this.relay) this.close(); });
     dc.addEventListener('error', () => { this.emit('error', new PeerError('connection')); });
     if (dc.readyState === 'open') setTimeout(onOpen, 0);
   }
@@ -93,11 +128,21 @@ export class DataConnection extends Emitter {
     for (const c of q) { try { this.peerConnection.addIceCandidate(new G.RTCIceCandidate(c)).catch(() => {}); } catch (e) {} }
   }
   send(d: any) {
+    if (this.relay) {
+      // estado completo (t:'s' / t:'p'): manda só o mais novo, até 10 por segundo
+      if (d && (d.t === 's' || d.t === 'p')) {
+        this.rlPend = JSON.parse(JSON.stringify(d));
+        if (!this.rlFlushT) this.rlFlushT = setTimeout(() => { this.rlFlushT = null; const x = this.rlPend; this.rlPend = null; if (x && !this.closed) this.rl('d', x); }, 100);
+      } else this.rl('d', JSON.parse(JSON.stringify(d)));
+      return;
+    }
     if (!this.dc || this.dc.readyState !== 'open') throw new PeerError('not-open-yet');
     this.dc.send(JSON.stringify(d));
   }
-  close() {
-    if (this.closed) return; this.closed = true;
+  close(fromRemote?: boolean) {
+    if (this.closed) return;
+    if (this.relay && !fromRemote) this.rl('bye');
+    this.closed = true; clearTimeout(this.rlT); clearTimeout(this.rlFlushT);
     const was = this.open; this.open = false;
     try { this.dc && this.dc.close(); } catch (e) {}
     try { this.peerConnection && this.peerConnection.close(); } catch (e) {}
@@ -154,14 +199,22 @@ export class Peer extends Emitter {
         c._answer(p.sdp);
         break; }
       case 'ANSWER': { const c = this.conns[p.connectionId]; if (c) c._onAnswer(p.sdp); break; }
-      case 'CANDIDATE': { const c = this.conns[p.connectionId]; if (c && p.candidate) c._onCandidate(p.candidate); break; }
+      case 'CANDIDATE': {
+        let c = this.conns[p.connectionId];
+        if (p.rl) {
+          // a oferta pode não ter chegado: cria a conexão só pela reserva
+          if (!c && p.rl === 'hi' && p.connectionId && m.src) { c = new DataConnection(this, m.src, p.connectionId); this.conns[p.connectionId] = c; this.emit('connection', c); }
+          if (c) c._onRelay(String(p.rl), p.d);
+          break;
+        }
+        if (c && p.candidate) c._onCandidate(p.candidate); break; }
     }
   }
   _send(o: any) { const ws = this.ws; if (!ws || ws.readyState !== 1) return; try { ws.send(JSON.stringify(o)); } catch (e) {} }
   _forget(c: DataConnection) { if (this.conns[c.connectionId] === c) delete this.conns[c.connectionId]; }
   connect(peer: string, _opts?: any) {
     const cid = 'dc_' + rnd(12);
-    const c = new DataConnection(this, peer, cid);
+    const c = new DataConnection(this, peer, cid, undefined, true);
     this.conns[cid] = c;
     if (this.open) c._start(); else this.on('open', () => c._start());
     return c;

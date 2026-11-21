@@ -1302,7 +1302,7 @@ function peerLobby(){
             c.on('data',d=>{if(!d)return;if(d.t==='full'){fail('full');return;}
               if(d.t==='s'&&d.ps&&typeof d.ps==='object'){you=String(d.you);for(const k in ps)if(!(k in d.ps))delete ps[k];for(const k in d.ps){if(k===you)continue;ps[k]={presence:d.ps[k]};}}});
             const gone=()=>fail('host-left');c.on('close',gone);c.on('error',gone);
-            const chk=setInterval(()=>{if(closed){clearInterval(chk);return;}const pc=c.peerConnection;if(pc&&['failed','closed'].includes(pc.iceConnectionState)){clearInterval(chk);gone();}},2000);});
+            const chk=setInterval(()=>{if(closed){clearInterval(chk);return;}const pc=c.peerConnection;if(!c.relay&&pc&&['failed','closed'].includes(pc.iceConnectionState)){clearInterval(chk);gone();}},2000);});
           peer.on('error',e=>{clearTimeout(to);fail(e.type);});
         }
       });
