@@ -68,14 +68,44 @@ function ModePicker({ onClose }: { onClose: () => void }) {
     </Ov>
   );
 }
+/* um lugar da equipe ao lado do seu personagem: amigo ou botão + para convidar */
+function TeamSlot({ mem, size, onInvite }: { mem?: any; size: number; onInvite: () => void }) {
+  const game = useGame();
+  if (mem) return (
+    <View style={{ width: size, alignItems: 'center' }}>
+      <View style={hm.tagName}>
+        {mem.lead && <Text style={hm.crown}>👑</Text>}
+        <OText stroke={3} lines={1} style={hm.mateName}>{mem.name}</OText>
+      </View>
+      <MiniCanvas w={260} h={300} width={size} draw={g => game.paint.teamHero(g, mem.k)} />
+    </View>
+  );
+  const c = Math.round(size * .5);
+  return (
+    <View style={{ width: size, alignItems: 'center', justifyContent: 'flex-end', paddingBottom: size * .2 }}>
+      <Pressable onPress={() => { game.act.btnSound(); onInvite(); }} accessibilityRole="button" accessibilityLabel="Convidar amigo para a equipe"
+        style={({ pressed }: any) => [hm.plus, { width: c, height: c, borderRadius: c / 2, transform: [{ translateY: pressed ? 3 : 0 }] }]}>
+        <Text style={[hm.plusT, { fontSize: c * .62, lineHeight: c * .8 }]}>+</Text>
+      </Pressable>
+      <OText stroke={3} lines={1} style={hm.plusLab}>Convidar</OText>
+    </View>
+  );
+}
 function Home() {
   const game = useGame(), lay = useLay();
   const m = useInfo(() => game.info.menu());
   const md = useInfo(() => game.info.modes());
+  const t = useInfo(() => game.info.team());
   const [picking, setPicking] = useState(false);
   const cm = md.list.find((x: any) => x.k === md.cur) || md.list[0] || { k: 'story', name: 'História', sub: '', col: C.teal, tag: '' };
-  const stage = Math.max(130, Math.min(340, lay.H * .62, lay.W * .36));
   const tileW = Math.min(230, lay.W * .27);
+  const centerW = lay.W - 160 - 30 - lay.ins.l - lay.ins.r - 40;
+  const stage = Math.max(120, Math.min(300, lay.H * .46, centerW * .42));
+  const mate = Math.round(stage * .56);
+  // ordem dos lugares: direita, esquerda, direita, esquerda (como no Brawl Stars)
+  const mem: any[] = t.mem || [];
+  const nSlots = Math.min(4, Math.max(2, mem.length + (mem.length < 4 ? 1 : 0)));
+  const slot = (i: number) => i < nSlots ? <TeamSlot key={i} mem={mem[i]} size={mate} onInvite={game.act.teamInvite} /> : null;
   const ins = lay.ins;
   if (picking) return <ModePicker onClose={() => setPicking(false)} />;
   return (
@@ -91,6 +121,14 @@ function Home() {
               <Text style={hm.pxp} numberOfLines={1}>{m.xpT}</Text>
             </View>
           </Pressable>
+          {t.on && (
+              <View style={[hm.teamBar, { marginTop: 0 }]}>
+                <Text style={hm.teamT}>Equipe · {t.n}/5</Text>
+                <Pressable onPress={() => { game.act.btnSound(); game.act.teamLeave(); }} accessibilityRole="button" accessibilityLabel="Sair da equipe" style={hm.leave}>
+                  <Text style={hm.leaveT}>Sair</Text>
+                </Pressable>
+              </View>
+            )}
           <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
             <StatPill icon="⚙️" value={m.gears} label="Engrenagens" />
             <StatPill icon="🤖" value={m.kills} label="Robôs derrotados" />
@@ -110,29 +148,35 @@ function Home() {
             {m.friends ? <SideBtn icon="👥" label="Amigos" color="#3f7be0" onPress={game.act.openFriends} badge={m.friendsLabel !== 'Amigos'} />
               : <SideBtn icon="🌐" label="Online" color="#3f7be0" onPress={game.act.openLobby} />}
           </View>
-          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-            <MiniCanvas w={520} h={520} width={stage} draw={g => game.paint.menuScene(g)}
-              onDown={(x, y) => game.input.homeDown(x, y)} onMove={(x, y) => game.input.homeMove(x, y)} onUp={() => game.input.homeUp()} onCancel={() => game.input.homeCancel()} />
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: 80 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center' }}>
+              {slot(3)}{slot(1)}
+              <View style={{ alignItems: 'center' }}>
+                <MiniCanvas w={520} h={520} width={stage} draw={g => game.paint.menuScene(g)}
+                  onDown={(x, y) => game.input.homeDown(x, y)} onMove={(x, y) => game.input.homeMove(x, y)} onUp={() => game.input.homeUp()} onCancel={() => game.input.homeCancel()} />
+              </View>
+              {slot(0)}{slot(2)}
+            </View>
             <View style={{ alignItems: 'center', marginTop: -stage * .06 }}>
-              <OText stroke={5} style={{ fontFamily: FONT.display, fontSize: 24, color: '#fff', textAlign: 'center' }}>{m.hero}</OText>
+              <OText stroke={5} style={{ fontFamily: FONT.display, fontSize: 22, color: '#fff', textAlign: 'center' }}>{(t.on && t.lead ? '👑 ' : '') + m.hero}</OText>
               <Text style={h.role}>{m.role}</Text>
             </View>
           </View>
-          <View style={{ width: tileW + 150 }} />
+          <View style={{ width: 30 }} />
         </View>
       </View>
       {/* canto de baixo à direita: modo + Jogar */}
       <View style={[hm.playRow, { right: 16 + ins.r, bottom: 12 + ins.b }]}>
-        <Pressable onPress={() => { game.act.btnSound(); setPicking(true); }} accessibilityRole="button" accessibilityLabel={'Modo: ' + cm.name + '. Trocar modo'}
+        <Pressable onPress={() => { game.act.btnSound(); if (md.locked) game.act.teamModeLocked(); else setPicking(true); }} accessibilityRole="button" accessibilityLabel={'Modo: ' + cm.name + '. Trocar modo'}
           style={[hm.modeTile, { width: tileW, backgroundColor: cm.col }]}>
           <View style={hm.modeIcon}><MiniCanvas key={cm.k} w={320} h={180} width={72} height={40.5} draw={g => game.paint.mode(g, cm.k)} /></View>
           <View style={{ flex: 1, minWidth: 0 }}>
             <OText stroke={3} lines={1} style={hm.modeName}>{cm.name}</OText>
             <Text style={hm.modeSub} numberOfLines={1}>{cm.sub}</Text>
-            <Text style={hm.modeHint}>▸ trocar modo</Text>
+            <Text style={hm.modeHint}>{md.locked ? '👑 o líder escolhe' : '▸ trocar modo'}</Text>
           </View>
         </Pressable>
-        <Btn label="Jogar" kind="play" fontSize={36} padV={12} padH={22} start onPress={game.act.playMode} />
+        <Btn label={t.play} kind={t.playOff ? 'alt' : 'play'} fontSize={t.playOff ? 28 : 36} padV={12} padH={22} start onPress={game.act.playMode} />
       </View>
     </Ov>
   );
@@ -157,6 +201,16 @@ const hm = StyleSheet.create({
   badge: { position: 'absolute', right: -6, top: -6, width: 22, height: 22, borderRadius: 11, backgroundColor: C.coral, borderWidth: 2.5, borderColor: C.ink, alignItems: 'center', justifyContent: 'center' },
   badgeT: { fontFamily: FONT.display, fontSize: 13, color: '#fff' },
   playRow: { position: 'absolute', flexDirection: 'row', alignItems: 'flex-end', gap: 10 },
+  tagName: { flexDirection: 'row', alignItems: 'center', gap: 3, backgroundColor: 'rgba(29,20,54,.7)', borderWidth: 2.5, borderColor: C.ink, borderRadius: 999, paddingHorizontal: 8, paddingVertical: 1, marginBottom: -10, zIndex: 2, maxWidth: '100%' },
+  crown: { fontSize: 12 },
+  mateName: { fontFamily: FONT.display, fontSize: 13, color: '#fff' },
+  plus: { backgroundColor: 'rgba(255,255,255,.18)', borderWidth: 3, borderColor: '#fff', borderStyle: 'dashed', alignItems: 'center', justifyContent: 'center' },
+  plusT: { fontFamily: FONT.display, color: '#fff' },
+  plusLab: { fontFamily: FONT.display, fontSize: 13, color: '#fff', marginTop: 4 },
+  teamBar: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6, backgroundColor: 'rgba(29,20,54,.7)', borderWidth: 3, borderColor: C.ink, borderRadius: 999, paddingVertical: 3, paddingLeft: 12, paddingRight: 4 },
+  teamT: { fontFamily: FONT.black, fontSize: 12, color: '#fff', letterSpacing: .6 },
+  leave: { backgroundColor: C.coral, borderWidth: 2.5, borderColor: C.ink, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 2 },
+  leaveT: { fontFamily: FONT.display, fontSize: 13, color: '#fff' },
   modeTile: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 3, borderColor: C.ink, borderRadius: 16, paddingVertical: 6, paddingHorizontal: 8, marginBottom: 5 },
   modeIcon: { width: 78, height: 46, borderRadius: 10, backgroundColor: 'rgba(29,20,54,.35)', borderWidth: 2.5, borderColor: C.ink, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   modeName: { fontFamily: FONT.display, fontSize: 18, color: '#fff' },
@@ -457,45 +511,73 @@ function Pause() {
 
 /* ---------- amigos ---------- */
 function Friends() {
-  const game = useGame();
+  const game = useGame(), lay = useLay();
   const f = useInfo(() => game.info.friends());
+  const pw = Math.min(430, Math.max(300, lay.W * .5));
   return (
-    <Ov bg={<MenuBg />}>
-      <Card>
-        <H3>Amigos</H3>
-        <View style={fr.mycode}>
-          <Lab>Seu código</Lab>
-          <View style={fr.codeBox}><Text style={fr.code}>{f.fid}</Text></View>
-          <Btn label="Enviar" kind="alt" size="sm" onPress={game.act.shareFid} />
+    <View style={[StyleSheet.absoluteFill, { zIndex: 8 }]}>
+      <Pressable style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(20,10,50,.55)' }]} onPress={game.act.friendsBack} accessibilityLabel="Fechar amigos" />
+      <View style={[fr.panel, { width: pw, paddingTop: 10 + lay.ins.t, paddingBottom: 10 + lay.ins.b, paddingRight: 12 + lay.ins.r }]}>
+        <View style={fr.head}>
+          <OText stroke={4} style={{ fontFamily: FONT.display, fontSize: 26, color: '#fff' }}>👥 Amigos</OText>
+          <Pressable onPress={() => { game.act.btnSound(); game.act.friendsBack(); }} style={fr.x} accessibilityRole="button" accessibilityLabel="Fechar"><Text style={fr.xT}>×</Text></Pressable>
         </View>
-        <View style={{ flexDirection: 'row', gap: 8, width: '100%', alignItems: 'flex-start' }}>
-          <TextInput style={[st.input, { flex: 1, width: undefined, minWidth: 0 }]} value={f.input} maxLength={6} autoCapitalize="characters" autoCorrect={false} autoComplete="off"
-            placeholder="Código do amigo" placeholderTextColor="#b9b0d6" accessibilityLabel="Código do amigo" onChangeText={game.act.setFidIn} onSubmitEditing={game.act.addFriend} />
-          <Btn label="Adicionar" size="sm" disabled={f.busy} onPress={game.act.addFriend} />
-        </View>
-        <Text style={ls.empty}>{f.msg}</Text>
-        {f.reqs.map((r: any) => (
-          <View key={'r' + r.id} style={fr.row}>
-            <View style={fr.who}><Text style={fr.name} numberOfLines={1}>{r.name}</Text><Text style={fr.sub}>{r.sub}</Text></View>
-            <Btn label="Aceitar" size="sm" onPress={() => game.act.friendAccept(r.id)} />
-            <Btn label="Recusar" kind="red" size="sm" onPress={() => game.act.friendReject(r.id)} />
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ gap: 8, paddingBottom: 8 }}>
+          <View style={fr.box}>
+            <View style={fr.mycode}>
+              <Text style={fr.lab}>SEU CÓDIGO</Text>
+              <View style={fr.codeBox}><Text style={fr.code}>{f.fid}</Text></View>
+              <Btn label="Enviar" kind="alt" size="sm" onPress={game.act.shareFid} />
+            </View>
+            <View style={{ flexDirection: 'row', gap: 8, width: '100%', alignItems: 'flex-start' }}>
+              <TextInput style={[st.input, { flex: 1, width: undefined, minWidth: 0 }]} value={f.input} maxLength={6} autoCapitalize="characters" autoCorrect={false} autoComplete="off"
+                placeholder="Código do amigo" placeholderTextColor="#b9b0d6" accessibilityLabel="Código do amigo" onChangeText={game.act.setFidIn} onSubmitEditing={game.act.addFriend} />
+              <Btn label={f.busy ? '…' : 'Adicionar'} size="sm" disabled={f.busy} onPress={game.act.addFriend} />
+            </View>
           </View>
-        ))}
-        {f.list.map((x: any) => (
-          <View key={'f' + x.id} style={fr.row}>
-            <View style={[fr.dot, x.dot === 'room' ? { backgroundColor: C.gold } : x.dot === 'on' ? { backgroundColor: '#5ee04a' } : null]} />
-            <View style={fr.who}><Text style={fr.name} numberOfLines={1}>{x.name}</Text><Text style={fr.sub}>{x.sub}</Text></View>
-            {x.join ? <Btn label="Entrar" size="sm" onPress={() => game.act.friendJoin(x.join)} />
-              : x.invite ? <Btn label={x.invited ? 'Enviado' : 'Convidar'} kind="alt" size="sm" disabled={x.invited} onPress={() => game.act.friendInvite(x.id)} /> : null}
-            <Btn label={x.rmAsk ? 'Remover?' : '×'} kind="red" size="sm" a11y={'Remover ' + x.name} onPress={() => game.act.friendRemove(x.id)} />
-          </View>
-        ))}
-        <Btn label="Voltar" kind="red" size="sm" onPress={game.act.friendsBack} />
-      </Card>
-    </Ov>
+          {f.reqs.length > 0 && <OText stroke={3} style={fr.sec}>Pedidos de amizade</OText>}
+          {f.reqs.map((r: any) => (
+            <View key={'r' + r.id} style={[fr.row, { backgroundColor: '#fff3c4' }]}>
+              <Text style={fr.av}>🙋</Text>
+              <View style={fr.who}><Text style={fr.name} numberOfLines={1}>{r.name}</Text><Text style={fr.sub} numberOfLines={1}>{r.sub}</Text></View>
+              <Btn label="✓" size="sm" a11y={'Aceitar ' + r.name} onPress={() => game.act.friendAccept(r.id)} />
+              <Btn label="×" kind="red" size="sm" a11y={'Recusar ' + r.name} onPress={() => game.act.friendReject(r.id)} />
+            </View>
+          ))}
+          <OText stroke={3} style={fr.sec}>{f.title}</OText>
+          {f.list.length === 0 && <Text style={fr.empty}>{f.msg}</Text>}
+          {f.list.map((x: any) => (
+            <View key={'f' + x.id} style={[fr.row, x.dot === '' && { opacity: .75 }]}>
+              <View>
+                <Text style={fr.av}>{x.dot === 'mine' ? '⭐' : '🙂'}</Text>
+                <View style={[fr.dot, x.dot === 'room' || x.dot === 'mine' ? { backgroundColor: C.gold } : x.dot === 'on' ? { backgroundColor: '#5ee04a' } : null]} />
+              </View>
+              <View style={fr.who}><Text style={fr.name} numberOfLines={1}>{x.name}</Text><Text style={[fr.sub, x.dot === 'on' && { color: '#2a9d6a' }]} numberOfLines={1}>{x.sub}</Text></View>
+              {x.join ? <Btn label="Entrar" size="sm" onPress={() => game.act.friendJoin(x.join)} />
+                : x.invite ? <Btn label={x.invited ? 'Enviado ✓' : 'Convidar'} kind="alt" size="sm" disabled={x.invited} onPress={() => game.act.friendInvite(x.id)} /> : null}
+              <Pressable onPress={() => { game.act.btnSound(); game.act.friendRemove(x.id); }} accessibilityRole="button" accessibilityLabel={'Remover ' + x.name} style={fr.rm}>
+                <Text style={fr.rmT}>{x.rmAsk ? 'Remover?' : '🗑'}</Text>
+              </Pressable>
+            </View>
+          ))}
+          {f.list.length > 0 && <Text style={fr.empty}>{f.msg}</Text>}
+        </ScrollView>
+      </View>
+    </View>
   );
 }
 const fr = StyleSheet.create({
+  panel: { position: 'absolute', right: 0, top: 0, bottom: 0, backgroundColor: '#3a2a8a', borderLeftWidth: 4, borderColor: C.ink, paddingLeft: 12, gap: 8 },
+  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  x: { width: 38, height: 38, borderRadius: 12, backgroundColor: C.coral, borderWidth: 3, borderColor: C.ink, alignItems: 'center', justifyContent: 'center' },
+  xT: { fontFamily: FONT.display, fontSize: 24, lineHeight: 28, color: '#fff' },
+  box: { backgroundColor: '#fff', borderWidth: 3, borderColor: C.ink, borderRadius: 14, padding: 8, gap: 8 },
+  lab: { fontFamily: FONT.black, fontSize: 11, letterSpacing: 1.2, color: C.sub },
+  sec: { fontFamily: FONT.display, fontSize: 17, color: '#fff', marginTop: 4 },
+  empty: { fontFamily: FONT.body, fontSize: 12, color: '#d9d2f5', textAlign: 'center' },
+  av: { fontSize: 24 },
+  rm: { paddingHorizontal: 6, paddingVertical: 4 },
+  rmT: { fontFamily: FONT.black, fontSize: 13, color: C.coral },
   mycode: { flexDirection: 'row', alignItems: 'center', gap: 10, justifyContent: 'center', flexWrap: 'wrap' },
   codeBox: { backgroundColor: C.paper, borderWidth: 3, borderColor: C.ink, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 2 },
   code: { fontFamily: FONT.display, fontSize: 30, letterSpacing: 3.6, color: C.ink },
@@ -503,7 +585,7 @@ const fr = StyleSheet.create({
   who: { flex: 1, minWidth: 0 },
   name: { fontFamily: FONT.display, fontSize: 19, color: C.ink },
   sub: { fontFamily: FONT.body, fontSize: 12, color: C.sub2 },
-  dot: { width: 12, height: 12, borderRadius: 6, borderWidth: 2, borderColor: C.ink, backgroundColor: '#b9b2d6' },
+  dot: { position: 'absolute', right: -3, bottom: -1, width: 13, height: 13, borderRadius: 7, borderWidth: 2, borderColor: C.ink, backgroundColor: '#b9b2d6' },
 });
 
 /* ---------- personagens ---------- */
@@ -633,18 +715,23 @@ function Invite() {
   const game = useGame(), lay = useLay();
   const t = useInfo(() => game.ui.invite.txt);
   return (
-    <View style={[iv.card, { right: 12 + lay.ins.r, top: 60 + lay.ins.t }]}>
-      <Text style={iv.t}>{t}</Text>
-      <View style={{ flexDirection: 'row', gap: 10 }}>
-        <Btn label="Entrar" size="sm" onPress={game.act.inviteGo} />
-        <Btn label="Agora não" kind="red" size="sm" onPress={game.act.inviteNo} />
+    <View pointerEvents="box-none" style={{ position: 'absolute', zIndex: 10, left: 0, right: 0, top: 10 + lay.ins.t, alignItems: 'center' }}>
+      <View style={iv.card}>
+        <Text style={{ fontSize: 30 }}>👥</Text>
+        <View style={{ flexShrink: 1, gap: 6 }}>
+          <Text style={iv.t}>{t}</Text>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Btn label="Aceitar" kind="play" size="sm" onPress={game.act.inviteGo} />
+            <Btn label="Recusar" kind="red" size="sm" onPress={game.act.inviteNo} />
+          </View>
+        </View>
       </View>
     </View>
   );
 }
 const iv = StyleSheet.create({
-  card: { position: 'absolute', zIndex: 10, backgroundColor: '#fff', borderWidth: 4, borderColor: C.ink, borderRadius: 16, paddingVertical: 10, paddingHorizontal: 12, gap: 8, maxWidth: 300 },
-  t: { fontFamily: FONT.black, fontSize: 15, color: C.ink },
+  card: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: '#fff', borderWidth: 4, borderColor: C.ink, borderRadius: 18, paddingVertical: 8, paddingHorizontal: 14, maxWidth: 420 },
+  t: { fontFamily: FONT.display, fontSize: 18, color: C.ink },
 });
 function Toast() {
   const game = useGame(), lay = useLay();

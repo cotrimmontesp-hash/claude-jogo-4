@@ -1054,7 +1054,38 @@ function menuInfo(){
     sfx:save.sfx!==false,mus:save.mus!==false,
     hint:isTouch?'Polegar esquerdo anda. Botão vermelho atira: toque rápido acerta sozinho, segure e arraste para mirar.':'WASD para andar, mouse para mirar, clique para atirar, Espaço para o super, Esc para pausar.'};
 }
-function showMenu(){updSoundBtns();state='menu';hideAll();show('menu');emit();}
+function showMenu(){updSoundBtns();state='menu';hideAll();show('menu');if(NET.game&&NET.isHost){phase='team';runId=-1;}emit();}
+/* ---------- equipe no menu (como no Brawl Stars) ----------
+   Quem chama amigos vira líder: a sala fica aberta por trás do menu, os amigos
+   aparecem do lado do seu personagem e o líder escolhe o modo e aperta Jogar. */
+const TEAM:any={hostMode:'story',busy:false,known:{}};
+function inTeam(){return !!(NET.game&&NET.code);}
+function teamMembers(){const L:any[]=[];for(const k in RP){const r=RP[k];L.push({k,name:r.nm||'Jogador',lead:!!r.lead});}
+  L.sort((a,b)=>(+b.lead)-(+a.lead)||(a.k<b.k?-1:1));return L.slice(0,4);}
+function teamInfo(){
+  const on=inTeam(),lead=!on||NET.isHost;
+  return {on,lead,code:on?String(NET.code).toUpperCase():'',n:on?NET.count:1,mem:on?teamMembers():[],
+    play:lead?'Jogar':'Pronto!',playOff:!lead,
+    sub:on?(lead?'Você é o líder · escolha o modo e aperte Jogar':'O líder escolhe o modo e começa'):''};
+}
+function randRoom(){const abc='abcdefghjkmnpqrstuvwxyz';let c='';for(let i=0;i<4;i++)c+=abc[Math.floor(Math.random()*abc.length)];return c;}
+async function createTeam(){
+  if(inTeam())return true;if(TEAM.busy)return false;
+  TEAM.busy=true;emit();let ok=false;
+  try{ok=await joinRoom(randRoom(),true);}finally{TEAM.busy=false;emit();}
+  return ok&&inTeam();
+}
+function teamInvite(){if(!friendsOn()){openLobby();return;}openFriends();}
+function teamLeave(){if(!inTeam())return;NET.leave();toast('Você saiu da equipe.');showMenu();}
+function teamModeLocked(){toast('Quem escolhe o modo é o líder da equipe.');}
+function drawTeamHero(g:Ctx2D,k:string){
+  const r=RP[k];g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,260,300);
+  const cx=130,cy=250;
+  ink(g,4);ell(g,cx,cy+10,104,28,'#2a1b5e');ell(g,cx,cy,104,28,vg(g,cy-28,cy+28,'#6b4fd6'));
+  g.lineWidth=4;g.strokeStyle=r&&r.lead?'#ffb800':'#22c7c7';g.beginPath();g.ellipse(cx,cy,90,22,0,0,7);g.stroke();
+  if(!r)return;
+  g.save();g.translate(cx,cy-4);g.scale(3.3,3.3);shadow(g,0,4,15);drawHero(g,0,0,.35+Math.sin(clock*.6+(k.charCodeAt(1)||0))*.25,clock+(k.charCodeAt(1)||0),false,0,r.chObj||CH[r.ch|0]||CH[0]);g.restore();
+}
 function hideAll(){['menu','lobby','mapUI','dlg','res','pause','friends','heroes','skin','waitUI','arsenal','shop','missions'].forEach(id=>show(id,false));show('pauseBtn',false);paused=false;clearInterval(typing);typing=null;dcb=null;}
 function playSolo(){NET.leave();const fin=save.done.includes(LV.length-1);startChapterHost(fin?0:clamp(save.unl-1,0,LV.length-1));}
 function playWaves(){NET.leave();startWavesHost();}
@@ -1062,18 +1093,25 @@ function playWaves(){NET.leave();startWavesHost();}
 const MODES=['story','waves','online','duel'];
 function nextChapter(){const fin=save.done.includes(LV.length-1);return fin?0:clamp(save.unl-1,0,LV.length-1);}
 function modesInfo(){
-  const c=nextChapter();
-  return {cur:MODES.includes(save.mode)?save.mode:'story',list:[
+  const c=nextChapter(),tm=inTeam();
+  const cur=tm&&!NET.isHost?TEAM.hostMode:MODES.includes(save.mode)?save.mode:'story';
+  return {cur:tm&&cur==='online'?'story':cur,locked:tm&&!NET.isHost,list:[
     {k:'story',name:'História',sub:'Capítulo '+(c+1)+' · '+LV[c].name,tag:'AVENTURA',col:'#22c7c7'},
     {k:'waves',name:'Modo Ondas',sub:'Recorde: onda '+(save.bestWave|0)+' · chefe a cada 10',tag:'SOBREVIVÊNCIA',col:'#ff5d73'},
-    {k:'online',name:'Com amigos',sub:'Até 5 jogadores na mesma sala',tag:'ONLINE',col:'#8b6cff'},
-    {k:'duel',name:'Duelo',sub:'Todos contra todos · 3 minutos',tag:'ONLINE',col:'#ff9f43'}]};
+    {k:'duel',name:'Duelo',sub:tm?'Todos contra todos · 3 minutos':'Chame amigos para a equipe',tag:'ONLINE',col:'#ff9f43'}].concat(tm?[]:[
+    {k:'online',name:'Sala por código',sub:'Entrar com o código de 4 letras',tag:'ONLINE',col:'#8b6cff'}])};
 }
-function setMode(m:string){save.mode=MODES.includes(m)?m:'story';persist();emit();}
+function setMode(m:string){if(inTeam()&&!NET.isHost){teamModeLocked();return;}save.mode=MODES.includes(m)?m:'story';persist();sendPresence(false);emit();}
 function playMode(){const m=MODES.includes(save.mode)?save.mode:'story';
+  if(inTeam()){
+    if(!NET.isHost){toast('Pronto! Esperando o líder começar.');return;}
+    if(m==='waves')startWavesHost();
+    else if(m==='duel')startDuelHost();
+    else startChapterHost(nextChapter());
+    return;}
   if(m==='waves')playWaves();
   else if(m==='online')openLobby();
-  else if(m==='duel'){WAIT.want='d';openLobby();toast('Crie uma sala e chame os amigos: o Duelo já fica escolhido.');}
+  else if(m==='duel'){toast('O Duelo é com amigos: chame alguém para a sua equipe.');teamInvite();}
   else playSolo();}
 function openSkin(){hideAll();state='skin';show('skin');emit();}
 function skinInfo(){
@@ -1214,7 +1252,7 @@ function wavesOver(){
   SFX.lose();
   phase='lose';state='lost';show('pauseBtn',false);touch.move=touch.fire=touch.sup=null;
   const got=Math.max(0,WV.wave-1);if(got>(save.bestWave|0))save.bestWave=got;persist();
-  showResult('Fim das ondas','Você sobreviveu a '+got+(got===1?' onda':' ondas')+'. Seu recorde: '+(save.bestWave|0)+'.','Jogar de novo',()=>startWavesHost(),NET.game?'Voltar pra sala':'Menu',()=>{if(NET.game)enterWait();else showMenu();},true);
+  showResult('Fim das ondas','Você sobreviveu a '+got+(got===1?' onda':' ondas')+'. Seu recorde: '+(save.bestWave|0)+'.','Jogar de novo',()=>startWavesHost(),NET.game?'Voltar pra equipe':'Menu',()=>showMenu(),true);
 }
 function beginPlay(){SFX.beep(true);state='play';phase='play';banner=2.4;show('pauseBtn');show('dlg',false);}
 function recordWin(){recordArea(cur);}
@@ -1224,7 +1262,7 @@ function hostWin(){
   showDialog(LV[cur].outro,()=>{
     const last=cur>=LV.length-1;
     showResult(last?'Fim!':'Vitória!','O Coral Brilhante voltou para o farol e a ilha acendeu de novo. Total: '+save.gears+' engrenagens.',
-      NET.game?'Voltar pra sala':'Menu',()=>{if(NET.game){WAIT.sel=0;enterWait();}else showMenu();},'Jogar do começo',()=>startChapterHost(0),false);
+      NET.game?'Voltar pra equipe':'Menu',()=>showMenu(),'Jogar do começo',()=>startChapterHost(0),false);
   });
 }
 function hostLose(){
@@ -1232,7 +1270,7 @@ function hostLose(){
   if(WV.on){wavesOver();return;}
   phase='lose';state='lost';show('pauseBtn',false);touch.move=touch.fire=touch.sup=null;
   const tips=['Entre numa moita para sumir da vista dos robôs.','Recue e pare de atirar: a vida enche sozinha depois de alguns segundos.','Guarde o SUPER para quando estiver cercada.','Os tiros dos inimigos não atravessam paredes. Use as caixas!'];
-  showResult('Derrota',pick(tips)+' Você volta no começo da área '+(cur+1)+'.','Tentar de novo',()=>startChapterHost(cur),NET.game?'Voltar pra sala':'Menu',()=>{if(NET.game){WAIT.sel=cur;enterWait();}else showMenu();},true);
+  showResult('Derrota',pick(tips)+' Você volta no começo da área '+(cur+1)+'.','Tentar de novo',()=>startChapterHost(cur),NET.game?'Voltar pra equipe':'Menu',()=>showMenu(),true);
 }
 let resF:any[]=[null,null];
 function showResult(title:string,sub:string,l1:any,f1:any,l2:any,f2:any,lose:boolean){
@@ -1365,28 +1403,32 @@ function friendsTick(dt:number){
 function updFriendsBadge(){emit();}
 function openFriends(){
   FR.backTo=state==='map'||(state==='play'&&cur===-1)?'map':'menu';
-  if(FR.backTo==='map'){show('friends');}else{hideAll();state='friends';show('friends');}
+  // no menu a lista abre do lado, por cima da equipe (como no Brawl Stars)
+  if(FR.backTo==='map'||state==='menu'){show('friends');}else{hideAll();state='friends';show('friends');}
   const q=(QS.match(/[?&]amigo=([A-Za-z0-9]{6})/)||[])[1];if(q&&!ui.fidIn&&cleanFid(q)!==save.fid)ui.fidIn=cleanFid(q);
   ui.rmAsk={};ui.invited={};
   FR.pollT=0;renderFriends();
 }
 function renderFriends(){if(ui.show.friends)emit();}
 function friendsInfo(){
-  const msg=!FR.ready?'Conectando…':save.friends.length?'Amigos aparecem online quando estão com o jogo aberto.':'Passe seu código para um amigo ou digite o código dele acima.';
+  const msg=!FR.ready?'Conectando…':save.friends.length?'Amigos aparecem online quando estão com o jogo aberto. Toque em Convidar para chamar para a sua equipe.':'Ainda sem amigos. Mande seu código ou digite o código de um amigo acima.';
   const list=save.friends.slice().sort((a:any,b:any)=>((FR.status[b.id]||{}).on?1:0)-((FR.status[a.id]||{}).on?1:0));
-  return {fid:save.fid,input:ui.fidIn,busy:ui.addBusy,msg,
+  const nOn=list.filter((f:any)=>(FR.status[f.id]||{}).on).length;
+  return {fid:save.fid,input:ui.fidIn,busy:ui.addBusy||TEAM.busy,msg,title:'Amigos'+(list.length?' · '+nOn+' online':''),
     reqs:FR.reqs.map((r:any)=>({id:r.id,name:r.name,sub:'Quer ser seu amigo · '+r.id})),
     list:list.map((f:any)=>{const st=FR.status[f.id]||{};
-      const canJoin=!!(st.room&&!(NET.game&&NET.code===st.room));
-      const canInv=!canJoin&&!!(st.on&&NET.game&&NET.code);
-      return {id:f.id,name:f.name||f.id,dot:st.room?'room':st.on?'on':'',
-        sub:st.room?'Numa sala · dá para entrar':st.on?'Online':st.at!=null?'Offline':'Verificando…',
+      const mine=!!(st.room&&NET.game&&NET.code===st.room);
+      const canJoin=!!(st.room&&!mine);
+      const canInv=!canJoin&&!mine&&!!st.on;
+      return {id:f.id,name:f.name||f.id,dot:mine?'mine':st.room?'room':st.on?'on':'',
+        sub:mine?'Na sua equipe':st.room?'Numa equipe · dá para entrar':st.on?'Online · dá para convidar':st.at!=null?'Offline':'Verificando…',
         join:canJoin?st.room:null,invite:canInv,invited:!!ui.invited[f.id],rmAsk:!!ui.rmAsk[f.id]};})};
 }
 function friendAccept(id:string){const r=FR.reqs.find((x:any)=>x.id===id);if(!r)return;addFriendLocal(r.id,r.name);sendTo(r.id,{t:'acc',id:save.fid,name:save.name||'Jogador'},null,5000);FR.pollT=0;}
 function friendReject(id:string){FR.reqs=FR.reqs.filter((x:any)=>x.id!==id);renderFriends();updFriendsBadge();}
-function friendJoin(room:string){show('friends',false);joinRoom(room,false);}
-function friendInvite(id:string){const f=save.friends.find((x:any)=>x.id===id);if(!f||!NET.code)return;ui.invited[id]=true;emit();
+function friendJoin(room:string){show('friends',false);if(state==='friends')showMenu();joinRoom(room,false);}
+async function friendInvite(id:string){const f=save.friends.find((x:any)=>x.id===id);if(!f)return;ui.invited[id]=true;emit();
+  if(!inTeam()&&!(await createTeam())){ui.invited[id]=false;emit();return;}
   sendTo(f.id,{t:'inv',id:save.fid,name:save.name||'Jogador',room:NET.code},(d:any)=>{if(!d)toast('Não deu para chamar '+(f.name||'o amigo')+'. Ele pode ter fechado o jogo.');},5000);}
 function friendRemove(id:string){if(ui.rmAsk[id]){save.friends=save.friends.filter((x:any)=>x.id!==id);persist();delete ui.rmAsk[id];renderFriends();}else{ui.rmAsk[id]=true;emit();}}
 function setFidIn(v:string){ui.fidIn=cleanFid(v);emit();}
@@ -1404,13 +1446,15 @@ function addFriend(){
 function shareFid(){
   shareText('Me adiciona na Ilha do Coral! Meu código: '+save.fid+'\n'+SITE+'?amigo='+save.fid,'Código copiado!','Seu código: '+save.fid);
 }
-function friendsBack(){show('friends',false);if(FR.backTo==='menu')showMenu();else if(state==='map')updateMapCard();else updWaitUI();}
+function friendsBack(){show('friends',false);if(FR.backTo==='menu'){if(state!=='menu')showMenu();else emit();}else if(state==='map')updateMapCard();else updWaitUI();}
 function showInvite(name:string,room:string){
   if(NET.game&&NET.code===room)return;
-  FR.inv=room;ui.invite.txt=name+' te chamou para jogar na sala '+room.toUpperCase()+'.';show('inviteCard');emit();
+  FR.inv=room;ui.invite.txt=name+' te chamou para a equipe!';show('inviteCard');emit();
   clearTimeout(FR.invT);FR.invT=setTimeout(()=>{show('inviteCard',false);},20000);
 }
-function inviteGo(){show('inviteCard',false);const r=FR.inv;if(!r)return;if(state==='play'&&!NET.game){toast('Saindo da fase para entrar na sala…');}hideAll();state='lobby';joinRoom(r,false);}
+function inviteGo(){show('inviteCard',false);const r=FR.inv;if(!r)return;if(state==='play'&&!NET.game)toast('Saindo da fase para entrar na equipe…');
+  if(ui.show.friends){show('friends',false);if(state==='friends')showMenu();}
+  joinRoom(r,false);}
 function inviteNo(){show('inviteCard',false);}
 
 /* ---------- escolha de personagem ---------- */
@@ -1463,10 +1507,10 @@ function lobbyInfo(){
 }
 function setLobbyName(v:string){ui.lobbyIn.name=String(v).slice(0,12);save.name=ui.lobbyIn.name.trim().slice(0,12);persist();emit();}
 function setLobbyCode(v:string){ui.lobbyIn.code=String(v).slice(0,4);emit();}
-function createRoom(){const abc='abcdefghjkmnpqrstuvwxyz';let c='';for(let i=0;i<4;i++)c+=abc[Math.floor(Math.random()*abc.length)];joinRoom(c,true);}
+function createRoom(){joinRoom(randRoom(),true);}
 function joinCode(){const c=String(ui.lobbyIn.code).trim().toLowerCase().replace(/[^a-z]/g,'');if(c.length!==4){toast('O código tem 4 letras.');return;}joinRoom(c,false);}
-async function joinRoom(code?:any,asHost?:any){
-  if(!NET.lobby||!code)return;
+async function joinRoom(code?:any,asHost?:any):Promise<boolean>{
+  if(!NET.lobby||!code)return false;
   if(!save.name){save.name='Jogador '+String(save.fid||'').slice(0,3);persist();}
   try{
     NET.leave();
@@ -1474,22 +1518,34 @@ async function joinRoom(code?:any,asHost?:any){
     NET.game=g;NET.code=code;NET.isHost=!!asHost;NET.joinedAt=clock;NET.lastEv=-1;NET.lastHit=-1;NET.lastShot={};NET.clientRun=-1;NET.clientPhase='';NET.hostGoneT=0;NET.ev=[];NET.hits=[];
     g.onPeers(()=>{},err=>{if(NET.game===g){toast(err&&err.code&&NET.lobby.p2p?netErrText(err.code):'A conexão com a sala caiu.');NET.leave();showMenu();}});
     sendPresence(true);
-    if(asHost){WAIT.sel=clamp(MAP.node,0,save.unl-1);if(WAIT.want){WAIT.mode=WAIT.want;WAIT.want=null;}enterWait();toast('Sala '+code.toUpperCase()+' criada. Passe o código para os amigos.');}
-    else{
-      toast('Entrando na sala '+code.toUpperCase()+'…');
-      setTimeout(()=>{if(NET.game!==g)return;const others=g.peers().filter(p=>!p.sameTab&&p.presence&&p.presence.app==='tita');
-        if(!others.some(p=>p.presence.role==='host')){toast('Não achei essa sala.');NET.leave();openLobby();return;}
-        if(others.length>=5){toast('Sala cheia (5 jogadores).');NET.leave();openLobby();return;}
-      },2200);
+    TEAM.known={};
+    if(asHost){
+      phase='team';runId=-1;
+      if(state!=='menu'&&!ui.show.friends)showMenu();else emit();
+      toast('Equipe criada! Chame os amigos.');
     }
-  }catch(e){if(e&&e.code==='taken'&&asHost){createRoom();return;}toast(e&&e.code&&NET.lobby&&NET.lobby.p2p?netErrText(e.code):'Não deu para entrar na sala agora.');if(state!=='lobby')openLobby();}
+    else{
+      toast('Entrando na equipe…');
+      setTimeout(()=>{if(NET.game!==g)return;const others=g.peers().filter(p=>!p.sameTab&&p.presence&&p.presence.app==='tita');
+        const back=()=>{NET.leave();if(!ui.show.lobby)showMenu();};
+        if(!others.some(p=>p.presence.role==='host')){toast('Não achei essa equipe. Ela pode ter fechado.');back();return;}
+        if(others.length>=5){toast('A equipe está cheia (5 jogadores).');back();return;}
+      },4000);
+    }
+    return true;
+  }catch(e){
+    if(e&&e.code==='taken'&&asHost)return joinRoom(randRoom(),true);
+    toast(e&&e.code&&NET.lobby&&NET.lobby.p2p?netErrText(e.code):'Não deu para entrar agora.');
+    if(!ui.show.lobby&&!ui.show.friends&&state!=='menu')showMenu();
+    return false;
+  }
 }
 function sendPresence(force?:any){
   if(!NET.game)return;
   const o:any={app:'tita',role:NET.isHost?'host':'pl',nm:save.name||'Jogador',sc:state==='play'?'play':state==='map'?'map':'wait',run:NET.isHost?runId:NET.clientRun,
     x:P?P.x|0:0,y:P?P.y|0:0,a:P?Math.round(P.aim*100):0,hp:P?P.hp|0:0,mh:P?P.max:3600,dd:P&&P.dead?1:0,mv:P&&P.mv?1:0,ch:save.ch|0,cb:myCh().body,chh:myCh().hair,fx:save.fx||null,kk:DUEL.kk,ddn:DUEL.dd,dk:DUEL.dk,sk:myCh().sk==='lv20'?2:myCh().sk?1:0,wi:myCh().wi|0,sh:myShots.slice(-8)};
   if(NET.isHost){
-    o.ph=phase;o.lv=cur===-1?WAIT.sel:WORLD.start;o.md=WV.on?'w':DUEL.on?'d':'s';o.dt=Math.round(DUEL.t);o.wm=WAIT.mode;o.wv=WV.wave;o.ws=WV.state==='break'?1:0;o.wt=Math.round(WV.t*10)/10;o.wq=WV.queue.length;o.pg=WORLD.prog;o.ct=Math.round(WAIT.ct*10)/10;o.ms=Math.round(MAP.s);o.mn=MAP.node;o.ul=save.unl;o.dn=save.done.slice(0,LV.length);o.n=diffN;o.tid=WORLD.talk?WORLD.talk.id:0;if(WORLD.talk)o.tl=WORLD.talk.lines;
+    o.ph=phase;o.tm=MODES.includes(save.mode)?save.mode:'story';o.lv=cur===-1?WAIT.sel:WORLD.start;o.md=WV.on?'w':DUEL.on?'d':'s';o.dt=Math.round(DUEL.t);o.wm=WAIT.mode;o.wv=WV.wave;o.ws=WV.state==='break'?1:0;o.wt=Math.round(WV.t*10)/10;o.wq=WV.queue.length;o.pg=WORLD.prog;o.ct=Math.round(WAIT.ct*10)/10;o.ms=Math.round(MAP.s);o.mn=MAP.node;o.ul=save.unl;o.dn=save.done.slice(0,LV.length);o.n=diffN;o.tid=WORLD.talk?WORLD.talk.id:0;if(WORLD.talk)o.tl=WORLD.talk.lines;
     if(phase==='play'||phase==='win'){
       o.en=enemies.filter(e=>!WORLD.on||areaOf(e.x)<=WORLD.prog+1).sort((a,b)=>(areaOf(a.x)===WORLD.prog?0:1)-(areaOf(b.x)===WORLD.prog?0:1)).slice(0,26).map(e=>{const f=(e.alert?1:0)|(e.wind>0?2:0)|(e.st==='windup'?4:0)|(e.lunge>0?8:0)|(e.mv?16:0)|((e.slowT||0)>0?32:0)|(e.mega?64:0);const r=[e.id,e.type,e.x|0,e.y|0,Math.max(0,e.hp|0),e.max,Math.round((e.st==='windup'?e.dashA:e.face)*100),f];if(e.say)r.push(e.say.t);return r;});
       o.ev=NET.ev.slice();o.hi=NET.hits.slice();
@@ -1518,6 +1574,8 @@ function netTick(dt?:any){
     if(!r){r=RP[p.peer]={x:+pr.x||0,y:+pr.y||0,tx:0,ty:0,lastShot:-9,fl:0,dead:null,hp:null,ch:0};NET.lastShot[p.peer]=Infinity;}
     r.tx=+pr.x||0;r.ty=+pr.y||0;r.aim=(+pr.a||0)/100;const nhp=+pr.hp||0;if(r.hp!=null&&nhp<r.hp)r.fl=.15;r.hp=nhp;r.mh=+pr.mh||3600;
     if(r.dead===false&&pr.dd&&state==='play')burst(r.x,r.y-20,24,['#4cb7ff','#fff'],260,5);
+    r.lead=pr.role==='host';
+    if(!TEAM.known[p.peer]&&pr.nm){TEAM.known[p.peer]=String(pr.nm).slice(0,12);if(clock-NET.joinedAt>3&&state==='menu')toast(TEAM.known[p.peer]+' entrou na equipe!');}
     duelPeer(p.peer,r,pr);r.dead=!!pr.dd;r.mv=!!pr.mv;r.nm=String(pr.nm||'Jogador').slice(0,12);r.sc=String(pr.sc||'');r.run=+pr.run;
     r.ci=Math.max(0,all.findIndex(a=>a.peer===p.peer));r.ch=clamp(+pr.ch|0,0,CH.length-1);r.chObj=Object.assign({},withSkin(CH[r.ch],HEX.test(pr.cb)?pr.cb:null,HEX.test(pr.chh)?pr.chh:null),{wi:clamp(+pr.wi|0,0,14)},pr.sk===2?{sk:'lv20'}:pr.sk?{sk:'alt'}:{});
     if(Math.hypot(r.tx-r.x,r.ty-r.y)>200){r.x=r.tx;r.y=r.ty;}
@@ -1528,17 +1586,22 @@ function netTick(dt?:any){
       if(state==='play'&&r.sc==='play'&&r.run===runId){const nb0=bullets.length;patternPlayer('r:'+p.peer,+s[1]||0,+s[2]||0,(+s[3]||0)/1000,s[4]===1?1:0,clamp(+s[5]|0,0,CH.length-1),clamp(+s[6]||300,60,820),clamp(+s[7]|0,0,14));fxShots(nb0,pr.fx);r.lastShot=clock;}}}
     NET.lastShot[p.peer]=mx;
   }
-  for(const k in RP)if(!seen[k])delete RP[k];
+  for(const k in RP)if(!seen[k]){if(TEAM.known[k]&&state==='menu'&&!RP[k].lead)toast(TEAM.known[k]+' saiu da equipe.');delete TEAM.known[k];delete RP[k];}
   NET.sendT-=dt;if(NET.sendT<=0){NET.sendT=.05;sendPresence(false);}
   if(!NET.isHost){
     const hp=others.find(p=>p.presence.role==='host');
-    if(!hp){NET.hostGoneT+=dt;if(NET.hostGoneT>4&&clock-NET.joinedAt>4){toast('O anfitrião saiu da sala.');NET.leave();showMenu();}return;}
+    if(!hp){NET.hostGoneT+=dt;if(NET.hostGoneT>4&&clock-NET.joinedAt>5){toast('O líder saiu e a equipe acabou.');NET.leave();showMenu();}return;}
     NET.hostGoneT=0;followHost(hp.presence);
   }
 }
 function followHost(h?:any){
   MAP.ul=clamp(+h.ul||1,1,LV.length);MAP.done=Array.isArray(h.dn)?h.dn.map(Number).filter(v=>v>=0&&v<LV.length):[];
   const ph=String(h.ph||'map'),run=+h.run||0,lv=clamp(+h.lv||0,0,LV.length-1);
+  if(ph==='team'){
+    const tm=MODES.includes(h.tm)?h.tm:'story';if(tm!==TEAM.hostMode){TEAM.hostMode=tm;if(state==='menu')emit();}
+    if(NET.clientPhase!=='team'){NET.clientRun=-1;runId=-1;
+      if(['play','story','map','lost','lobby'].includes(state)||ui.show.res||ui.show.waitUI)showMenu();else emit();}
+    NET.clientPhase='team';return;}
   if(ph==='lobby'||ph==='count'){
     WAIT.sel=lv;WAIT.mode=h.wm==='w'?'w':h.wm==='d'?'d':'s';
     if(cur!==-1||state!=='play'||(NET.clientPhase!=='lobby'&&NET.clientPhase!=='count')){if(state!=='lobby'||clock-NET.joinedAt>.6){NET.clientRun=-1;enterWait();}}
@@ -1571,8 +1634,8 @@ function followHost(h?:any){
   if(ph==='duelEnd'&&NET.clientPhase!==ph&&run===NET.clientRun&&DUEL.on){touch.move=touch.fire=touch.sup=null;SFX.win();duelResult(false);}
   if((ph==='win'||ph==='lose')&&NET.clientPhase!==ph&&run===NET.clientRun){
     touch.move=touch.fire=touch.sup=null;show('pauseBtn',false);
-    if(ph==='win'){SFX.win();state='story';phase='win';recordArea(LV.length-1);WORLD.capQ=[];showDialog(LV[LV.length-1].outro,()=>showResult('Fim!','O Coral Brilhante voltou para o farol. Aguardando o anfitrião…',null,null,'Sair da sala',()=>{NET.leave();showMenu();},false));}
-    else{SFX.lose();state='lost';phase='lose';hideAll();const got=Math.max(0,WV.wave-1);if(WV.on&&got>(save.bestWave|0)){save.bestWave=got;persist();}showResult(WV.on?'Fim das ondas':'Derrota',WV.on?'O time sobreviveu a '+got+' ondas. Aguardando o anfitrião…':'O time caiu. Aguardando o anfitrião tentar de novo…',null,null,'Sair da sala',()=>{NET.leave();showMenu();},true);}
+    if(ph==='win'){SFX.win();state='story';phase='win';recordArea(LV.length-1);WORLD.capQ=[];showDialog(LV[LV.length-1].outro,()=>showResult('Fim!','O Coral Brilhante voltou para o farol. Aguardando o anfitrião…',null,null,'Sair da equipe',()=>{NET.leave();showMenu();},false));}
+    else{SFX.lose();state='lost';phase='lose';hideAll();const got=Math.max(0,WV.wave-1);if(WV.on&&got>(save.bestWave|0)){save.bestWave=got;persist();}showResult(WV.on?'Fim das ondas':'Derrota',WV.on?'O time sobreviveu a '+got+' ondas. Aguardando o líder…':'O time caiu. Aguardando o líder tentar de novo…',null,null,'Sair da equipe',()=>{NET.leave();showMenu();},true);}
   }
   NET.clientPhase=ph;
   if(ph==='play')phase='play';
@@ -1603,7 +1666,7 @@ function duelReset(){DUEL.on=true;DUEL.t=180;DUEL.kk=0;DUEL.dd=0;DUEL.dk=null;
   for(const k in RP){RP[k].kk=0;RP[k].ddn=0;}
 }
 function startDuelHost(){
-  if(!NET.game||NET.count<2){toast('O Duelo precisa de pelo menos 2 jogadores na sala.');return;}
+  if(!NET.game||NET.count<2){toast('O Duelo precisa de pelo menos 2 jogadores na equipe.');return;}
   hideAll();runId=++runCounter;WAIT.ct=0;loadLevel(-3,1,false);duelReset();
   state='play';phase='play';banner=0;show('pauseBtn');SFX.beep(true);toast('Duelo! Derrote os amigos. 3 minutos!');
 }
@@ -1624,8 +1687,8 @@ function duelResult(host:boolean){
   const title=top===0?'Fim do Duelo':tie&&L[me].kk===top?'Empate!':me===0?'Você venceu!':'Fim do Duelo';
   const sub=L.map((x,i)=>(i+1)+'º '+x.nm+': '+x.kk+(x.kk===1?' vitória':' vitórias')).join('  ·  ');
   addCharXP(20+DUEL.kk*5);persist();
-  if(host)showResult(title,sub,'Duelo de novo',()=>startDuelHost(),'Voltar pra sala',()=>enterWait(),title==='Fim do Duelo');
-  else showResult(title,sub+'. Aguardando o anfitrião…',null,null,'Sair da sala',()=>{NET.leave();showMenu();},title==='Fim do Duelo');
+  if(host)showResult(title,sub,'Duelo de novo',()=>startDuelHost(),'Voltar pra equipe',()=>showMenu(),title==='Fim do Duelo');
+  else showResult(title,sub+'. Aguardando o líder…',null,null,'Sair da equipe',()=>{NET.leave();showMenu();},title==='Fim do Duelo');
 }
 /* tiro acertando jogadores: cada um calcula o dano que leva (o que atirou só vê o acerto) */
 function duelHit(b:any){
@@ -1807,10 +1870,10 @@ const game={
   subscribe(f:()=>void){subs.add(f);return ()=>{subs.delete(f);};},
   setLayout,tick,draw,
   input:{keyDown,keyUp,ptrDown,ptrMove,ptrUp,homeDown,homeMove,homeUp,homeCancel},
-  paint:{mode:(g:Ctx2D,m:string)=>paintMode(g,m,clock),outfit:(g:Ctx2D,id:string,sk:string)=>paintSkin(g,clock,dressCh(id,sk)),weapon:(g:Ctx2D,id:string,wi:number,lock:boolean)=>paintWeapon(g,id,wi,lock),menuScene:drawMenuScene,menuBg:drawMenuBg,skin:drawSkinPreview,portrait:drawPortrait,heroCard:drawHeroCard},
+  paint:{mode:(g:Ctx2D,m:string)=>paintMode(g,m,clock),outfit:(g:Ctx2D,id:string,sk:string)=>paintSkin(g,clock,dressCh(id,sk)),weapon:(g:Ctx2D,id:string,wi:number,lock:boolean)=>paintWeapon(g,id,wi,lock),menuScene:drawMenuScene,teamHero:drawTeamHero,menuBg:drawMenuBg,skin:drawSkinPreview,portrait:drawPortrait,heroCard:drawHeroCard},
   info:{menu:menuInfo,skin:skinInfo,wait:waitInfo,arsenal:arsenalInfo,friends:friendsInfo,heroes:heroInfo,lobby:lobbyInfo,map:mapCardInfo,
     layout:()=>({W,H,INS,ROT,narrow:W<700,xnarrow:W<520,short:H<460}),isTouch:()=>isTouch,
-    mini:()=>({ch:myCh(),sel:HV.sel,spk:curSpk}),state:()=>state,shop:shopInfo,missions:missionsInfo,modes:modesInfo},
+    mini:()=>({ch:myCh(),sel:HV.sel,spk:curSpk}),state:()=>state,team:teamInfo,shop:shopInfo,missions:missionsInfo,modes:modesInfo},
   act:{
     btnSound,playSolo,playWaves,openLobby,openFriends,openHeroes,openArsenal,openSkin,toggleSfx,toggleMus,
     setMode,playMode,openShop,shopBuy,shopUse,shopBack,openMissions,openChest,missionsBack,
@@ -1820,7 +1883,7 @@ const game={
     waitLeave:leaveToMenu,wPrev,wNext,wMode,wStart,
     dlgTap:advance,dlgSkip:closeDialog,
     resPick,pause:()=>setPause(true),pauseContinue,pauseQuit,
-    wSetMode,friendAccept,friendReject,friendJoin,friendInvite,friendRemove,setFidIn,addFriend,shareFid,friendsBack,inviteGo,inviteNo,
+    wSetMode,teamInvite,teamLeave,teamModeLocked,friendAccept,friendReject,friendJoin,friendInvite,friendRemove,setFidIn,addFriend,shareFid,friendsBack,inviteGo,inviteNo,
     heroSel,heroWeapon,heroPick,heroBack,
     arTab,arEquip,arBack,
     onHide,persist,back
