@@ -48,7 +48,7 @@ async function start() {
   let last = '';
   const send = () => {
     const S = g.ui.show;
-    const info: any = { menu: g.info.menu(), mini: g.info.mini(), state: g.info.state(), modes: g.info.modes() };
+    const info: any = { menu: g.info.menu(), mini: g.info.mini(), state: g.info.state(), modes: g.info.modes(), team: g.info.team() };
     if (S.skin) info.skin = g.info.skin();
     if (S.waitUI) info.wait = g.info.wait();
     if (S.arsenal) info.arsenal = g.info.arsenal();

@@ -4,7 +4,7 @@
    recebe toques/teclas pela plataforma e guarda o estado das telas em `ui`,
    que as telas em React Native leem. */
 import { CH, PALS, TH, LV, LOBBY, WAVEL, NAMES, SW_BODY, SW_HAIR } from './data';
-import { INK, lt, vg, rg, ink, circ, ell, rrp, rr, shadow, txt, eye, gearShape, star, weapon, drawHero, drawBento, drawBot, setFontFn, paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon, WPAL, ALT, ALT2, LV20, SHOPO, dressCh, paintMode } from './draw';
+import { INK, lt, vg, rg, ink, circ, ell, rrp, rr, shadow, txt, eye, gearShape, star, weapon, drawHero, drawBento, drawBot, setFontFn, paintMenuScene, paintTeamHero, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon, WPAL, ALT, ALT2, LV20, SHOPO, dressCh, paintMode } from './draw';
 import { DUELL } from './data';
 import { Peer } from '../net/peer';
 import type { Platform, Ctx2D, OffCanvas, Insets, PtrEv } from './types';
@@ -1060,7 +1060,7 @@ function showMenu(){updSoundBtns();state='menu';hideAll();show('menu');if(NET.ga
    aparecem do lado do seu personagem e o líder escolhe o modo e aperta Jogar. */
 const TEAM:any={hostMode:'story',busy:false,known:{}};
 function inTeam(){return !!(NET.game&&NET.code);}
-function teamMembers(){const L:any[]=[];for(const k in RP){const r=RP[k];L.push({k,name:r.nm||'Jogador',lead:!!r.lead});}
+function teamMembers(){const L:any[]=[];for(const k in RP){const r=RP[k];L.push({k,name:r.nm||'Jogador',lead:!!r.lead,ch:r.chObj||CH[r.ch|0]||CH[0],seed:k.charCodeAt(1)||0});}
   L.sort((a,b)=>(+b.lead)-(+a.lead)||(a.k<b.k?-1:1));return L.slice(0,4);}
 function teamInfo(){
   const on=inTeam(),lead=!on||NET.isHost;
@@ -1078,14 +1078,7 @@ async function createTeam(){
 function teamInvite(){if(!friendsOn()){openLobby();return;}openFriends();}
 function teamLeave(){if(!inTeam())return;NET.leave();toast('Você saiu da equipe.');showMenu();}
 function teamModeLocked(){toast('Quem escolhe o modo é o líder da equipe.');}
-function drawTeamHero(g:Ctx2D,k:string){
-  const r=RP[k];g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,260,300);
-  const cx=130,cy=250;
-  ink(g,4);ell(g,cx,cy+10,104,28,'#2a1b5e');ell(g,cx,cy,104,28,vg(g,cy-28,cy+28,'#6b4fd6'));
-  g.lineWidth=4;g.strokeStyle=r&&r.lead?'#ffb800':'#22c7c7';g.beginPath();g.ellipse(cx,cy,90,22,0,0,7);g.stroke();
-  if(!r)return;
-  g.save();g.translate(cx,cy-4);g.scale(3.3,3.3);shadow(g,0,4,15);drawHero(g,0,0,.35+Math.sin(clock*.6+(k.charCodeAt(1)||0))*.25,clock+(k.charCodeAt(1)||0),false,0,r.chObj||CH[r.ch|0]||CH[0]);g.restore();
-}
+function drawTeamHero(g:Ctx2D,k:string){const r=RP[k];paintTeamHero(g,clock,r?(r.chObj||CH[r.ch|0]||CH[0]):null,!!(r&&r.lead),k.charCodeAt(1)||0);}
 function hideAll(){['menu','lobby','mapUI','dlg','res','pause','friends','heroes','skin','waitUI','arsenal','shop','missions'].forEach(id=>show(id,false));show('pauseBtn',false);paused=false;clearInterval(typing);typing=null;dcb=null;}
 function playSolo(){NET.leave();const fin=save.done.includes(LV.length-1);startChapterHost(fin?0:clamp(save.unl-1,0,LV.length-1));}
 function playWaves(){NET.leave();startWavesHost();}

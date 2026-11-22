@@ -372,6 +372,15 @@ export function paintMenuScene(g:any,HOME:HomeState,clock:number,ch:any){
   const hopY=-Math.sin(Math.PI*clampD(HOME.hop/.5,0,1))*40;
   g.save();g.translate(cx,cy-6+hopY);g.scale(4.4,4.4);shadow(g,0,6-hopY/4.4,15);drawHero(g,0,0,HOME.face,clock,false,0,ch);g.restore();
 }
+/** amigo da equipe em pé no menu (do lado do seu personagem) */
+export function paintTeamHero(g:any,clock:number,ch:any,lead:boolean,seed:number){
+  g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,260,300);
+  const cx=130,cy=250;
+  ink(g,4);ell(g,cx,cy+10,104,28,'#2a1b5e');ell(g,cx,cy,104,28,vg(g,cy-28,cy+28,'#6b4fd6'));
+  g.lineWidth=4;g.strokeStyle=lead?'#ffb800':'#22c7c7';g.beginPath();g.ellipse(cx,cy,90,22,0,0,7);g.stroke();
+  if(!ch)return;
+  g.save();g.translate(cx,cy-4);g.scale(3.3,3.3);shadow(g,0,4,15);drawHero(g,0,0,.35+Math.sin(clock*.6+seed)*.25,clock+seed,false,0,ch);g.restore();
+}
 export function paintMenuBg(g:any,w:number,h:number){
   g.setTransform(1,0,0,1,0,0);
   g.fillStyle='#2d1d70';g.fillRect(0,0,w,h);

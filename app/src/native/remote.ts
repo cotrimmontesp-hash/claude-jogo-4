@@ -2,7 +2,7 @@
    Este "jogo remoto" tem a mesma cara do motor para as telas em React Native:
    guarda o último estado que a WebView mandou e repassa os botões para ela. */
 import { AppState, Share } from 'react-native';
-import { paintMenuScene, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon, dressCh, paintMode } from '../engine/draw';
+import { paintMenuScene, paintTeamHero, paintMenuBg, paintSkin, paintPortrait, paintHeroCard, paintWeapon, dressCh, paintMode } from '../engine/draw';
 import { CH } from '../engine/data';
 import type { Game } from '../engine/game';
 import { getSaved, storeSave } from '../platform/make';
@@ -69,10 +69,11 @@ export function createRemoteGame(): Game {
       skin: (g: any) => paintSkin(g, clk(), info.mini.ch),
       portrait: (g: any) => paintPortrait(g, info.mini.spk, clk(), info.mini.ch),
       heroCard: (g: any, i: number) => paintHeroCard(g, i, info.mini.sel, clk()),
+      teamHero: (g: any, k: string) => { const m = ((info.team && info.team.mem) || []).find((x: any) => x.k === k); paintTeamHero(g, clk(), m ? m.ch : null, !!(m && m.lead), m ? m.seed | 0 : 0); },
     },
     info: {
       menu: () => info.menu, skin: () => info.skin, wait: () => info.wait, arsenal: () => info.arsenal, friends: () => info.friends,
-      heroes: () => info.heroes, lobby: () => info.lobby, map: () => info.map, shop: () => info.shop, missions: () => info.missions, modes: () => info.modes || { cur: 'story', list: [] }, mini: () => info.mini, state: () => info.state,
+      heroes: () => info.heroes, lobby: () => info.lobby, map: () => info.map, shop: () => info.shop, missions: () => info.missions, modes: () => info.modes || { cur: 'story', list: [] }, team: () => info.team || { on: false, lead: true, code: '', n: 1, mem: [], play: 'Jogar', playOff: false, sub: '' }, mini: () => info.mini, state: () => info.state,
       layout: () => ({ W: lay.W, H: lay.H, INS: lay.INS, ROT: false, narrow: lay.W < 700, xnarrow: lay.W < 520, short: lay.H < 460 }),
       isTouch: () => true,
     },
